@@ -40,4 +40,41 @@ final class LevelConfigTests: XCTestCase {
         let shapes = Set((1...12).map { LevelConfig(level: $0).shape })
         XCTAssertGreaterThanOrEqual(shapes.count, 5)
     }
+
+    func testAssistSoftensWithoutBreakingBoards() {
+        for level in 1...60 {
+            let base = LevelConfig(level: level)
+            for assist in 1...AssistPolicy.maxAssist {
+                let c = LevelConfig(level: level, assist: assist)
+                XCTAssertLessThanOrEqual(c.colorCount, base.colorCount)
+                XCTAssertLessThanOrEqual(c.goalMatches, base.goalMatches)
+                XCTAssertLessThanOrEqual(c.rows * c.cols, base.rows * base.cols)
+                XCTAssertGreaterThanOrEqual(c.colorCount, 3)
+                XCTAssertGreaterThanOrEqual(c.goalMatches, 3)
+                let board = c.makeBoard()
+                XCTAssertTrue(board.hasAnyMove, "level \(level) assist \(assist) stuck")
+                XCTAssertTrue(board.findMatches().isEmpty)
+            }
+        }
+        XCTAssertEqual(LevelConfig(level: 40, assist: 3).colorCount, LevelConfig(level: 40).colorCount - 3)
+        XCTAssertEqual(LevelConfig(level: 1, assist: 3).rows, 4, "never below 4x4")
+    }
+}
+
+final class AssistPolicyTests: XCTestCase {
+    func testStruggleRaisesAndBreezeLowers() {
+        let struggled = LevelStats(matches: 5, invalidSwaps: 9, hintsShown: 1, seconds: 60)
+        XCTAssertEqual(AssistPolicy.next(after: struggled, current: 0), 1)
+        XCTAssertEqual(AssistPolicy.next(after: struggled, current: 3), 3, "capped")
+
+        let breezed = LevelStats(matches: 5, invalidSwaps: 1, hintsShown: 0, seconds: 20)
+        XCTAssertEqual(AssistPolicy.next(after: breezed, current: 2), 1)
+        XCTAssertEqual(AssistPolicy.next(after: breezed, current: 0), 0, "never negative")
+
+        let normal = LevelStats(matches: 5, invalidSwaps: 4, hintsShown: 1, seconds: 60)
+        XCTAssertEqual(AssistPolicy.next(after: normal, current: 1), 1)
+
+        let manyHints = LevelStats(matches: 5, invalidSwaps: 0, hintsShown: 3, seconds: 40)
+        XCTAssertEqual(AssistPolicy.next(after: manyHints, current: 0), 1)
+    }
 }

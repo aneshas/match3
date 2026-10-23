@@ -13,6 +13,14 @@ final class Progress {
         max(1, defaults.integer(forKey: key))
     }
 
+    private let assistKey = "assist"
+
+    /// Adaptive-difficulty softening for the next level (0...3). See `AssistPolicy`.
+    var assist: Int {
+        get { defaults.integer(forKey: assistKey) }
+        set { defaults.set(newValue, forKey: assistKey) }
+    }
+
     private let swipedKey = "hasEverSwiped"
 
     /// True once the player has made one successful swap, ever. Until then the swipe demo

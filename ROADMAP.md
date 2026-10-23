@@ -12,7 +12,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [ ] **Escalating hint.** Pulse after 8 s, brighter glow after 16 s, then a short arrow drawn between the two candies. The player should never be stuck for long.
 - [ ] **Fewer colors for longer.** Keep 3 colors well past level 5; let shape and size carry difficulty first. Add the 4th color much later. Decide after testing whether to cap at 5 colors.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
-- [ ] **Quiet adaptive difficulty.** Track invalid swaps and hints used per level. Many of either -> next level drops a color or shrinks. Fast levels -> grow. No visible "easy mode".
+- [x] **Quiet adaptive difficulty.** `AssistPolicy` turns per-level stats (invalid swaps, hints, time per match) into an assist level 0–3; each step removes a color and lowers the goal, 2+ also trims a row and column. Smooth levels relax it back. Never shown. `MATCH3_ASSIST=n` forces it for testing.
 - [ ] **Bigger candies on small boards.** Below 6x6, let the board fill more of the screen.
 - [ ] **iPad and landscape** with the same single-screen layout.
 

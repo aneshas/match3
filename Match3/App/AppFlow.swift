@@ -36,7 +36,7 @@ final class AppFlow {
     }
 
     private func startLevel(_ level: Int) {
-        let session = GameSession(config: LevelConfig(level: level), swipeDemo: !progress.hasEverSwiped)
+        let session = GameSession(config: LevelConfig(level: level, assist: DebugFlags.assist ?? progress.assist), swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
         }
@@ -49,6 +49,7 @@ final class AppFlow {
     private func levelCompleted() {
         guard let session else { return }
         progress.markCompleted(session.config.level)
+        progress.assist = AssistPolicy.next(after: session.stats, current: progress.assist)
         advancing = false
         screen = .goodJob
     }

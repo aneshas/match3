@@ -13,6 +13,15 @@ enum DebugFlags {
     static var mute: Bool { flag("MATCH3_MUTE") }
     /// MATCH3_FORGET_SWIPE=1 clears "has ever swiped" at launch so the demo shows again.
     static var forgetSwipe: Bool { flag("MATCH3_FORGET_SWIPE") }
+    /// MATCH3_ASSIST=n forces the assist level for this launch (0...3).
+    static var assist: Int? {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["MATCH3_ASSIST"].flatMap(Int.init)
+        #else
+        return nil
+        #endif
+    }
+
     static var startLevel: Int? {
         #if DEBUG
         return ProcessInfo.processInfo.environment["MATCH3_LEVEL"].flatMap(Int.init)

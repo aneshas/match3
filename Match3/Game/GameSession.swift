@@ -45,6 +45,9 @@ final class GameSession {
     }
 
     let config: LevelConfig
+    /// Counters for the adaptive-difficulty policy. Never shown to the player.
+    private(set) var stats = LevelStats()
+    private var playableSince: Date?
     private(set) var board: Board
     private(set) var tiles: [TileState] = []
     private(set) var bursts: [Burst] = []
@@ -149,6 +152,7 @@ final class GameSession {
             }
             await sleep(swapDuration)
             wigglingIDs = [idA, idB]
+            stats.invalidSwaps += 1
             SoundPlayer.shared.play(.invalid, volume: 0.6)
             await sleep(wiggleDuration)
             wigglingIDs = []
@@ -166,6 +170,8 @@ final class GameSession {
 
         if matchesMade >= goal {
             phase = .complete
+            stats.matches = matchesMade
+            stats.seconds = playableSince.map { Date().timeIntervalSince($0) } ?? 0
             SoundPlayer.shared.play(.levelDone)
             await celebrateBoard()
             onLevelComplete?()
@@ -276,6 +282,7 @@ final class GameSession {
 
     private func finishTurn() {
         phase = .idle
+        if playableSince == nil { playableSince = Date() }
         scheduleHint()
         scheduleDemo(after: demoShownOnce ? demoRepeatDelay : .milliseconds(500))
         if DebugFlags.autoPlay { scheduleAutoPlay() }
@@ -326,6 +333,7 @@ final class GameSession {
             guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
             let ids = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
             self.hintIDs = ids
+            self.stats.hintsShown += 1
         }
     }
 

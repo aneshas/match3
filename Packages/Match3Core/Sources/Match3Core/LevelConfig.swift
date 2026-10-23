@@ -4,6 +4,8 @@ import Foundation
 /// game is endless and needs no level data files.
 public struct LevelConfig: Hashable, Sendable {
     public let level: Int
+    /// Adaptive-difficulty softening applied to this level (0 = none). See `AssistPolicy`.
+    public let assist: Int
     public let rows: Int
     public let cols: Int
     public let shape: BoardShape
@@ -17,16 +19,27 @@ public struct LevelConfig: Hashable, Sendable {
     public static let maxColors = TileColor.maxCount
     public static let maxGoal = 20
 
-    public init(level: Int) {
+    public init(level: Int, assist: Int = 0) {
         precondition(level >= 1)
+        let assist = max(0, min(AssistPolicy.maxAssist, assist))
         self.level = level
+        self.assist = assist
 
-        let (rows, cols, shape) = LevelConfig.geometry(for: level)
+        var (rows, cols, shape) = LevelConfig.geometry(for: level)
+        if assist >= 2 {
+            // Trim one row and one column, then make sure the shape still works at that size.
+            rows = max(4, rows - 1)
+            cols = max(4, cols - 1)
+            if !(shape.fits(rows: rows, cols: cols) && LevelConfig.isValid(rows, cols, shape)) {
+                shape = shape == .square ? .square : .roundedCorners
+                if !shape.fits(rows: rows, cols: cols) { shape = .square }
+            }
+        }
         self.rows = rows
         self.cols = cols
         self.shape = shape
-        self.colorCount = LevelConfig.colorCount(for: level)
-        self.goalMatches = LevelConfig.goal(for: level)
+        self.colorCount = max(3, LevelConfig.colorCount(for: level) - assist)
+        self.goalMatches = max(3, LevelConfig.goal(for: level) - assist)
         self.seed = 0x5EED_0000 &+ UInt64(level) &* 7919
 
         let mask = shape.mask(rows: rows, cols: cols)
