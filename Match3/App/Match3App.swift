@@ -47,6 +47,12 @@ struct RootView: View {
             CaregiverPanel()
                 .environment(flow)
         }
+        .task {
+            // Debug: open the caregiver panel once the window exists (presenting from init is dropped).
+            guard DebugFlags.openPanel else { return }
+            try? await Task.sleep(for: .milliseconds(400))
+            flow.caregiverPanelShown = true
+        }
     }
 }
 

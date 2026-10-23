@@ -46,6 +46,30 @@ schemes:
         Match3: all
     run:
       config: Debug
+      # Debug-only switches (see Match3/App/DebugFlags.swift). Tick one in
+      # Product > Scheme > Edit Scheme > Run > Arguments to use it.
+      environmentVariables:
+        - variable: MATCH3_PANEL
+          value: "1"
+          isEnabled: false
+        - variable: MATCH3_AUTOSTART
+          value: "1"
+          isEnabled: false
+        - variable: MATCH3_AUTOPLAY
+          value: "1"
+          isEnabled: false
+        - variable: MATCH3_LEVEL
+          value: "10"
+          isEnabled: false
+        - variable: MATCH3_ASSIST
+          value: "2"
+          isEnabled: false
+        - variable: MATCH3_FORGET_SWIPE
+          value: "1"
+          isEnabled: false
+        - variable: MATCH3_MUTE
+          value: "1"
+          isEnabled: false
     test:
       config: Debug
       targets:

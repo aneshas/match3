@@ -32,7 +32,6 @@ final class AppFlow {
         self.ads = ads
         if DebugFlags.forgetSwipe { progress.forgetSwipe() }
         if DebugFlags.autoStart { play() }
-        if DebugFlags.openPanel { caregiverPanelShown = true }
     }
 
     /// Called from the Play button. Jumps straight into the current level.

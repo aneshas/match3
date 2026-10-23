@@ -34,7 +34,8 @@ enum DebugFlags {
 
     private static func flag(_ name: String) -> Bool {
         #if DEBUG
-        return ProcessInfo.processInfo.environment[name] == "1"
+        let value = ProcessInfo.processInfo.environment[name]?.lowercased() ?? ""
+        return ["1", "true", "yes", "on"].contains(value)
         #else
         return false
         #endif
