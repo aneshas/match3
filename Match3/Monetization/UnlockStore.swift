@@ -1,15 +1,19 @@
 import Foundation
+import Observation
 
-/// Whether all levels are unlocked (one-time purchase). Until StoreKit is wired in, a
-/// UserDefaults-backed stub stands in so the rest of the app can already honor it.
-protocol UnlockStore: AnyObject {
+/// Whether all levels are unlocked (one-time purchase). Implementations are observable so
+/// the Play screen unlocks the moment a purchase or restore completes. Until StoreKit is
+/// wired in, a UserDefaults-backed stub stands in.
+protocol UnlockStore: AnyObject, Observable {
     var isUnlocked: Bool { get }
 }
 
+@Observable
 final class StubUnlockStore: UnlockStore {
     private let key = "allLevelsUnlocked"
-    var isUnlocked: Bool {
-        if DebugFlags.forceUnlocked { return true }
-        return UserDefaults.standard.bool(forKey: key)
+    private(set) var isUnlocked: Bool
+
+    init() {
+        isUnlocked = DebugFlags.forceUnlocked || UserDefaults.standard.bool(forKey: key)
     }
 }

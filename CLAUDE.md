@@ -18,7 +18,7 @@ on a soft cream-to-pink background.
 ## Layout
 
 - `Packages/Match3Core` – pure Swift game rules, no UI. `Board` (swap, matches, gravity, shuffle), `BoardShape` (masks; every column must be vertically contiguous), `LevelConfig` (level number -> rows/cols/shape/colors/goal, deterministic), `SeededRandom`.
-- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine, `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore` (one-time unlock of all levels; stub until StoreKit lands). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and the Play button turns into a lock until a caregiver unlocks or resets to level 1.
+- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine (`Progress` and `UnlockStore` are `@Observable`, so lock/unlock state refreshes live), `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore` (one-time unlock of all levels; stub until StoreKit lands). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and the Play button turns into a lock until a caregiver unlocks or resets to level 1.
 - `project.yml` – XcodeGen spec. The `.xcodeproj` is generated and git-ignored.
 
 ## Art
@@ -81,5 +81,5 @@ padding; the insets are published as `\.screenInsets` for views that must keep c
 the camera (the progress bar). Never use `ignoresSafeArea` on a child to "center" content.
 
 UI tests: `Match3UITests` drives real touches (`xcodebuild ... -only-testing:Match3UITests test`);
-`SwipeTests` checks every column accepts a swipe. Tiles carry `tile.<row>.<col>` identifiers
+`SwipeTests` checks every column accepts a swipe and that a caregiver reset unlocks Play without a relaunch (that test expects the simulator's saved level to be past the free count; the runner sets `currentLevel` first). Tiles carry `tile.<row>.<col>` identifiers
 and `debug.counters` exposes swipe/match counts in Debug builds.

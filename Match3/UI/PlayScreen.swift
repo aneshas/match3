@@ -33,6 +33,7 @@ struct PlayScreen: View {
                         .frame(width: logoSize)
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
+                        .accessibilityIdentifier("logo")
                         .debugLogoHold(onCaregiverHold)
 
                     Button(action: { guard !locked else { return }; SoundPlayer.shared.play(.tap); onPlay() }) {

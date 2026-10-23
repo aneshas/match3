@@ -35,4 +35,29 @@ final class SwipeTests: XCTestCase {
         }
         XCTAssertTrue(failures.isEmpty, "swipe not received on: \(failures.joined(separator: ", "))")
     }
+
+    /// After "start again" in the caregiver panel the Play button must unlock immediately.
+    func testResetInPanelUnlocksPlayWithoutRelaunch() {
+        let app = XCUIApplication()
+        app.launchEnvironment = ["MATCH3_MUTE": "1", "MATCH3_FREE_LEVELS": "1", "MATCH3_PANEL": "1"]
+        app.launch()
+        // Make sure we are past the free levels: finish nothing, just pretend via the caregiver reset path later.
+        let done = app.buttons["Done"]
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "panel did not open")
+        done.tap()
+        sleep(1)
+        // Precondition for this test: the simulator must already be past level 1 (see runner script).
+        let locked = app.buttons["Locked"]
+        XCTAssertTrue(locked.waitForExistence(timeout: 3), "expected the locked Play button")
+
+        // Reopen the panel (Debug: hold the logo) and start again.
+        app.images["logo"].press(forDuration: 3.5)
+        XCTAssertTrue(done.waitForExistence(timeout: 5), "panel did not reopen")
+        let reset = app.buttons["Start again from level 1"]
+        for _ in 0..<4 where !reset.exists { app.swipeUp() }
+        reset.tap()
+        app.buttons["Start again"].tap()
+        sleep(1)
+        XCTAssertTrue(app.buttons["Play"].waitForExistence(timeout: 3), "Play button still locked after reset")
+    }
 }
