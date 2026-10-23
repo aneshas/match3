@@ -8,7 +8,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 1. Making it easier to play
 
-- [x] **Teach by doing.** Until the player's first successful swipe ever, a pointing hand (Kenney cursor, CC0) appears right after the board lands, presses on a candy and drags it to the neighbor while both candies pulse; it repeats after 20 s idle. No text. `MATCH3_FORGET_SWIPE=1` resets it for testing.
+- [x] **Teach by doing.** Until the player's first successful swipe ever, a pointing hand (Kenney cursor, CC0) appears right after the board lands, presses on a candy and drags it to the neighbor while both candies pulse; it repeats every 3 s while the player stays idle. No text. `MATCH3_FORGET_SWIPE=1` resets it for testing.
 - [ ] **Escalating hint.** Pulse after 8 s, brighter glow after 16 s, then a short arrow drawn between the two candies. The player should never be stuck for long.
 - [ ] **Fewer colors for longer.** Keep 3 colors well past level 5; let shape and size carry difficulty first. Add the 4th color much later. Decide after testing whether to cap at 5 colors.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.

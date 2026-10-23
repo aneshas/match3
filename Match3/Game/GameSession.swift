@@ -68,10 +68,10 @@ final class GameSession {
     private var demoTask: Task<Void, Never>?
     private let hintDelay: Duration = .seconds(8)
     /// Teach by doing: until the player has ever swiped, a hand shows the move right after
-    /// the board lands, and again after this much idle time.
+    /// the board lands, and keeps repeating after this much idle time.
     private var wantsDemo: Bool
     private var demoShownOnce = false
-    private let demoRepeatDelay: Duration = .seconds(20)
+    private let demoRepeatDelay: Duration = .seconds(3)
 
     var goal: Int { config.goalMatches }
     var progressFraction: Double { min(1, Double(matchesMade) / Double(goal)) }
