@@ -102,11 +102,13 @@ public struct LevelConfig: Hashable, Sendable {
         return playable >= minPlayableCells && BoardShape.columnsAreContiguous(mask)
     }
 
+    /// Colors arrive slowly: size and shape carry the difficulty first. Telling candies
+    /// apart is the hard part for this audience, so the 4th color waits until level 13.
     private static func colorCount(for level: Int) -> Int {
         switch level {
-        case 1...7: return 3
-        case 8...16: return 4
-        case 17...30: return 5
+        case 1...12: return 3
+        case 13...24: return 4
+        case 25...40: return 5
         default: return maxColors
         }
     }

@@ -11,6 +11,8 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(l1.goalMatches, 3)
         XCTAssertEqual(l1.shape, .square)
         XCTAssertNotEqual(LevelConfig(level: 2).rows, LevelConfig(level: 2).cols, "level 2 is not square")
+        XCTAssertEqual(LevelConfig(level: 12).colorCount, 3, "three colors well past level 5")
+        XCTAssertEqual(LevelConfig(level: 13).colorCount, 4)
     }
 
     func testBoundsAndGrowthAreMonotonicWhereExpected() {
@@ -56,10 +58,10 @@ final class LevelConfigTests: XCTestCase {
                 XCTAssertTrue(board.findMatches().isEmpty)
             }
         }
-        XCTAssertEqual(LevelConfig(level: 40, assist: 3).colorCount, LevelConfig(level: 40).colorCount - 3)
+        XCTAssertEqual(LevelConfig(level: 50, assist: 3).colorCount, LevelConfig(level: 50).colorCount - 3)
         XCTAssertEqual(LevelConfig(level: 1, assist: 3).rows, 4, "never below 4x4")
-        XCTAssertEqual(LevelConfig(level: 40, maxColors: 4).colorCount, 4, "caregiver cap")
-        XCTAssertEqual(LevelConfig(level: 40, maxColors: 1).colorCount, 3, "cap clamps to 3")
+        XCTAssertEqual(LevelConfig(level: 50, maxColors: 4).colorCount, 4, "caregiver cap")
+        XCTAssertEqual(LevelConfig(level: 50, maxColors: 1).colorCount, 3, "cap clamps to 3")
     }
 }
 
