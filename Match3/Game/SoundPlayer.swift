@@ -18,7 +18,10 @@ final class SoundPlayer {
     static let soundEnabledKey = "soundEnabled"
 
     var isEnabled: Bool {
-        get { UserDefaults.standard.object(forKey: SoundPlayer.soundEnabledKey) as? Bool ?? true }
+        get {
+            if DebugFlags.mute { return false }
+            return UserDefaults.standard.object(forKey: SoundPlayer.soundEnabledKey) as? Bool ?? true
+        }
         set { UserDefaults.standard.set(newValue, forKey: SoundPlayer.soundEnabledKey) }
     }
 

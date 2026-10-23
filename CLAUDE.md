@@ -69,7 +69,7 @@ xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the mai
 ```
 
 Debug-only launch flags (see `DebugFlags.swift`, ignored in Release): `MATCH3_AUTOSTART=1` skips
-the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again.
+the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again, `MATCH3_MUTE=1` silences that launch. Never persist a mute into the simulator's defaults: the same simulator is used for manual testing.
 Saved progress lives in the app's UserDefaults key `currentLevel`.
 
 Layout note: the iPhone Duo's folded cover screen reports a large one-sided horizontal
