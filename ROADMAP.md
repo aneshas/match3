@@ -9,7 +9,6 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ## 1. Making it easier to play
 
 - [ ] **Teach by doing.** On level 1 the hint pulses immediately and an animated hand demonstrates the swipe once. No tutorial text. If the player does nothing for 20 s, the hand repeats.
-- [ ] **Forgiving swipes.** Accept a swipe that starts slightly outside the tile, keep dominant-axis handling for diagonal drags, ignore a second finger. Tap-and-hold does nothing.
 - [ ] **Escalating hint.** Pulse after 8 s, brighter glow after 16 s, then a short arrow drawn between the two candies. The player should never be stuck for long.
 - [ ] **Fewer colors for longer.** Keep 3 colors well past level 5; let shape and size carry difficulty first. Add the 4th color much later. Decide after testing whether to cap at 5 colors.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
@@ -19,9 +18,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 2. Feedback and motivation
 
-- [ ] **Sound as the main reward.** Match, big match, level done, soft "boop" for invalid swaps. Mute lives in the caregiver panel only. (Assets: see section 6.)
-- [ ] **Voice "Good job!"** on the celebration screen in the device language.
-- [ ] **Caregiver voice recording.** One-time option in the caregiver panel to record their own "Good job!" which replaces the stock voice.
+- [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute flag exists (`soundEnabled`); the caregiver panel UI is a later task.
 - [ ] **Match-to-bar sparkle.** A tiny burst at the progress bar on every match so the player sees "match -> bar grows" each time.
 - [ ] **Candy jar collection.** After each Good Job a candy drops into a jar shown on the Play screen. The jar fills over weeks. No rules, no unlocks.
 - [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
@@ -31,7 +28,6 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 - [ ] **Hidden entry gesture.** Hold three fingers for 3 s on the Play screen (something a player will not do by accident).
 - [ ] **Panel contents:** sound on/off, haptics on/off, calm mode, color-count cap, level reset, session timer, remove-ads purchase, simple stats (levels played this week, total).
-- [ ] **Calm mode.** Turns off background drift, confetti, breathing button, sunburst. Defaults on when system Reduce Motion is on. Relevant for overstimulation and photosensitive epilepsy.
 - [ ] **Session timer.** Caregiver sets e.g. 15 min. The game ends gently at the next Good Job with a "see you later" animation (wave, no text) and returns to the Play screen.
 - [ ] **Guided Access reminder.** Short note in the panel on enabling iOS Guided Access to keep the player in the app.
 

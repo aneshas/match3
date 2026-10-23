@@ -126,6 +126,7 @@ final class GameSession {
             }
             await sleep(swapDuration)
             wigglingIDs = [idA, idB]
+            SoundPlayer.shared.play(.invalid, volume: 0.6)
             await sleep(wiggleDuration)
             wigglingIDs = []
             finishTurn()
@@ -138,6 +139,7 @@ final class GameSession {
 
         if matchesMade >= goal {
             phase = .complete
+            SoundPlayer.shared.play(.levelDone)
             await celebrateBoard()
             onLevelComplete?()
             return
@@ -158,6 +160,7 @@ final class GameSession {
             matchesMade = min(goal, matchesMade + groups.count)
             let big = depth > 0 || groups.contains { $0.positions.count >= 4 }
             Haptics.matchMade(big: big)
+            SoundPlayer.shared.playMatch(big: big)
 
             let removed = groups.flatMap { g in g.positions.compactMap { p in board.tile(at: p).map { (p, $0) } } }
             let removedIDs = Set(removed.map { $0.1.id })
@@ -218,6 +221,7 @@ final class GameSession {
 
     /// Stuck board: candies twirl out, get new colors, twirl back in.
     private func reshuffle() async {
+        SoundPlayer.shared.play(.shuffle, volume: 0.7)
         withAnimation(.easeIn(duration: 0.35 * motionScale)) {
             for i in tiles.indices {
                 tiles[i].scale = 0.2

@@ -56,6 +56,10 @@ struct GoodJobScreen: View {
         .onTapGesture { onContinue() }
         .onAppear {
             Haptics.levelDone()
+            Task {
+                try? await Task.sleep(for: .milliseconds(350))
+                SoundPlayer.shared.sayGoodJob()
+            }
             dropped = true
             withAnimation(.spring(response: 0.55, dampingFraction: 0.55)) { appeared = true }
             guard !Motion.reduceMotion else { return }

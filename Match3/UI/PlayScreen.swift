@@ -28,7 +28,7 @@ struct PlayScreen: View {
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
 
-                    Button(action: onPlay) {
+                    Button(action: { SoundPlayer.shared.play(.tap); onPlay() }) {
                         HStack(spacing: 20) {
                             Image(systemName: "play.fill")
                                 .font(.system(size: 56, weight: .bold))
