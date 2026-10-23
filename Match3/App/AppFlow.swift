@@ -24,14 +24,20 @@ final class AppFlow {
     var caregiverPanelShown = false
 
     private let progress: Progress
-    private let ads: AdCoordinator
+    let unlock: UnlockStore
     private var advancing = false
     private var sessionStart: Date?
 
-    init(progress: Progress = Progress(),
-         ads: AdCoordinator = AdCoordinator(presenter: NoOpAdPresenter(), store: UserDefaultsRemoveAdsStore())) {
+    /// Levels playable without the purchase. The last free level stays playable forever.
+    static let freeLevels = 20
+    var freeLevels: Int { DebugFlags.freeLevels ?? AppFlow.freeLevels }
+
+    /// True when the player has finished every free level and nothing was bought.
+    var isAtLock: Bool { !unlock.isUnlocked && progress.currentLevel > freeLevels }
+
+    init(progress: Progress = Progress(), unlock: UnlockStore = StubUnlockStore()) {
         self.progress = progress
-        self.ads = ads
+        self.unlock = unlock
         if DebugFlags.forgetSwipe { progress.forgetSwipe() }
         if DebugFlags.autoStart { play() }
     }
@@ -39,8 +45,13 @@ final class AppFlow {
     /// Called from the Play button. Jumps straight into the current level.
     func play() {
         sessionStart = Date()
-        startLevel(DebugFlags.startLevel ?? progress.currentLevel)
+        startLevel(DebugFlags.startLevel ?? playableLevel)
         screen = .level
+    }
+
+    /// The level Play opens: the current one, or the last free level while locked.
+    private var playableLevel: Int {
+        isAtLock ? freeLevels : progress.currentLevel
     }
 
     /// True once the caregiver's session length has elapsed. Checked only between levels.
@@ -60,9 +71,12 @@ final class AppFlow {
     }
 
     private func startLevel(_ level: Int) {
+        // A replayed level (locked at the end of the free part) gets a fresh board each time.
+        let variant = level < progress.currentLevel ? progress.completionLog.count : 0
         let config = LevelConfig(level: level,
                                  assist: DebugFlags.assist ?? progress.assist,
-                                 maxColors: Settings.shared.maxColors)
+                                 maxColors: Settings.shared.maxColors,
+                                 variant: variant)
         let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
@@ -93,10 +107,16 @@ final class AppFlow {
     func continueAfterGoodJob() {
         guard !advancing, let finished = session?.config.level else { return }
         advancing = true
+        _ = finished
         Task {
-            await ads.afterLevelCompleted(finished)
             if sessionIsOver {
                 screen = .goodNight
+                return
+            }
+            if isAtLock {
+                // End of the free part: nothing is taken away, the Play screen still works.
+                session = nil
+                screen = .play
                 return
             }
             startLevel(DebugFlags.startLevel.map { max($0, progress.currentLevel) } ?? progress.currentLevel)

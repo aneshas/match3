@@ -33,6 +33,17 @@ enum DebugFlags {
         #endif
     }
 
+    /// MATCH3_FREE_LEVELS=n overrides the free-level count (to test the lock quickly).
+    static var freeLevels: Int? {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["MATCH3_FREE_LEVELS"].flatMap(Int.init)
+        #else
+        return nil
+        #endif
+    }
+    /// MATCH3_UNLOCKED=1 behaves as if the purchase was made.
+    static var forceUnlocked: Bool { flag("MATCH3_UNLOCKED") }
+
     static var startLevel: Int? {
         #if DEBUG
         return ProcessInfo.processInfo.environment["MATCH3_LEVEL"].flatMap(Int.init)

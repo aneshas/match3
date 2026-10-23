@@ -6,7 +6,10 @@ import Match3Core
 struct GoodJobScreen: View {
     /// Levels finished including this one; the jar shows one candy per level.
     var completedLevels: Int = 1
+    /// True when the free part is over: a soft lock settles on the jar before returning to Play.
+    var showsLock = false
     let onContinue: () -> Void
+    @State private var lockShown = false
 
     @State private var rain: [RainDrop] = Motion.reduceMotion ? [] : RainDrop.makeBatch()
     @State private var dropped = false
@@ -84,6 +87,17 @@ struct GoodJobScreen: View {
                     .frame(width: jarWidth)
                     .scaleEffect(jarBounce ? 1.1 : 1, anchor: .bottom)
                     .opacity(appeared ? 1 : 0)
+                    .overlay(alignment: .top) {
+                        if lockShown {
+                            Image(systemName: "lock.fill")
+                                .font(.system(size: jarWidth * 0.34, weight: .bold))
+                                .foregroundStyle(Theme.text.opacity(0.75))
+                                .padding(jarWidth * 0.1)
+                                .background(Color.white.opacity(0.85), in: Circle())
+                                .offset(y: -jarWidth * 0.3)
+                                .transition(.scale.combined(with: .opacity))
+                        }
+                    }
             }
 
             if flyingCandy {
@@ -123,6 +137,7 @@ struct GoodJobScreen: View {
         try? await Task.sleep(for: .milliseconds(900))
         if Motion.reduceMotion {
             jarCount = completedLevels
+            if showsLock { lockShown = true }
             return
         }
         flyingCandy = true
@@ -135,6 +150,10 @@ struct GoodJobScreen: View {
         withAnimation(.spring(response: 0.3, dampingFraction: 0.4)) { jarBounce = true }
         try? await Task.sleep(for: .milliseconds(300))
         withAnimation(.easeOut(duration: 0.2)) { jarBounce = false }
+        if showsLock {
+            try? await Task.sleep(for: .milliseconds(900))
+            withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { lockShown = true }
+        }
     }
 }
 

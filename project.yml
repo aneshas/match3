@@ -85,6 +85,12 @@ schemes:
         - variable: MATCH3_SESSION_SECONDS
           value: "20"
           isEnabled: false
+        - variable: MATCH3_FREE_LEVELS
+          value: "2"
+          isEnabled: false
+        - variable: MATCH3_UNLOCKED
+          value: "1"
+          isEnabled: false
     test:
       config: Debug
       targets:

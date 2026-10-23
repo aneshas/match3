@@ -64,8 +64,8 @@ Yes let's go with C
 
 ### Tasks
 
-- [ ] **Decide the free-level count** (15–20) and make it a constant in `AppFlow`.
-- [ ] **Lock behavior** after the last free level: Good Job plays fully, then a soft lock icon appears on the jar, then back to Play. Play replays the last free level. No text.
+- [x] **Free-level count:** 20 (`AppFlow.freeLevels`). `MATCH3_FREE_LEVELS=n` and `MATCH3_UNLOCKED=1` for testing.
+- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play. Play replays the last free level with a fresh board each time (`LevelConfig` variant). No text.
 - [ ] **StoreKit 2 store** implementing `RemoveAdsStore` renamed to something like `UnlockStore`: one non-consumable, restore purchases, Family Sharing enabled in App Store Connect.
 - [ ] **Parental gate** in the caregiver panel before the purchase button.
 - [ ] **Purchase screen** in the caregiver panel: price, what you get ("all levels, forever"), restore button, link to privacy policy.
@@ -73,7 +73,7 @@ Yes let's go with C
 - [ ] **Volume purchase** enabled in App Store Connect; one line in the panel: "Institutions: available via Apple Business Manager".
 - [ ] **Enroll in the Apple Small Business Program.**
 - [ ] **Privacy label and policy** with no tracking; keep it that way (no analytics SDK that fingerprints; if analytics are wanted, use Apple's or a first-party counter).
-- [ ] **Keep `AdPresenter`** as a no-op hook, so ads can be reconsidered later without touching game flow. If ads are ever enabled: only on the Good Job screen after the celebration, none in the first 10 levels, never rewarded ads, non-personalized only.
+- [x] **Ads dropped entirely** (option C). The ad hook was removed; `UnlockStore` is the only monetization seam.
 
 ## 5. Accessibility details
 

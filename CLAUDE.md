@@ -18,7 +18,7 @@ on a soft cream-to-pink background.
 ## Layout
 
 - `Packages/Match3Core` – pure Swift game rules, no UI. `Board` (swap, matches, gravity, shuffle), `BoardShape` (masks; every column must be vertically contiguous), `LevelConfig` (level number -> rows/cols/shape/colors/goal, deterministic), `SeededRandom`.
-- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine, `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds the ad/IAP hook points (no SDKs yet; `NoOpAdPresenter`, interstitial every 5th level unless `RemoveAdsStore.adsRemoved`).
+- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine, `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore` (one-time unlock of all levels; stub until StoreKit lands). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and Play replays the last free level.
 - `project.yml` – XcodeGen spec. The `.xcodeproj` is generated and git-ignored.
 
 ## Art
@@ -71,7 +71,7 @@ xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the mai
 ```
 
 Debug-only launch flags (see `DebugFlags.swift`, ignored in Release): `MATCH3_AUTOSTART=1` skips
-the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again, `MATCH3_MUTE=1` silences that launch, `MATCH3_ASSIST=n` forces the assist level, `MATCH3_PANEL=1` opens the caregiver panel, `MATCH3_SESSION_SECONDS=n` ends the session after n seconds. Never persist a mute into the simulator's defaults: the same simulator is used for manual testing.
+the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again, `MATCH3_MUTE=1` silences that launch, `MATCH3_ASSIST=n` forces the assist level, `MATCH3_PANEL=1` opens the caregiver panel, `MATCH3_SESSION_SECONDS=n` ends the session after n seconds, `MATCH3_FREE_LEVELS=n` sets the free-level count, `MATCH3_UNLOCKED=1` simulates the purchase. Never persist a mute into the simulator's defaults: the same simulator is used for manual testing.
 Saved progress lives in the app's UserDefaults key `currentLevel`.
 
 Layout note: the iPhone Duo's folded cover screen reports a large one-sided horizontal
