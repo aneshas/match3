@@ -57,6 +57,10 @@ final class GameSession {
     private(set) var wigglingIDs: Set<UUID> = []
     /// Tiles pulsing as a hint after the player has been idle for a while.
     private(set) var hintIDs: Set<UUID> = []
+    /// How insistent the hint is: 1 = pulse (8 s), 2 = bright glow (16 s), 3 = arrow (24 s).
+    private(set) var hintLevel = 0
+    /// The move the arrow points along when `hintLevel` reaches 3.
+    private(set) var hintArrow: DemoSwipe?
     /// The swipe demo currently playing, if any.
     private(set) var demo: DemoSwipe?
 
@@ -325,15 +329,20 @@ final class GameSession {
 
     // MARK: - Hint
 
+    /// Escalating hint: the same valid move is pulsed after 8 s, glows brightly after 16 s and
+    /// gets an arrow after 24 s. The player should never be stuck for long.
     private func scheduleHint() {
         hintTask?.cancel()
         hintTask = Task { [weak self] in
             guard let self else { return }
-            try? await Task.sleep(for: self.hintDelay)
-            guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
-            let ids = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
-            self.hintIDs = ids
-            self.stats.hintsShown += 1
+            for level in 1...3 {
+                try? await Task.sleep(for: self.hintDelay)
+                guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
+                self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
+                self.hintLevel = level
+                if level == 1 { self.stats.hintsShown += 1 }
+                if level == 3 { self.hintArrow = DemoSwipe(from: p, to: q) }
+            }
         }
     }
 
@@ -341,6 +350,8 @@ final class GameSession {
         hintTask?.cancel()
         hintTask = nil
         hintIDs = []
+        hintLevel = 0
+        hintArrow = nil
     }
 
     // MARK: - Helpers

@@ -9,7 +9,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ## 1. Making it easier to play
 
 - [x] **Teach by doing.** Until the player's first successful swipe ever, a pointing hand (Kenney cursor, CC0) appears right after the board lands, presses on a candy and drags it to the neighbor while both candies pulse; it repeats every 3 s while the player stays idle. No text. `MATCH3_FORGET_SWIPE=1` resets it for testing.
-- [ ] **Escalating hint.** Pulse after 8 s, brighter glow after 16 s, then a short arrow drawn between the two candies. The player should never be stuck for long.
+- [x] **Escalating hint.** The same valid move is pulsed after 8 s, glows gold with a bigger pulse after 16 s, and gets a `HintArrowView` between the two candies after 24 s. Any touch resets it.
 - [ ] **Fewer colors for longer.** Keep 3 colors well past level 5; let shape and size carry difficulty first. Add the 4th color much later. Decide after testing whether to cap at 5 colors.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
 - [x] **Quiet adaptive difficulty.** `AssistPolicy` turns per-level stats (invalid swaps, hints, time per match) into an assist level 0–3; each step removes a color and lowers the goal, 2+ also trims a row and column. Smooth levels relax it back. Never shown. `MATCH3_ASSIST=n` forces it for testing.
@@ -107,7 +107,7 @@ in the session scratchpad only; nothing has been added to the project yet.
 | Asset | Source | License | Use these files / notes |
 | --- | --- | --- | --- |
 | Pointing hand for swipe demo | [Tapping finger](https://gamedeveloperstudio.itch.io/tapping-finger) by Robert Brooks (same artist as the candies) | gamedeveloperstudio license, name-your-price | Pressed + raised states, vector. Best style match. Fallback: Kenney [Cursor Pack](https://kenney.nl/assets/cursor-pack) `hand_point.png`, `hand_open.png`, `hand_closed.png` (PNG + SVG, Outline and Basic variants). |
-| Hint arrow | `HintArrowView` (done, code-drawn) | n/a | Gold, outlined, nudges along its direction. Not wired in until the escalating hint exists. |
+| Hint arrow | `HintArrowView` (done, code-drawn) | n/a | Gold, outlined, nudges along its direction. Used by the escalating hint. |
 | Sparkle particle | Kenney [Particle Pack](https://kenney.nl/assets/particle-pack) | CC0 | `star_01`…`star_09.png`, `spark_01`…`spark_07.png`, `twirl_01`…`03.png`, `light_01`…`03.png` in `PNG (Transparent)/`. White, tint in code. |
 | Candy jar | Draw in code | n/a | No free jar in the candies' style was found. A glass jar is a rounded rect, a lid, two white highlight strokes, and the existing candy images inside; cheaper than hunting. If an image is wanted later: [SVG Repo jar icons](https://www.svgrepo.com/vectors/jar/filled/2) (check each icon's license, many are CC0/PD). |
 | Waving / sleeping candy for session end | Reuse an existing candy + code-drawn closed eyes and "z z z", or Kenney `hand_open.png` waving | CC0 (Kenney) | No matching asset exists; code is the honest answer. SF Symbol `hand.wave.fill` is a fine fallback. |

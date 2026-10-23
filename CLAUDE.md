@@ -63,7 +63,7 @@ Xcode 27.1 on this machine ships without Simulator.app, so drive the simulator w
 ```sh
 xcodebuild -project Match3.xcodeproj -scheme Match3 -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/match3-dd CODE_SIGNING_ALLOWED=NO build
-UDID=<from: xcrun simctl list devices>
+UDID=<the "match3-test (Claude)" device from: xcrun simctl list devices>   # never the device Xcode uses for manual testing
 xcrun simctl boot $UDID; xcrun simctl install $UDID /tmp/match3-dd/Build/Products/Debug-iphonesimulator/Match3.app
 SIMCTL_CHILD_MATCH3_AUTOSTART=1 SIMCTL_CHILD_MATCH3_AUTOPLAY=1 xcrun simctl launch $UDID io.kurrent.match3
 xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the main screen on the iPhone Duo device; the default is its cover display

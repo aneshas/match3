@@ -34,7 +34,8 @@ struct BoardView: View {
                         TileView(color: tile.color,
                                  size: cell * 0.88,
                                  wiggling: session.wigglingIDs.contains(tile.id),
-                                 hinting: session.hintIDs.contains(tile.id))
+                                 hinting: session.hintIDs.contains(tile.id),
+                                 hintStrength: session.hintLevel)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)
@@ -45,6 +46,16 @@ struct BoardView: View {
                     ForEach(session.bursts) { burst in
                         BurstView(color: Theme.particleColor(for: burst.color), radius: cell * 0.5, big: burst.big)
                             .position(center(row: Double(burst.row), col: Double(burst.col), cell: cell))
+                    }
+
+                    if let arrow = session.hintArrow {
+                        let from = center(row: Double(arrow.from.row), col: Double(arrow.from.col), cell: cell)
+                        let to = center(row: Double(arrow.to.row), col: Double(arrow.to.col), cell: cell)
+                        HintArrowView(direction: direction(from: arrow.from, to: arrow.to))
+                            .frame(width: cell * 0.7, height: cell * 0.7)
+                            .position(x: (from.x + to.x) / 2, y: (from.y + to.y) / 2)
+                            .transition(.scale.combined(with: .opacity))
+                            .allowsHitTesting(false)
                     }
 
                     if let demo = session.demo {
@@ -59,6 +70,12 @@ struct BoardView: View {
             }
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
+    }
+
+    private func direction(from a: Position, to b: Position) -> Direction {
+        if b.col > a.col { return .right }
+        if b.col < a.col { return .left }
+        return b.row > a.row ? .down : .up
     }
 
     private func center(row: Double, col: Double, cell: CGFloat) -> CGPoint {

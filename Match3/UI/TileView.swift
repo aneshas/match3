@@ -7,17 +7,22 @@ struct TileView: View {
     let size: CGFloat
     let wiggling: Bool
     let hinting: Bool
+    /// 1 = gentle pulse, 2+ = bright gold glow and a bigger pulse.
+    var hintStrength: Int = 1
 
     @State private var hintPulse = false
 
     var body: some View {
+        let strong = hinting && hintStrength >= 2
         Image(CandyArt.image(for: color))
             .resizable()
             .scaledToFit()
             .frame(width: size, height: size)
             .shadow(color: Color.black.opacity(0.18), radius: size * 0.05, y: size * 0.05)
-            .shadow(color: hinting ? Color.white.opacity(0.95) : .clear, radius: hinting && hintPulse ? size * 0.25 : 0)
-            .scaleEffect(hinting && hintPulse ? 1.14 : 1)
+            .shadow(color: hinting ? (strong ? Theme.gold : Color.white.opacity(0.95)) : .clear,
+                    radius: hinting && hintPulse ? size * (strong ? 0.45 : 0.25) : 0)
+            .shadow(color: strong && hintPulse ? Theme.gold.opacity(0.8) : .clear, radius: size * 0.2)
+            .scaleEffect(hinting && hintPulse ? (strong ? 1.22 : 1.14) : 1)
             .modifier(WiggleModifier(active: wiggling))
             .onChange(of: hinting, initial: true) { _, isHinting in
                 if isHinting {
