@@ -7,16 +7,29 @@ struct LevelScreen: View {
     @Environment(\.screenInsets) private var insets
 
     var body: some View {
-        VStack(spacing: 20) {
-            // Keeps clear of the camera cutout on screens with a one-sided inset.
-            ProgressBarView(fraction: session.progressFraction)
-                .padding(.leading, 24 + insets.leading)
-                .padding(.trailing, 24 + insets.trailing)
-                .padding(.top, 20)
-
-            BoardView(session: session)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 20)
+        GeometryReader { geo in
+            if geo.size.width > geo.size.height {
+                // Landscape: the bar stands on the left, the board uses the full height.
+                HStack(spacing: 16) {
+                    ProgressBarView(fraction: session.progressFraction, axis: .vertical)
+                        .padding(.leading, 20 + insets.leading)
+                        .padding(.vertical, 20)
+                    BoardView(session: session)
+                        .padding(.trailing, 12 + insets.trailing)
+                        .padding(.vertical, 12)
+                }
+            } else {
+                VStack(spacing: 20) {
+                    // Keeps clear of the camera cutout on screens with a one-sided inset.
+                    ProgressBarView(fraction: session.progressFraction)
+                        .padding(.leading, 24 + insets.leading)
+                        .padding(.trailing, 24 + insets.trailing)
+                        .padding(.top, 20)
+                    BoardView(session: session)
+                        .padding(.horizontal, 12)
+                        .padding(.bottom, 20)
+                }
+            }
         }
         .contentShape(Rectangle())
         .onTapGesture { session.playerTouched() }

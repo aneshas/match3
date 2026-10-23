@@ -26,8 +26,11 @@ struct GoodNightScreen: View {
             }
             .allowsHitTesting(false)
 
-            SleepyCandyView(color: TileColor(2))
-                .frame(width: 260)
+            GeometryReader { geo in
+                SleepyCandyView(color: TileColor(2))
+                    .frame(width: min(260, min(geo.size.width, geo.size.height) * 0.45))
+                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+            }
                 .scaleEffect(dimmed ? 1 : 0.6)
                 .opacity(dimmed ? 1 : 0)
         }

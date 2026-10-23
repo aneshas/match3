@@ -22,10 +22,12 @@ struct PlayScreen: View {
                 }
                 .allowsHitTesting(false)
 
-                let logoSize = min(geo.size.width * 0.5, 240, geo.size.height * 0.28)
-                let jarWidth = min(geo.size.width * 0.22, 100)
+                let landscape = geo.size.width > geo.size.height
+                let logoSize = landscape ? min(geo.size.height * 0.5, 240) : min(geo.size.width * 0.5, 240, geo.size.height * 0.28)
+                let jarWidth = min(geo.size.width * 0.22, geo.size.height * 0.22, 100)
+                let layout = landscape ? AnyLayout(HStackLayout(spacing: 48)) : AnyLayout(VStackLayout(spacing: 40))
 
-                VStack(spacing: 40) {
+                layout {
                     Image(CandyArt.logo)
                         .resizable()
                         .scaledToFit()
@@ -43,7 +45,7 @@ struct PlayScreen: View {
                         }
                         .foregroundStyle(.white)
                         .shadow(color: Color.black.opacity(0.25), radius: 2, y: 2)
-                        .frame(width: max(geo.size.width * 0.75, 280), height: 140)
+                        .frame(width: landscape ? min(geo.size.width * 0.45, 360) : max(geo.size.width * 0.75, 280), height: 140)
                         .background(Theme.playButton, in: Capsule())
                         .overlay(alignment: .top) {
                             Capsule()
@@ -60,7 +62,7 @@ struct PlayScreen: View {
                     .accessibilityLabel("Play")
                 }
                 // Slightly above center so the jar in the bottom corner never reaches the button.
-                .position(x: geo.size.width / 2, y: geo.size.height * 0.44)
+                .position(x: geo.size.width / 2, y: geo.size.height * (landscape ? 0.5 : 0.44))
                 .zIndex(2)  // nothing decorative may ever cover the Play button
 
                 ThreeFingerHold(action: onCaregiverHold)

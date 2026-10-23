@@ -9,6 +9,7 @@ on a soft cream-to-pink background.
 - **Never lose**: no move limits, timers, lives or fail screens. A stuck board reshuffles silently.
 - **No text or numbers in play**: the only words in the app are "Play" and "Good Job!". Progress is a filling bar with a star, never a counter or score.
 - **No objectives that need reading or reasoning**: no "collect 10 red", no special pieces, no blockers, no boosters.
+- **Orientation**: all orientations. `LevelScreen` switches to a landscape layout (vertical bar + board) when width > height; other screens scale with the short side.
 - **Flow**: Play button -> current level -> Good Job -> next level, forever. No world map, no menus. A caregiver session timer can end a session gently after a Good Job (good-night screen, back to Play).
 - **Difficulty** grows only via board size, board shape and number of colors (`LevelConfig`). Levels start tiny (4x4, 3 colors, 3 matches), go non-square at level 2, and introduce one shape at a time; shapes have minimum sizes (`BoardShape.fits`) so they never degenerate. `AssistPolicy` (core) quietly softens the next level after a struggle (fewer colors, smaller board, lower goal) and relaxes after smooth levels; stored as `assist` in Progress.
 - **Feedback is gentle**: invalid swap = slide back + wiggle. No error sounds or red flashes.

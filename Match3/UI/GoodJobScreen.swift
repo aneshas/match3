@@ -12,6 +12,12 @@ struct GoodJobScreen: View {
     @State private var raysAngle = 0.0
 
     var body: some View {
+        GeometryReader { geo in
+            content(geo)
+        }
+    }
+
+    private func content(_ geo: GeometryProxy) -> some View {
         ZStack {
             GeometryReader { geo in
                 ForEach(rain) { drop in
@@ -27,24 +33,26 @@ struct GoodJobScreen: View {
             }
             .allowsHitTesting(false)
 
-            VStack(spacing: 28) {
+            let short = min(geo.size.width, geo.size.height)
+            let starSize = min(170, short * 0.3)
+            VStack(spacing: short * 0.04) {
                 ZStack {
                     SunburstView()
-                        .frame(width: 420, height: 420)
+                        .frame(width: starSize * 2.5, height: starSize * 2.5)
                         .rotationEffect(.degrees(raysAngle))
                         .opacity(appeared ? 1 : 0)
 
                     Image(systemName: "star.fill")
-                        .font(.system(size: 170))
+                        .font(.system(size: starSize))
                         .foregroundStyle(LinearGradient(colors: [Theme.gold, Theme.goldDark], startPoint: .top, endPoint: .bottom))
                         .shadow(color: Theme.gold.opacity(0.6), radius: 24)
                         .scaleEffect(appeared ? (bounce ? 1.12 : 0.96) : 0.1)
                         .rotationEffect(.degrees(bounce ? 8 : -8))
                 }
-                .frame(height: 260)
+                .frame(height: starSize * 1.5)
 
                 Text("Good Job!")
-                    .font(.system(size: 60, weight: .heavy, design: .rounded))
+                    .font(.system(size: min(60, short * 0.11), weight: .heavy, design: .rounded))
                     .foregroundStyle(Theme.text)
                     .shadow(color: .white, radius: 0, x: 2, y: 2)
                     .shadow(color: Theme.magenta.opacity(0.3), radius: 10, y: 6)

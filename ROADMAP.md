@@ -14,7 +14,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
 - [x] **Quiet adaptive difficulty.** `AssistPolicy` turns per-level stats (invalid swaps, hints, time per match) into an assist level 0–3; each step removes a color and lowers the goal, 2+ also trims a row and column. Smooth levels relax it back. Never shown. `MATCH3_ASSIST=n` forces it for testing.
 - [x] **Bigger candies on small boards.** Boards up to 5x5 may use cells up to 150pt (others 110pt) and the board inset shrank now that the tray is gone, so opening boards fill the width on phones and grow on larger screens.
-- [ ] **iPad and landscape** with the same single-screen layout.
+- [x] **iPad and landscape.** All orientations enabled. Landscape puts a vertical progress bar beside the board; Play lays logo and button side by side; Good Job and good-night scale with the short side. Verified by build only: the iPhone Duo cover screen in the simulator stays portrait, so check rotation on an iPad or the unfolded display.
 
 ## 2. Feedback and motivation
 
