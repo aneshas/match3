@@ -6,6 +6,8 @@ struct PlayScreen: View {
     let onPlay: () -> Void
     /// Hidden caregiver entry: three fingers held for three seconds.
     var onCaregiverHold: () -> Void = {}
+    /// Free levels used up and nothing bought: the button shows a lock and does nothing.
+    var locked = false
 
     @State private var breathing = false
     @State private var logoSpin = false
@@ -33,17 +35,22 @@ struct PlayScreen: View {
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
                         .debugLogoHold(onCaregiverHold)
 
-                    Button(action: { SoundPlayer.shared.play(.tap); onPlay() }) {
+                    Button(action: { guard !locked else { return }; SoundPlayer.shared.play(.tap); onPlay() }) {
                         HStack(spacing: 20) {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 56, weight: .bold))
-                            Text("Play")
-                                .font(.system(size: 64, weight: .heavy, design: .rounded))
+                            if locked {
+                                Image(systemName: "lock.fill")
+                                    .font(.system(size: 64, weight: .bold))
+                            } else {
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 56, weight: .bold))
+                                Text("Play")
+                                    .font(.system(size: 64, weight: .heavy, design: .rounded))
+                            }
                         }
                         .foregroundStyle(.white)
                         .shadow(color: Color.black.opacity(0.25), radius: 2, y: 2)
                         .frame(width: landscape ? min(geo.size.width * 0.45, 360) : max(geo.size.width * 0.75, 280), height: 140)
-                        .background(Theme.playButton, in: Capsule())
+                        .background(locked ? AnyShapeStyle(Color(red: 0.72, green: 0.66, blue: 0.70)) : AnyShapeStyle(Theme.playButton), in: Capsule())
                         .overlay(alignment: .top) {
                             Capsule()
                                 .fill(Color.white.opacity(0.28))
@@ -55,8 +62,8 @@ struct PlayScreen: View {
                         .shadow(color: Theme.magenta.opacity(0.45), radius: 18, y: 10)
                     }
                     .buttonStyle(PressableButtonStyle())
-                    .scaleEffect(breathing ? 1.04 : 1.0)
-                    .accessibilityLabel("Play")
+                    .scaleEffect(breathing && !locked ? 1.04 : 1.0)
+                    .accessibilityLabel(locked ? "Locked" : "Play")
                 }
                 .position(x: geo.size.width / 2, y: geo.size.height * (landscape ? 0.5 : 0.46))
                 .zIndex(2)  // nothing decorative may ever cover the Play button

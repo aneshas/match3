@@ -18,7 +18,7 @@ on a soft cream-to-pink background.
 ## Layout
 
 - `Packages/Match3Core` – pure Swift game rules, no UI. `Board` (swap, matches, gravity, shuffle), `BoardShape` (masks; every column must be vertically contiguous), `LevelConfig` (level number -> rows/cols/shape/colors/goal, deterministic), `SeededRandom`.
-- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine, `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore` (one-time unlock of all levels; stub until StoreKit lands). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and Play replays the last free level.
+- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine, `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore` (one-time unlock of all levels; stub until StoreKit lands). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and the Play button turns into a lock until a caregiver unlocks or resets to level 1.
 - `project.yml` – XcodeGen spec. The `.xcodeproj` is generated and git-ignored.
 
 ## Art

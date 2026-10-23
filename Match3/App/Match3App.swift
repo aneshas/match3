@@ -52,7 +52,8 @@ struct RootView: View {
             switch flow.screen {
             case .play:
                 PlayScreen(onPlay: { flow.play() },
-                           onCaregiverHold: { flow.caregiverPanelShown = true })
+                           onCaregiverHold: { flow.caregiverPanelShown = true },
+                           locked: flow.isAtLock)
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
             case .level:
                 if let session = flow.session {

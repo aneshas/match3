@@ -55,7 +55,7 @@ Go with **C now and E later**. Drop ads entirely unless downloads are huge and r
 Yes let's go with C
 
 - **Free part:** the first 15–20 levels, playable forever and replayable. This is the whole "is it right for my sister" test a caregiver needs.
-- **The stop moment:** when the free levels run out, the next Good Job screen ends with the candy jar and a single soft lock icon, no text, and the game returns to the Play screen, which still works and replays the last free levels. Nothing is taken away, nothing looks like losing.
+- **The stop moment:** when the free levels run out, the next Good Job screen ends with the candy jar and a single soft lock icon, no text, and the game returns to the Play screen, whose button now shows a lock. A caregiver unlocks or resets. Nothing looks like losing.
 - **The purchase:** one non-consumable "Unlock all levels" in the caregiver panel only, behind the three-finger hold and a parental gate (e.g. "hold for 3 seconds" or a simple sum). Price around 7.99–12.99; this audience's caregivers are used to paying more for far less polished apps, and a low price signals "disposable". Enable Family Sharing so one buy covers the household.
 - **Why not ads at all:** besides confusing the player, ad networks require privacy disclosures, consent prompts and age gating that collide with Apple's Kids Category rules if the app is listed there. The removal of ads is the cleanest story in the App Store listing: "No ads. No timers. No losing."
 - **Optional, zero-risk extras:** a "Buy the developer a coffee" tip in the caregiver panel for people who already paid and want to say thanks; a visible note that institutions can buy in volume.
@@ -65,7 +65,7 @@ Yes let's go with C
 ### Tasks
 
 - [x] **Free-level count:** 20 (`AppFlow.freeLevels`). `MATCH3_FREE_LEVELS=n` and `MATCH3_UNLOCKED=1` for testing.
-- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play. Play replays the last free level with a fresh board each time (`LevelConfig` variant). No text.
+- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
 - [ ] **StoreKit 2 store** implementing `RemoveAdsStore` renamed to something like `UnlockStore`: one non-consumable, restore purchases, Family Sharing enabled in App Store Connect.
 - [ ] **Parental gate** in the caregiver panel before the purchase button.
 - [ ] **Purchase screen** in the caregiver panel: price, what you get ("all levels, forever"), restore button, link to privacy policy.

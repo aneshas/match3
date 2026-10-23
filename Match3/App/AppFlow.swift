@@ -44,14 +44,10 @@ final class AppFlow {
 
     /// Called from the Play button. Jumps straight into the current level.
     func play() {
+        guard !isAtLock else { return }  // the Play button is shown locked; a caregiver must unlock or reset
         sessionStart = Date()
-        startLevel(DebugFlags.startLevel ?? playableLevel)
+        startLevel(DebugFlags.startLevel ?? progress.currentLevel)
         screen = .level
-    }
-
-    /// The level Play opens: the current one, or the last free level while locked.
-    private var playableLevel: Int {
-        isAtLock ? freeLevels : progress.currentLevel
     }
 
     /// True once the caregiver's session length has elapsed. Checked only between levels.
@@ -71,12 +67,9 @@ final class AppFlow {
     }
 
     private func startLevel(_ level: Int) {
-        // A replayed level (locked at the end of the free part) gets a fresh board each time.
-        let variant = level < progress.currentLevel ? progress.completionLog.count : 0
         let config = LevelConfig(level: level,
                                  assist: DebugFlags.assist ?? progress.assist,
-                                 maxColors: Settings.shared.maxColors,
-                                 variant: variant)
+                                 maxColors: Settings.shared.maxColors)
         let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
@@ -114,7 +107,8 @@ final class AppFlow {
                 return
             }
             if isAtLock {
-                // End of the free part: nothing is taken away, the Play screen still works.
+                // End of the free part: back to the Play screen, where the button shows a lock
+                // until a caregiver unlocks all levels or starts again from level 1.
                 session = nil
                 screen = .play
                 return
