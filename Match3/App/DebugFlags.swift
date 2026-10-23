@@ -11,6 +11,8 @@ enum DebugFlags {
     static var autoPlay: Bool { flag("MATCH3_AUTOPLAY") }
     /// MATCH3_MUTE=1 silences the app for this launch only (used by headless test runs).
     static var mute: Bool { flag("MATCH3_MUTE") }
+    /// MATCH3_PANEL=1 opens the caregiver panel at launch.
+    static var openPanel: Bool { flag("MATCH3_PANEL") }
     /// MATCH3_FORGET_SWIPE=1 clears "has ever swiped" at launch so the demo shows again.
     static var forgetSwipe: Bool { flag("MATCH3_FORGET_SWIPE") }
     /// MATCH3_ASSIST=n forces the assist level for this launch (0...3).

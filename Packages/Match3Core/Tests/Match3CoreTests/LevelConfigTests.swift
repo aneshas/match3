@@ -58,6 +58,8 @@ final class LevelConfigTests: XCTestCase {
         }
         XCTAssertEqual(LevelConfig(level: 40, assist: 3).colorCount, LevelConfig(level: 40).colorCount - 3)
         XCTAssertEqual(LevelConfig(level: 1, assist: 3).rows, 4, "never below 4x4")
+        XCTAssertEqual(LevelConfig(level: 40, maxColors: 4).colorCount, 4, "caregiver cap")
+        XCTAssertEqual(LevelConfig(level: 40, maxColors: 1).colorCount, 3, "cap clamps to 3")
     }
 }
 

@@ -5,7 +5,7 @@ import SwiftUI
 struct GoodJobScreen: View {
     let onContinue: () -> Void
 
-    @State private var rain: [RainDrop] = RainDrop.makeBatch()
+    @State private var rain: [RainDrop] = Motion.reduceMotion ? [] : RainDrop.makeBatch()
     @State private var dropped = false
     @State private var appeared = false
     @State private var bounce = false

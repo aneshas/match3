@@ -15,14 +15,9 @@ final class SoundPlayer {
         case invalid, shuffle, tap, levelDone = "level_done"
     }
 
-    static let soundEnabledKey = "soundEnabled"
-
     var isEnabled: Bool {
-        get {
-            if DebugFlags.mute { return false }
-            return UserDefaults.standard.object(forKey: SoundPlayer.soundEnabledKey) as? Bool ?? true
-        }
-        set { UserDefaults.standard.set(newValue, forKey: SoundPlayer.soundEnabledKey) }
+        if DebugFlags.mute { return false }
+        return Settings.shared.soundEnabled
     }
 
     private var players: [Sound: [AVAudioPlayer]] = [:]

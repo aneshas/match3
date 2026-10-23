@@ -18,7 +18,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 2. Feedback and motivation
 
-- [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute flag exists (`soundEnabled`); the caregiver panel UI is a later task.
+- [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
 - [ ] **Match-to-bar sparkle.** A tiny burst at the progress bar on every match so the player sees "match -> bar grows" each time.
 - [ ] **Candy jar collection.** After each Good Job a candy drops into a jar shown on the Play screen. The jar fills over weeks. No rules, no unlocks.
 - [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
@@ -26,10 +26,10 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 3. Caregiver panel
 
-- [ ] **Hidden entry gesture.** Hold three fingers for 3 s on the Play screen (something a player will not do by accident).
-- [ ] **Panel contents:** sound on/off, haptics on/off, calm mode, color-count cap, level reset, session timer, remove-ads purchase, simple stats (levels played this week, total).
+- [x] **Hidden entry gesture.** Three fingers held 3 s on the Play screen (`ThreeFingerHold`); single-finger touches pass through to Play.
+- [x] **Panel contents:** sound, vibration, calm mode (follow system / on / off), color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: session timer, purchase.
 - [ ] **Session timer.** Caregiver sets e.g. 15 min. The game ends gently at the next Good Job with a "see you later" animation (wave, no text) and returns to the Play screen.
-- [ ] **Guided Access reminder.** Short note in the panel on enabling iOS Guided Access to keep the player in the app.
+- [x] **Guided Access reminder.** Note in the panel's Tips section.
 
 ## 4. Monetization
 

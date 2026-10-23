@@ -25,7 +25,9 @@ struct RootView: View {
             CandyBackground()
             switch flow.screen {
             case .play:
-                PlayScreen(onPlay: { flow.play() }, completedLevels: flow.completedLevels)
+                PlayScreen(onPlay: { flow.play() },
+                           onCaregiverHold: { flow.caregiverPanelShown = true },
+                           completedLevels: flow.completedLevels)
                     .centeredOnScreen()
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
             case .level:
@@ -41,6 +43,10 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.45), value: flow.screen)
+        .sheet(isPresented: Binding(get: { flow.caregiverPanelShown }, set: { flow.caregiverPanelShown = $0 })) {
+            CaregiverPanel()
+                .environment(flow)
+        }
     }
 }
 

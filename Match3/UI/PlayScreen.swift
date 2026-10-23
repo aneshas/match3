@@ -4,6 +4,8 @@ import SwiftUI
 /// around. Nothing else to read or decide.
 struct PlayScreen: View {
     let onPlay: () -> Void
+    /// Hidden caregiver entry: three fingers held for three seconds.
+    var onCaregiverHold: () -> Void = {}
     /// Candies in the jar: one per finished level. Pure reward, nothing to do with it.
     var completedLevels: Int = 0
 
@@ -59,6 +61,10 @@ struct PlayScreen: View {
                 // Slightly above center so the jar in the bottom corner never reaches the button.
                 .position(x: geo.size.width / 2, y: geo.size.height * 0.44)
                 .zIndex(2)  // nothing decorative may ever cover the Play button
+
+                ThreeFingerHold(action: onCaregiverHold)
+                    .ignoresSafeArea()
+                    .zIndex(3)
 
                 if completedLevels > 0 {
                     JarView(count: completedLevels)

@@ -19,9 +19,13 @@ public struct LevelConfig: Hashable, Sendable {
     public static let maxColors = TileColor.maxCount
     public static let maxGoal = 20
 
-    public init(level: Int, assist: Int = 0) {
+    /// - Parameters:
+    ///   - assist: adaptive softening, see `AssistPolicy`.
+    ///   - maxColors: caregiver cap on colors (3...6).
+    public init(level: Int, assist: Int = 0, maxColors: Int = TileColor.maxCount) {
         precondition(level >= 1)
         let assist = max(0, min(AssistPolicy.maxAssist, assist))
+        let maxColors = max(3, min(TileColor.maxCount, maxColors))
         self.level = level
         self.assist = assist
 
@@ -38,7 +42,7 @@ public struct LevelConfig: Hashable, Sendable {
         self.rows = rows
         self.cols = cols
         self.shape = shape
-        self.colorCount = max(3, LevelConfig.colorCount(for: level) - assist)
+        self.colorCount = min(maxColors, max(3, LevelConfig.colorCount(for: level) - assist))
         self.goalMatches = max(3, LevelConfig.goal(for: level) - assist)
         self.seed = 0x5EED_0000 &+ UInt64(level) &* 7919
 

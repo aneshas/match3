@@ -4,23 +4,20 @@ import UIKit
 #endif
 
 enum Motion {
-    static var reduceMotion: Bool {
-        #if canImport(UIKit)
-        return UIAccessibility.isReduceMotionEnabled
-        #else
-        return false
-        #endif
-    }
+    /// True when animations should be minimal: caregiver calm mode or system Reduce Motion.
+    @MainActor static var reduceMotion: Bool { Settings.shared.calmMode }
 }
 
 enum Haptics {
-    static func matchMade(big: Bool = false) {
+    @MainActor static func matchMade(big: Bool = false) {
+        guard Settings.shared.hapticsEnabled else { return }
         #if canImport(UIKit)
         UIImpactFeedbackGenerator(style: big ? .medium : .light).impactOccurred()
         #endif
     }
 
-    static func levelDone() {
+    @MainActor static func levelDone() {
+        guard Settings.shared.hapticsEnabled else { return }
         #if canImport(UIKit)
         UINotificationFeedbackGenerator().notificationOccurred(.success)
         #endif

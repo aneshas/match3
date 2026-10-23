@@ -16,6 +16,11 @@ final class AppFlow {
 
     /// Levels finished so far; what the candy jar on the Play screen shows.
     var completedLevels: Int { progress.currentLevel - 1 }
+    var currentLevel: Int { progress.currentLevel }
+    var levelsFinishedLastWeek: Int { progress.levelsFinished(since: Date().addingTimeInterval(-7 * 24 * 3600)) }
+
+    /// The caregiver panel is a sheet over the Play screen.
+    var caregiverPanelShown = false
 
     private let progress: Progress
     private let ads: AdCoordinator
@@ -27,6 +32,7 @@ final class AppFlow {
         self.ads = ads
         if DebugFlags.forgetSwipe { progress.forgetSwipe() }
         if DebugFlags.autoStart { play() }
+        if DebugFlags.openPanel { caregiverPanelShown = true }
     }
 
     /// Called from the Play button. Jumps straight into the current level.
@@ -36,7 +42,10 @@ final class AppFlow {
     }
 
     private func startLevel(_ level: Int) {
-        let session = GameSession(config: LevelConfig(level: level, assist: DebugFlags.assist ?? progress.assist), swipeDemo: !progress.hasEverSwiped)
+        let config = LevelConfig(level: level,
+                                 assist: DebugFlags.assist ?? progress.assist,
+                                 maxColors: Settings.shared.maxColors)
+        let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
         }
@@ -52,6 +61,13 @@ final class AppFlow {
         progress.assist = AssistPolicy.next(after: session.stats, current: progress.assist)
         advancing = false
         screen = .goodJob
+    }
+
+    /// Caregiver "start again".
+    func resetProgress() {
+        progress.reset()
+        session = nil
+        screen = .play
     }
 
     /// Called when the Good Job screen finishes (timeout or tap). Guarded so a tap and the
