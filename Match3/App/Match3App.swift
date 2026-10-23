@@ -62,7 +62,7 @@ struct RootView: View {
                         .transition(.opacity)
                 }
             case .goodJob:
-                GoodJobScreen { flow.continueAfterGoodJob() }
+                GoodJobScreen(completedLevels: flow.completedLevels) { flow.continueAfterGoodJob() }
                     .transition(.scale(scale: 1.1).combined(with: .opacity))
             case .goodNight:
                 GoodNightScreen { flow.endSession() }
