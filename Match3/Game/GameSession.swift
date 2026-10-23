@@ -16,6 +16,13 @@ struct TileState: Identifiable, Equatable {
     var rotation: Double = 0
 }
 
+/// An animated hand showing the player how to swipe: it appears on `from`, drags to `to`.
+struct DemoSwipe: Identifiable, Equatable {
+    let id = UUID()
+    let from: Position
+    let to: Position
+}
+
 /// A transient particle burst where a candy was matched.
 struct Burst: Identifiable, Equatable {
     let id = UUID()
@@ -47,17 +54,28 @@ final class GameSession {
     private(set) var wigglingIDs: Set<UUID> = []
     /// Tiles pulsing as a hint after the player has been idle for a while.
     private(set) var hintIDs: Set<UUID> = []
+    /// The swipe demo currently playing, if any.
+    private(set) var demo: DemoSwipe?
 
     var onLevelComplete: (() -> Void)?
+    /// Fired on the player's first successful swap in this session.
+    var onPlayerSwiped: (() -> Void)?
 
     private var hintTask: Task<Void, Never>?
+    private var demoTask: Task<Void, Never>?
     private let hintDelay: Duration = .seconds(8)
+    /// Teach by doing: until the player has ever swiped, a hand shows the move right after
+    /// the board lands, and again after this much idle time.
+    private var wantsDemo: Bool
+    private var demoShownOnce = false
+    private let demoRepeatDelay: Duration = .seconds(20)
 
     var goal: Int { config.goalMatches }
     var progressFraction: Double { min(1, Double(matchesMade) / Double(goal)) }
 
-    init(config: LevelConfig) {
+    init(config: LevelConfig, swipeDemo: Bool = false) {
         self.config = config
+        self.wantsDemo = swipeDemo
         self.board = config.makeBoard()
         rebuildTileStates()
         // Start every tile above the board; `dropIn` lets them fall into place.
@@ -74,6 +92,7 @@ final class GameSession {
         let target = position.offset(direction)
         guard board.canSwap(position, target) else { return }
         cancelHint()
+        cancelDemo()
         phase = .busy  // set synchronously so a second gesture event cannot start another swap
         Task { await performSwap(position, target) }
     }
@@ -81,7 +100,11 @@ final class GameSession {
     /// Any touch cancels the hint and restarts its timer.
     func playerTouched() {
         cancelHint()
-        if phase == .idle { scheduleHint() }
+        cancelDemo()
+        if phase == .idle {
+            scheduleHint()
+            scheduleDemo(after: demoRepeatDelay)
+        }
     }
 
     // MARK: - Entrance
@@ -135,6 +158,10 @@ final class GameSession {
 
         withAnimation(.easeOut(duration: 0.1)) { setScale(idA, 1) }
         board.swap(a, b)
+        if wantsDemo {
+            wantsDemo = false
+            onPlayerSwiped?()
+        }
         await resolveCascades()
 
         if matchesMade >= goal {
@@ -250,7 +277,33 @@ final class GameSession {
     private func finishTurn() {
         phase = .idle
         scheduleHint()
+        scheduleDemo(after: demoShownOnce ? demoRepeatDelay : .milliseconds(500))
         if DebugFlags.autoPlay { scheduleAutoPlay() }
+    }
+
+    // MARK: - Swipe demo
+
+    private func scheduleDemo(after delay: Duration) {
+        guard wantsDemo else { return }
+        demoTask?.cancel()
+        demoTask = Task { [weak self] in
+            guard let self else { return }
+            try? await Task.sleep(for: delay)
+            guard !Task.isCancelled, self.wantsDemo, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
+            self.demoShownOnce = true
+            self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
+            self.demo = DemoSwipe(from: p, to: q)
+            try? await Task.sleep(for: .milliseconds(2300))
+            guard !Task.isCancelled else { return }
+            self.demo = nil
+            self.scheduleDemo(after: self.demoRepeatDelay)
+        }
+    }
+
+    private func cancelDemo() {
+        demoTask?.cancel()
+        demoTask = nil
+        demo = nil
     }
 
     /// Demo / verification mode: play a valid move by itself after a short pause.

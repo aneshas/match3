@@ -46,6 +46,13 @@ struct BoardView: View {
                         BurstView(color: Theme.particleColor(for: burst.color), radius: cell * 0.5, big: burst.big)
                             .position(center(row: Double(burst.row), col: Double(burst.col), cell: cell))
                     }
+
+                    if let demo = session.demo {
+                        SwipeDemoView(from: center(row: Double(demo.from.row), col: Double(demo.from.col), cell: cell),
+                                      to: center(row: Double(demo.to.row), col: Double(demo.to.col), cell: cell),
+                                      cell: cell)
+                            .id(demo.id)
+                    }
                 }
                 .frame(width: boardWidth, height: boardHeight)
                 .clipped()

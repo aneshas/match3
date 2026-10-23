@@ -9,6 +9,8 @@ import Foundation
 enum DebugFlags {
     static var autoStart: Bool { flag("MATCH3_AUTOSTART") }
     static var autoPlay: Bool { flag("MATCH3_AUTOPLAY") }
+    /// MATCH3_FORGET_SWIPE=1 clears "has ever swiped" at launch so the demo shows again.
+    static var forgetSwipe: Bool { flag("MATCH3_FORGET_SWIPE") }
     static var startLevel: Int? {
         #if DEBUG
         return ProcessInfo.processInfo.environment["MATCH3_LEVEL"].flatMap(Int.init)

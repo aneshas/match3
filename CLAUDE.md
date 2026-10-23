@@ -28,6 +28,7 @@ on a soft cream-to-pink background.
   orange pear. The striped/wrapper variants are imported but unused (reserved for later).
 - `Theme` holds all colors/gradients. `CandyBackground` is the shared animated backdrop.
 - Code-drawn art lives in `Match3/UI/Art/` (jar, sleeping candy, hint arrow, app icon). `Tools/render-art.sh` renders them to PNG for review and writes the app icon; it needs only Command Line Tools. Any view that shows a candy image must go through `CandyArt.load` so the tool can swap in file loading.
+- Swipe demo: `SwipeDemoView` (hand image `hand_point`, Kenney CC0) driven by `GameSession.demo`; shown until `Progress.hasEverSwiped`.
 - Sounds: `Match3/Resources/Sounds/*.caf` (Kenney, CC0, license text alongside) played by `SoundPlayer`; "Good job!" is spoken by `AVSpeechSynthesizer`. Mute = UserDefaults `soundEnabled`.
 - Animations are procedural (no sprite sheets): entrance drop-in, swap lift, pop + particle
   `BurstView`, spring falls, reshuffle twirl, level-complete wave, progress shimmer/pulse,
@@ -68,7 +69,7 @@ xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the mai
 ```
 
 Debug-only launch flags (see `DebugFlags.swift`, ignored in Release): `MATCH3_AUTOSTART=1` skips
-the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n.
+the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again.
 Saved progress lives in the app's UserDefaults key `currentLevel`.
 
 Layout note: the iPhone Duo's folded cover screen reports a large one-sided horizontal

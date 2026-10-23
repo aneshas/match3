@@ -25,6 +25,7 @@ final class AppFlow {
          ads: AdCoordinator = AdCoordinator(presenter: NoOpAdPresenter(), store: UserDefaultsRemoveAdsStore())) {
         self.progress = progress
         self.ads = ads
+        if DebugFlags.forgetSwipe { progress.forgetSwipe() }
         if DebugFlags.autoStart { play() }
     }
 
@@ -35,9 +36,12 @@ final class AppFlow {
     }
 
     private func startLevel(_ level: Int) {
-        let session = GameSession(config: LevelConfig(level: level))
+        let session = GameSession(config: LevelConfig(level: level), swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
+        }
+        session.onPlayerSwiped = { [weak self] in
+            self?.progress.markSwiped()
         }
         self.session = session
     }
