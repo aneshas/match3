@@ -32,6 +32,7 @@ struct PlayScreen: View {
                         .frame(width: logoSize)
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
+                        .debugLogoHold(onCaregiverHold)
 
                     Button(action: { SoundPlayer.shared.play(.tap); onPlay() }) {
                         HStack(spacing: 20) {
@@ -89,5 +90,18 @@ struct PressableButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.94 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
+    }
+}
+
+private extension View {
+    /// Debug builds only: the Simulator cannot produce three touches, so holding one finger
+    /// on the logo for three seconds also opens the caregiver panel. Not compiled in Release.
+    @ViewBuilder
+    func debugLogoHold(_ action: @escaping () -> Void) -> some View {
+        #if DEBUG
+        self.onLongPressGesture(minimumDuration: 3, maximumDistance: 40) { action() }
+        #else
+        self
+        #endif
     }
 }
