@@ -11,6 +11,13 @@ struct ProgressBarView: View {
     @State private var shimmer = false
     @State private var pulse = false
     @State private var starSpin = false
+    /// Gold bursts at the end of the fill, one per gain: "that match made the bar grow".
+    @State private var sparkles: [Sparkle] = []
+
+    private struct Sparkle: Identifiable {
+        let id = UUID()
+        let fraction: Double
+    }
 
     var body: some View {
         if axis == .vertical {
@@ -39,6 +46,11 @@ struct ProgressBarView: View {
                         }
                         .frame(height: max(height, geo.size.height * fraction))
                         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: fraction)
+
+                    ForEach(sparkles) { sparkle in
+                        BurstView(color: Theme.gold, radius: height * 0.7, big: false)
+                            .position(x: height / 2, y: geo.size.height - max(height, geo.size.height * sparkle.fraction))
+                    }
                 }
             }
             .frame(width: height)
@@ -65,6 +77,14 @@ struct ProgressBarView: View {
     }
 
     private func pulseOnChange(_ new: Double) {
+        if new > 0 {
+            let sparkle = Sparkle(fraction: new)
+            sparkles.append(sparkle)
+            Task {
+                try? await Task.sleep(for: .milliseconds(800))
+                sparkles.removeAll { $0.id == sparkle.id }
+            }
+        }
         withAnimation(.spring(response: 0.25, dampingFraction: 0.4)) { pulse = true }
         Task {
             try? await Task.sleep(for: .milliseconds(220))
@@ -102,6 +122,11 @@ struct ProgressBarView: View {
                         .clipShape(Capsule())
                         .frame(width: max(height, geo.size.width * fraction))
                         .animation(.spring(response: 0.5, dampingFraction: 0.7), value: fraction)
+
+                    ForEach(sparkles) { sparkle in
+                        BurstView(color: Theme.gold, radius: height * 0.7, big: false)
+                            .position(x: max(height, geo.size.width * sparkle.fraction), y: height / 2)
+                    }
                 }
             }
             .frame(height: height)

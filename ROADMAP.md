@@ -19,7 +19,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ## 2. Feedback and motivation
 
 - [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
-- [ ] **Match-to-bar sparkle.** A tiny burst at the progress bar on every match so the player sees "match -> bar grows" each time.
+- [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
 - [ ] **Candy jar collection.** After each Good Job a candy drops into a jar shown on the Play screen. The jar fills over weeks. No rules, no unlocks.
 - [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
 - [ ] **Fixed celebration length.** Good Job screen always lasts the same time.
