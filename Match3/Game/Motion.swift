@@ -4,8 +4,14 @@ import UIKit
 #endif
 
 enum Motion {
-    /// True when animations should be minimal: caregiver calm mode or system Reduce Motion.
-    @MainActor static var reduceMotion: Bool { Settings.shared.calmMode }
+    /// True when animations should be minimal: the system Reduce Motion setting.
+    @MainActor static var reduceMotion: Bool {
+        #if canImport(UIKit)
+        return UIAccessibility.isReduceMotionEnabled
+        #else
+        return false
+        #endif
+    }
 }
 
 enum Haptics {

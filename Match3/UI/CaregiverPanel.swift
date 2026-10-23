@@ -15,13 +15,6 @@ struct CaregiverPanel: View {
                 Section("Play") {
                     Toggle("Sounds", isOn: $settings.soundEnabled)
                     Toggle("Vibration", isOn: $settings.hapticsEnabled)
-                    Picker("Calm mode", selection: calmSelection) {
-                        Text("Follow system Reduce Motion").tag(0)
-                        Text("On").tag(1)
-                        Text("Off").tag(2)
-                    }
-                    Text("Calm mode removes drifting candies, confetti and the pulsing button, and makes every animation shorter.")
-                        .font(.footnote).foregroundStyle(.secondary)
                 }
 
                 Section("Session") {
@@ -67,12 +60,5 @@ struct CaregiverPanel: View {
                 Text("The jar empties and the next game starts at level 1.")
             }
         }
-    }
-
-    private var calmSelection: Binding<Int> {
-        Binding(
-            get: { settings.calmModeOverride.map { $0 ? 1 : 2 } ?? 0 },
-            set: { settings.calmModeOverride = $0 == 0 ? nil : ($0 == 1) }
-        )
     }
 }

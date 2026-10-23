@@ -6,8 +6,6 @@ struct PlayScreen: View {
     let onPlay: () -> Void
     /// Hidden caregiver entry: three fingers held for three seconds.
     var onCaregiverHold: () -> Void = {}
-    /// Candies in the jar: one per finished level. Pure reward, nothing to do with it.
-    var completedLevels: Int = 0
 
     @State private var breathing = false
     @State private var logoSpin = false
@@ -24,7 +22,6 @@ struct PlayScreen: View {
 
                 let landscape = geo.size.width > geo.size.height
                 let logoSize = landscape ? min(geo.size.height * 0.5, 240) : min(geo.size.width * 0.5, 240, geo.size.height * 0.28)
-                let jarWidth = min(geo.size.width * 0.22, geo.size.height * 0.22, 100)
                 let layout = landscape ? AnyLayout(HStackLayout(spacing: 48)) : AnyLayout(VStackLayout(spacing: 40))
 
                 layout {
@@ -61,22 +58,13 @@ struct PlayScreen: View {
                     .scaleEffect(breathing ? 1.04 : 1.0)
                     .accessibilityLabel("Play")
                 }
-                // Slightly above center so the jar in the bottom corner never reaches the button.
-                .position(x: geo.size.width / 2, y: geo.size.height * (landscape ? 0.5 : 0.44))
+                .position(x: geo.size.width / 2, y: geo.size.height * (landscape ? 0.5 : 0.46))
                 .zIndex(2)  // nothing decorative may ever cover the Play button
 
                 ThreeFingerHold(action: onCaregiverHold)
                     .ignoresSafeArea()
                     .zIndex(3)
 
-                if completedLevels > 0 {
-                    JarView(count: completedLevels)
-                        .frame(width: jarWidth)
-                        .position(x: geo.size.width - jarWidth * 0.6 - 12,
-                                  y: geo.size.height - jarWidth * 0.7 - 20)
-                        .allowsHitTesting(false)
-                        .zIndex(1)
-                }
             }
         }
         .onAppear {

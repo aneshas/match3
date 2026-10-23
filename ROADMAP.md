@@ -20,14 +20,14 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 - [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
 - [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
-- [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more. The same jar (one candy per finished level) is on the Play screen. No rules, no unlocks.
+- [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more (one candy per finished level). No rules, no unlocks. Not shown on the Play screen.
 - [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
 - [x] **Fixed celebration length.** `GoodJobScreen.duration` (5.5 s) is constant; the candy drop fits inside it.
 
 ## 3. Caregiver panel
 
 - [x] **Hidden entry gesture.** Three fingers held 3 s on the Play screen (`ThreeFingerHold`); single-finger touches pass through to Play.
-- [x] **Panel contents:** sound, vibration, calm mode (follow system / on / off), color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: purchase.
+- [x] **Panel contents:** sound, vibration, color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: purchase.
 - [x] **Session timer.** Caregiver picks 5–60 minutes or no limit. When it runs out the current level finishes, Good Job plays, then `GoodNightScreen` (dimmed light, sleeping candy, twinkling stars, spoken "See you soon!") and back to Play. `MATCH3_SESSION_SECONDS=n` for testing.
 - [x] **Guided Access reminder.** Note in the panel's Tips section.
 
@@ -131,7 +131,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 
 ### Still to obtain (no free source found)
 
-- [x] **Candy jar** – `JarView` (code-drawn, filled with the game's candies). Shown on the Play screen with one candy per finished level; the drop-in animation after Good Job is still open.
+- [x] **Candy jar** – `JarView` (code-drawn, filled with the game's candies), shown on the Good Job screen with the drop-in animation.
 - [x] **Sleeping candy** – `SleepyCandyView`, used by the session-timer good-night screen.
 - [x] **App icon** – `AppIconView`, rendered by `Tools/render-art.sh` into the asset catalog.
 
