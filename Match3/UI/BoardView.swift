@@ -13,9 +13,11 @@ struct BoardView: View {
         GeometryReader { geo in
             let rows = session.config.rows
             let cols = session.config.cols
-            let inset: CGFloat = 14
-            // Capped so a 4x4 opening board does not become a wall of giant candies on a tablet.
-            let cell = min((geo.size.width - inset * 2) / CGFloat(cols), (geo.size.height - inset * 2) / CGFloat(rows), 110)
+            let inset: CGFloat = 6
+            // Small opening boards (up to 5x5) may use big candies; larger boards are capped so a
+            // tablet does not become a wall of giant candies.
+            let maxCell: CGFloat = (rows <= 5 && cols <= 5) ? 150 : 110
+            let cell = min((geo.size.width - inset * 2) / CGFloat(cols), (geo.size.height - inset * 2) / CGFloat(rows), maxCell)
             let boardWidth = cell * CGFloat(cols)
             let boardHeight = cell * CGFloat(rows)
 

@@ -13,7 +13,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Fewer colors for longer.** 3 colors through level 12, 4 through 24, 5 through 40, 6 after; size and shape carry the difficulty first. The caregiver color cap can hold it at 5 if testing shows 6 is too many.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
 - [x] **Quiet adaptive difficulty.** `AssistPolicy` turns per-level stats (invalid swaps, hints, time per match) into an assist level 0–3; each step removes a color and lowers the goal, 2+ also trims a row and column. Smooth levels relax it back. Never shown. `MATCH3_ASSIST=n` forces it for testing.
-- [ ] **Bigger candies on small boards.** Below 6x6, let the board fill more of the screen.
+- [x] **Bigger candies on small boards.** Boards up to 5x5 may use cells up to 150pt (others 110pt) and the board inset shrank now that the tray is gone, so opening boards fill the width on phones and grow on larger screens.
 - [ ] **iPad and landscape** with the same single-screen layout.
 
 ## 2. Feedback and motivation
