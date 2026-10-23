@@ -45,7 +45,6 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 | Model | Pros | Cons |
 | --- | --- | --- |
 | **A. Paid up front** (e.g. 4.99–9.99) | Simplest, no ads, nothing in the app can go wrong. Matches how you wanted to buy it. | No way to try first; most caregivers will not pay blind for an unknown app. Apple takes 15–30 %. |
-| **B. Free + ads + remove-ads purchase** (current prototype) | Free to try, familiar model. | An interstitial is the single most confusing thing this player can see. Ad revenue from an audience that does not click is tiny. Ad SDKs add tracking and privacy disclosure burden. |
 | **C. Free to try, one-time unlock, no ads** | Try the first N levels free, then one purchase in the caregiver panel unlocks forever. Clean experience for the player; caregiver decides with full information. | Needs a parental gate and a clear "stop" moment that does not feel like failure. |
 | **D. Subscription** | Recurring revenue, standard in special-needs apps. | Families and care homes dislike it for a single game; churn and refund handling; feels wrong for a game this small. |
 | **E. Institutional licensing** (Apple Business/School Manager volume purchase, custom B2B) | Care homes, schools and day centers buy 10–50 licenses at once. | Needs outreach; works alongside C, not instead. |
@@ -53,6 +52,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ### Recommendation
 
 Go with **C now and E later**. Drop ads entirely unless downloads are huge and revenue from C disappoints.
+Yes let's go with C
 
 - **Free part:** the first 15–20 levels, playable forever and replayable. This is the whole "is it right for my sister" test a caregiver needs.
 - **The stop moment:** when the free levels run out, the next Good Job screen ends with the candy jar and a single soft lock icon, no text, and the game returns to the Play screen, which still works and replays the last free levels. Nothing is taken away, nothing looks like losing.

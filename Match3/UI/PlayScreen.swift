@@ -20,11 +20,14 @@ struct PlayScreen: View {
                 }
                 .allowsHitTesting(false)
 
-                VStack(spacing: 48) {
+                let logoSize = min(geo.size.width * 0.5, 240, geo.size.height * 0.28)
+                let jarWidth = min(geo.size.width * 0.22, 100)
+
+                VStack(spacing: 40) {
                     Image(CandyArt.logo)
                         .resizable()
                         .scaledToFit()
-                        .frame(width: min(geo.size.width * 0.5, 240))
+                        .frame(width: logoSize)
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
 
@@ -53,14 +56,17 @@ struct PlayScreen: View {
                     .scaleEffect(breathing ? 1.04 : 1.0)
                     .accessibilityLabel("Play")
                 }
-                .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                // Slightly above center so the jar in the bottom corner never reaches the button.
+                .position(x: geo.size.width / 2, y: geo.size.height * 0.44)
+                .zIndex(2)  // nothing decorative may ever cover the Play button
 
                 if completedLevels > 0 {
                     JarView(count: completedLevels)
-                        .frame(width: min(geo.size.width * 0.26, 120))
-                        .position(x: geo.size.width - min(geo.size.width * 0.26, 120) * 0.65 - 12,
-                                  y: geo.size.height - min(geo.size.width * 0.26, 120) * 0.7 - 24)
+                        .frame(width: jarWidth)
+                        .position(x: geo.size.width - jarWidth * 0.6 - 12,
+                                  y: geo.size.height - jarWidth * 0.7 - 20)
                         .allowsHitTesting(false)
+                        .zIndex(1)
                 }
             }
         }
