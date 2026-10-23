@@ -74,6 +74,11 @@ the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=
 Saved progress lives in the app's UserDefaults key `currentLevel`.
 
 Layout note: the iPhone Duo's folded cover screen reports a large one-sided horizontal
-safe-area inset (84pt on the right). Screens that must look centered use
-`.centeredOnScreen()` (ignores the horizontal safe area only); the progress bar deliberately
-stays inside the safe area because the camera sits top-right.
+safe-area inset (84pt on the right). SwiftUI hit-testing stops at the safe-area edge, so
+`RootView` ignores the safe area entirely and re-applies only the top/bottom insets as
+padding; the insets are published as `\.screenInsets` for views that must keep clear of
+the camera (the progress bar). Never use `ignoresSafeArea` on a child to "center" content.
+
+UI tests: `Match3UITests` drives real touches (`xcodebuild ... -only-testing:Match3UITests test`);
+`SwipeTests` checks every column accepts a swipe. Tiles carry `tile.<row>.<col>` identifiers
+and `debug.counters` exposes swipe/match counts in Debug builds.

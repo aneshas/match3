@@ -39,11 +39,23 @@ targets:
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
         SWIFT_STRICT_CONCURRENCY: minimal
 
+  Match3UITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [Match3UITests]
+    dependencies:
+      - target: Match3
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        TEST_TARGET_NAME: Match3
+
 schemes:
   Match3:
     build:
       targets:
         Match3: all
+        Match3UITests: [test]
     run:
       config: Debug
       # Debug-only switches (see Match3/App/DebugFlags.swift). Tick one in
@@ -77,3 +89,4 @@ schemes:
       config: Debug
       targets:
         - package: Match3Core/Match3CoreTests
+        - Match3UITests

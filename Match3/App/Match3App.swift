@@ -21,32 +21,20 @@ struct RootView: View {
     @Environment(AppFlow.self) private var flow
 
     var body: some View {
-        ZStack {
-            CandyBackground()
-            switch flow.screen {
-            case .play:
-                PlayScreen(onPlay: { flow.play() },
-                           onCaregiverHold: { flow.caregiverPanelShown = true },
-                           completedLevels: flow.completedLevels)
-                    .centeredOnScreen()
-                    .transition(.scale(scale: 0.9).combined(with: .opacity))
-            case .level:
-                if let session = flow.session {
-                    LevelScreen(session: session)
-                        .id(session.config.level)
-                        .transition(.opacity)
-                }
-            case .goodJob:
-                GoodJobScreen { flow.continueAfterGoodJob() }
-                    .centeredOnScreen()
-                    .transition(.scale(scale: 1.1).combined(with: .opacity))
-            case .goodNight:
-                GoodNightScreen { flow.endSession() }
-                    .centeredOnScreen()
-                    .transition(.opacity)
+        // The whole hierarchy is laid out in full-window coordinates and only the top and
+        // bottom insets are re-applied as padding. Reason: on displays with a one-sided
+        // horizontal inset (iPhone Duo cover screen) SwiftUI hit-testing stops at the safe
+        // area edge, so candies drawn there with ignoresSafeArea could not be touched.
+        GeometryReader { geo in
+            ZStack {
+                CandyBackground()
+                screens
+                    .padding(.top, geo.safeAreaInsets.top)
+                    .padding(.bottom, geo.safeAreaInsets.bottom)
             }
+            .environment(\.screenInsets, geo.safeAreaInsets)
         }
-        .animation(.easeInOut(duration: 0.45), value: flow.screen)
+        .ignoresSafeArea()
         .sheet(isPresented: Binding(get: { flow.caregiverPanelShown }, set: { flow.caregiverPanelShown = $0 })) {
             CaregiverPanel()
                 .environment(flow)
@@ -58,15 +46,43 @@ struct RootView: View {
             flow.caregiverPanelShown = true
         }
     }
+
+    @ViewBuilder private var screens: some View {
+        ZStack {
+            switch flow.screen {
+            case .play:
+                PlayScreen(onPlay: { flow.play() },
+                           onCaregiverHold: { flow.caregiverPanelShown = true },
+                           completedLevels: flow.completedLevels)
+                    .transition(.scale(scale: 0.9).combined(with: .opacity))
+            case .level:
+                if let session = flow.session {
+                    LevelScreen(session: session)
+                        .id(session.config.level)
+                        .transition(.opacity)
+                }
+            case .goodJob:
+                GoodJobScreen { flow.continueAfterGoodJob() }
+                    .transition(.scale(scale: 1.1).combined(with: .opacity))
+            case .goodNight:
+                GoodNightScreen { flow.endSession() }
+                    .transition(.opacity)
+            }
+        }
+        .animation(.easeInOut(duration: 0.45), value: flow.screen)
+    }
 }
 
-extension View {
-    /// Some displays (the folded iPhone Duo cover screen, for one) have a large one-sided
-    /// horizontal safe-area inset. Content centered inside the safe area then sits visibly
-    /// off-center. Centering on the full width fixes that; the top and bottom insets still
-    /// apply, which keeps content clear of the camera.
-    func centeredOnScreen() -> some View {
-        ignoresSafeArea(.container, edges: .horizontal)
+/// The window's safe-area insets, for views that must keep clear of the camera even though
+/// the root lays everything out in full-window coordinates.
+private struct ScreenInsetsKey: EnvironmentKey {
+    static let defaultValue = EdgeInsets()
+}
+
+extension EnvironmentValues {
+    var screenInsets: EdgeInsets {
+        get { self[ScreenInsetsKey.self] }
+        set { self[ScreenInsetsKey.self] = newValue }
     }
 }
 

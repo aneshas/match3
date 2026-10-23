@@ -47,6 +47,8 @@ final class GameSession {
     let config: LevelConfig
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
+    /// Debug/UI-test counter: every swipe that reached the session, valid or not.
+    private(set) var swipeAttempts = 0
     private var playableSince: Date?
     private(set) var board: Board
     private(set) var tiles: [TileState] = []
@@ -95,6 +97,7 @@ final class GameSession {
     /// Entry point from the board view. `position` is the tile the player dragged,
     /// `direction` where they dragged it.
     func swipe(from position: Position, _ direction: Direction) {
+        swipeAttempts += 1
         guard phase == .idle else { return }
         let target = position.offset(direction)
         guard board.canSwap(position, target) else { return }
