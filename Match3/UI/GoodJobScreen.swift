@@ -20,7 +20,7 @@ struct GoodJobScreen: View {
     @State private var jarBounce = false
 
     /// Good Job always lasts the same time; routine is comforting.
-    static let duration: Duration = .seconds(3.4)
+    static let duration: Duration = .seconds(5.5)
 
     var body: some View {
         GeometryReader { geo in
@@ -36,6 +36,7 @@ struct GoodJobScreen: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: drop.size, height: drop.size)
+                        .opacity(0.5)  // keeps the star, text and jar readable through the rain
                         .rotationEffect(.degrees(dropped ? drop.spin : 0))
                         .position(x: drop.x * geo.size.width,
                                   y: dropped ? geo.size.height + 80 : -80)

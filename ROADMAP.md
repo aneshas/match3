@@ -22,7 +22,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
 - [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more. The same jar (one candy per finished level) is on the Play screen. No rules, no unlocks.
 - [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
-- [x] **Fixed celebration length.** `GoodJobScreen.duration` (3.4 s) is constant; the candy drop fits inside it.
+- [x] **Fixed celebration length.** `GoodJobScreen.duration` (5.5 s) is constant; the candy drop fits inside it.
 
 ## 3. Caregiver panel
 
