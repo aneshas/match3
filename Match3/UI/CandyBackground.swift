@@ -38,7 +38,7 @@ struct FloatingCandy: Identifiable {
             FloatingCandy(image: CandyArt.decorations[(i * 5) % CandyArt.decorations.count],
                           x: spot.0, y: spot.1,
                           size: Double.random(in: 90...140),
-                          opacity: 0.28,
+                          opacity: 0.42,
                           drift: Double.random(in: 14...28),
                           tilt: Double.random(in: 6...14),
                           duration: Double.random(in: 3.5...6.0),
