@@ -24,6 +24,15 @@ struct CaregiverPanel: View {
                         .font(.footnote).foregroundStyle(.secondary)
                 }
 
+                Section("Session") {
+                    Picker("Session length", selection: $settings.sessionMinutes) {
+                        Text("No limit").tag(0)
+                        ForEach([5, 10, 15, 20, 30, 45, 60], id: \.self) { Text("\($0) minutes").tag($0) }
+                    }
+                    Text("When the time is up the game finishes the current level, celebrates, shows a sleeping candy and returns to the Play screen.")
+                        .font(.footnote).foregroundStyle(.secondary)
+                }
+
                 Section("Difficulty") {
                     Stepper("Most colors at once: \(settings.maxColors)", value: $settings.maxColors, in: 3...TileColor.maxCount)
                     Text("Levels still grow in size and shape. Lower this if telling candies apart is the hard part.")

@@ -70,6 +70,9 @@ schemes:
         - variable: MATCH3_MUTE
           value: "1"
           isEnabled: false
+        - variable: MATCH3_SESSION_SECONDS
+          value: "20"
+          isEnabled: false
     test:
       config: Debug
       targets:

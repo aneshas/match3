@@ -9,7 +9,7 @@ on a soft cream-to-pink background.
 - **Never lose**: no move limits, timers, lives or fail screens. A stuck board reshuffles silently.
 - **No text or numbers in play**: the only words in the app are "Play" and "Good Job!". Progress is a filling bar with a star, never a counter or score.
 - **No objectives that need reading or reasoning**: no "collect 10 red", no special pieces, no blockers, no boosters.
-- **Flow**: Play button -> current level -> Good Job -> next level, forever. No world map, no menus, no settings in the prototype.
+- **Flow**: Play button -> current level -> Good Job -> next level, forever. No world map, no menus. A caregiver session timer can end a session gently after a Good Job (good-night screen, back to Play).
 - **Difficulty** grows only via board size, board shape and number of colors (`LevelConfig`). Levels start tiny (4x4, 3 colors, 3 matches), go non-square at level 2, and introduce one shape at a time; shapes have minimum sizes (`BoardShape.fits`) so they never degenerate. `AssistPolicy` (core) quietly softens the next level after a struggle (fewer colors, smaller board, lower goal) and relaxes after smooth levels; stored as `assist` in Progress.
 - **Feedback is gentle**: invalid swap = slide back + wiggle. No error sounds or red flashes.
 - Respect the system Reduce Motion setting (`Motion.reduceMotion`).
@@ -70,7 +70,7 @@ xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the mai
 ```
 
 Debug-only launch flags (see `DebugFlags.swift`, ignored in Release): `MATCH3_AUTOSTART=1` skips
-the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again, `MATCH3_MUTE=1` silences that launch, `MATCH3_ASSIST=n` forces the assist level, `MATCH3_PANEL=1` opens the caregiver panel. Never persist a mute into the simulator's defaults: the same simulator is used for manual testing.
+the Play screen, `MATCH3_AUTOPLAY=1` plays valid moves by itself, `MATCH3_LEVEL=n` starts at level n, `MATCH3_FORGET_SWIPE=1` makes the swipe demo show again, `MATCH3_MUTE=1` silences that launch, `MATCH3_ASSIST=n` forces the assist level, `MATCH3_PANEL=1` opens the caregiver panel, `MATCH3_SESSION_SECONDS=n` ends the session after n seconds. Never persist a mute into the simulator's defaults: the same simulator is used for manual testing.
 Saved progress lives in the app's UserDefaults key `currentLevel`.
 
 Layout note: the iPhone Duo's folded cover screen reports a large one-sided horizontal

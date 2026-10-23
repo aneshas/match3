@@ -40,6 +40,10 @@ struct RootView: View {
                 GoodJobScreen { flow.continueAfterGoodJob() }
                     .centeredOnScreen()
                     .transition(.scale(scale: 1.1).combined(with: .opacity))
+            case .goodNight:
+                GoodNightScreen { flow.endSession() }
+                    .centeredOnScreen()
+                    .transition(.opacity)
             }
         }
         .animation(.easeInOut(duration: 0.45), value: flow.screen)

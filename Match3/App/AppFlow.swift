@@ -9,6 +9,7 @@ final class AppFlow {
         case play
         case level
         case goodJob
+        case goodNight  // caregiver session timer ran out
     }
 
     private(set) var screen: Screen = .play
@@ -25,6 +26,7 @@ final class AppFlow {
     private let progress: Progress
     private let ads: AdCoordinator
     private var advancing = false
+    private var sessionStart: Date?
 
     init(progress: Progress = Progress(),
          ads: AdCoordinator = AdCoordinator(presenter: NoOpAdPresenter(), store: UserDefaultsRemoveAdsStore())) {
@@ -36,8 +38,25 @@ final class AppFlow {
 
     /// Called from the Play button. Jumps straight into the current level.
     func play() {
+        sessionStart = Date()
         startLevel(DebugFlags.startLevel ?? progress.currentLevel)
         screen = .level
+    }
+
+    /// True once the caregiver's session length has elapsed. Checked only between levels.
+    private var sessionIsOver: Bool {
+        guard let start = sessionStart else { return false }
+        let elapsed = Date().timeIntervalSince(start)
+        if let seconds = DebugFlags.sessionSeconds { return elapsed >= Double(seconds) }
+        let minutes = Settings.shared.sessionMinutes
+        return minutes > 0 && elapsed >= Double(minutes) * 60
+    }
+
+    /// After the good-night screen: back to Play. Pressing Play starts a fresh session.
+    func endSession() {
+        session = nil
+        sessionStart = nil
+        screen = .play
     }
 
     private func startLevel(_ level: Int) {
@@ -76,6 +95,10 @@ final class AppFlow {
         advancing = true
         Task {
             await ads.afterLevelCompleted(finished)
+            if sessionIsOver {
+                screen = .goodNight
+                return
+            }
             startLevel(DebugFlags.startLevel.map { max($0, progress.currentLevel) } ?? progress.currentLevel)
             screen = .level
         }

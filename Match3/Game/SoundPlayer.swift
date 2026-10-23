@@ -60,9 +60,14 @@ final class SoundPlayer {
 
     /// Speaks in the device language. No audio asset needed; a recorded caregiver voice can
     /// replace this later.
-    func sayGoodJob() {
+    func sayGoodJob() { say(String(localized: "Good job!")) }
+
+    /// Spoken at the end of a timed session.
+    func saySeeYouSoon() { say(String(localized: "See you soon!")) }
+
+    private func say(_ text: String) {
         guard isEnabled else { return }
-        let utterance = AVSpeechUtterance(string: String(localized: "Good job!"))
+        let utterance = AVSpeechUtterance(string: text)
         utterance.voice = AVSpeechSynthesisVoice(language: Locale.current.language.languageCode?.identifier)
         utterance.rate = AVSpeechUtteranceDefaultSpeechRate * 0.9
         utterance.pitchMultiplier = 1.1

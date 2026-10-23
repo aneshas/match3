@@ -27,8 +27,8 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ## 3. Caregiver panel
 
 - [x] **Hidden entry gesture.** Three fingers held 3 s on the Play screen (`ThreeFingerHold`); single-finger touches pass through to Play.
-- [x] **Panel contents:** sound, vibration, calm mode (follow system / on / off), color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: session timer, purchase.
-- [ ] **Session timer.** Caregiver sets e.g. 15 min. The game ends gently at the next Good Job with a "see you later" animation (wave, no text) and returns to the Play screen.
+- [x] **Panel contents:** sound, vibration, calm mode (follow system / on / off), color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: purchase.
+- [x] **Session timer.** Caregiver picks 5–60 minutes or no limit. When it runs out the current level finishes, Good Job plays, then `GoodNightScreen` (dimmed light, sleeping candy, twinkling stars, spoken "See you soon!") and back to Play. `MATCH3_SESSION_SECONDS=n` for testing.
 - [x] **Guided Access reminder.** Note in the panel's Tips section.
 
 ## 4. Monetization
@@ -132,7 +132,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 ### Still to obtain (no free source found)
 
 - [x] **Candy jar** – `JarView` (code-drawn, filled with the game's candies). Shown on the Play screen with one candy per finished level; the drop-in animation after Good Job is still open.
-- [x] **Sleeping candy** – `SleepyCandyView` (closed eyes, blush, drifting Zs). Not wired in until the session timer exists.
+- [x] **Sleeping candy** – `SleepyCandyView`, used by the session-timer good-night screen.
 - [x] **App icon** – `AppIconView`, rendered by `Tools/render-art.sh` into the asset catalog.
 
 ### Localization strings (not assets, but to gather)

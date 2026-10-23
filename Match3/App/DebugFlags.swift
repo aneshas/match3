@@ -24,6 +24,15 @@ enum DebugFlags {
         #endif
     }
 
+    /// MATCH3_SESSION_SECONDS=n ends the session after n seconds (instead of the caregiver minutes).
+    static var sessionSeconds: Int? {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["MATCH3_SESSION_SECONDS"].flatMap(Int.init)
+        #else
+        return nil
+        #endif
+    }
+
     static var startLevel: Int? {
         #if DEBUG
         return ProcessInfo.processInfo.environment["MATCH3_LEVEL"].flatMap(Int.init)
