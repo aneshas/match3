@@ -173,6 +173,9 @@ final class GameSession {
             wantsDemo = false
             onPlayerSwiped?()
         }
+        // One step on the bar per successful swipe. Cascades burst and sound but do not
+        // count, so a level always takes about `goal` swipes.
+        matchesMade = min(goal, matchesMade + 1)
         await resolveCascades()
 
         if matchesMade >= goal {
@@ -197,7 +200,6 @@ final class GameSession {
             let groups = board.findMatches()
             if groups.isEmpty { return }
 
-            matchesMade = min(goal, matchesMade + groups.count)
             let big = depth > 0 || groups.contains { $0.positions.count >= 4 }
             Haptics.matchMade(big: big)
             SoundPlayer.shared.playMatch(big: big)
@@ -240,7 +242,6 @@ final class GameSession {
             await sleep(fallDuration * 1.1)
 
             depth += 1
-            if matchesMade >= goal { return }
         }
     }
 

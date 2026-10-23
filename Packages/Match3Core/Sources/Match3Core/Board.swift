@@ -237,17 +237,37 @@ public struct Board: Sendable {
                 writeRow -= 1
             }
 
-            // Fill what is left (top of column) with new tiles.
+            // Fill what is left (top of column) with new tiles. Colors are chosen so the new
+            // tile does not complete a line on its own: cascades should be an occasional treat,
+            // not the normal way a level finishes.
             let emptyCount = writeRow - top + 1
             if emptyCount > 0 {
                 for r in top...writeRow {
-                    let tile = Tile(color: TileColor(Int(rng.next() % UInt64(colorCount))))
+                    let tile = Tile(color: colorWithoutMatch(at: Position(row: r, col: c)))
                     cells[r][c] = tile
                     spawns.append(TileSpawn(tile: tile, at: Position(row: r, col: c), rowsAbove: writeRow - r + 1))
                 }
             }
         }
         return GravityResult(falls: falls, spawns: spawns)
+    }
+
+    /// A random color that does not create a match at `p` given the current neighbors
+    /// (falls back to any color when every color would).
+    private mutating func colorWithoutMatch(at p: Position) -> TileColor {
+        var candidates = (0..<colorCount).map(TileColor.init)
+        // Fisher-Yates with the seeded generator so results stay reproducible.
+        for i in stride(from: candidates.count - 1, to: 0, by: -1) {
+            let j = Int(rng.next() % UInt64(i + 1))
+            candidates.swapAt(i, j)
+        }
+        let saved = cells[p.row][p.col]
+        defer { cells[p.row][p.col] = saved }
+        for color in candidates {
+            cells[p.row][p.col] = Tile(color: color)
+            if !hasMatch(at: p) { return color }
+        }
+        return candidates[0]
     }
 
     // MARK: - Moves

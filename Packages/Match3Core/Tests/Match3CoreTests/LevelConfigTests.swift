@@ -12,6 +12,7 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(l1.shape, .square)
         XCTAssertNotEqual(LevelConfig(level: 2).rows, LevelConfig(level: 2).cols, "level 2 is not square")
         XCTAssertEqual(LevelConfig(level: 12).colorCount, 3, "three colors well past level 5")
+        XCTAssertEqual(LevelConfig(level: 19).goalMatches, LevelConfig.maxGoal, "goal caps around level 19")
         XCTAssertEqual(LevelConfig(level: 13).colorCount, 4)
     }
 

@@ -139,6 +139,12 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 
 - [ ] "Play" and "Good Job!" in each target language, checked with a native speaker for the simplest everyday wording.
 
+## 6b. Pacing (done)
+
+- [x] **Progress counts swipes, not match groups.** Cascades are a bonus (burst + sound), so a level takes about `goal` swipes and length grows with level.
+- [x] **Refill avoids free matches.** New candies pick a color that does not complete a line; cascades drop from ~1 per swap to occasional.
+- [x] **Goal curve:** 3 swipes at level 1, about +2 every 3 levels, capped at 15.
+
 ## 7. Testing with real players
 
 - [ ] Run 3–5 sessions with the intended players and a caregiver observing. Note: swipe success rate, time to first match, reactions to sounds and confetti, any sign of frustration.

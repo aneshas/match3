@@ -10,14 +10,15 @@ public struct LevelConfig: Hashable, Sendable {
     public let cols: Int
     public let shape: BoardShape
     public let colorCount: Int
-    /// Number of match groups the player must make to finish the level.
+    /// Number of successful swaps the player must make to finish the level. Cascades do
+    /// not count: they are a bonus, not the way to finish.
     public let goalMatches: Int
     public let seed: UInt64
 
     public static let maxRows = 8
     public static let maxCols = 8
     public static let maxColors = TileColor.maxCount
-    public static let maxGoal = 20
+    public static let maxGoal = 15
 
     /// - Parameters:
     ///   - assist: adaptive softening, see `AssistPolicy`.
@@ -115,7 +116,8 @@ public struct LevelConfig: Hashable, Sendable {
     }
 
     private static func goal(for level: Int) -> Int {
-        // 3 at level 1, +1 every 2 levels, capped.
-        min(maxGoal, 3 + (level - 1) / 2)
+        // The goal is the number of successful swipes: 3 at level 1, about +2 every 3 levels,
+        // capped at 15 (around level 19).
+        min(maxGoal, 3 + (level - 1) * 2 / 3)
     }
 }

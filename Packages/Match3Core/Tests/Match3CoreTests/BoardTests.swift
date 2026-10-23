@@ -117,4 +117,24 @@ final class BoardTests: XCTestCase {
             }
         }
     }
+
+    func testRefillRarelyCreatesFreeMatches() {
+        // With 3 colors a random refill lands in a line most of the time; the match-avoiding
+        // refill should almost never (only when every color would match).
+        var b = Board(rows: 6, cols: 6, shape: .square, colorCount: 3, seed: 11)
+        var spawns = 0, matchingSpawns = 0
+        for i in 0..<300 {
+            let p = Position(row: i % 6, col: (i * 7) % 6)
+            b.remove([p])
+            let result = b.applyGravityAndRefill()
+            for s in result.spawns {
+                spawns += 1
+                if b.hasMatch(at: s.at) { matchingSpawns += 1 }
+            }
+            for g in b.findMatches() { b.remove(g.positions) }
+            _ = b.applyGravityAndRefill()
+        }
+        XCTAssertGreaterThan(spawns, 200)
+        XCTAssertLessThan(Double(matchingSpawns) / Double(spawns), 0.10, "\(matchingSpawns) of \(spawns) spawned tiles matched on arrival")
+    }
 }
