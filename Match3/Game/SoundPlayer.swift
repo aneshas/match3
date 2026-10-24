@@ -12,7 +12,9 @@ final class SoundPlayer {
 
     enum Sound: String, CaseIterable {
         case match, matchAlt = "match_alt", matchBig = "match_big"
-        case invalid, shuffle, tap, levelDone = "level_done"
+        case invalid, shuffle, tap
+        /// Two layers that always play together (see `playLevelDone`).
+        case levelDoneA = "level_done_0", levelDoneB = "level_done_1"
     }
 
     var isEnabled: Bool {
@@ -56,6 +58,12 @@ final class SoundPlayer {
             play(alternate ? .matchAlt : .match)
             alternate.toggle()
         }
+    }
+
+    /// The level-done celebration is two sounds layered: both start on the same beat.
+    func playLevelDone() {
+        play(.levelDoneA)
+        play(.levelDoneB)
     }
 
     /// Speaks in the device language. No audio asset needed; a recorded caregiver voice can

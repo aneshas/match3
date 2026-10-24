@@ -182,7 +182,7 @@ final class GameSession {
             phase = .complete
             stats.matches = matchesMade
             stats.seconds = playableSince.map { Date().timeIntervalSince($0) } ?? 0
-            SoundPlayer.shared.play(.levelDone)
+            SoundPlayer.shared.playLevelDone()
             await celebrateBoard()
             onLevelComplete?()
             return
