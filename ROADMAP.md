@@ -163,6 +163,18 @@ the one gesture they already know. Ideas, in order of how little they ask of the
 - [x] **Rule**: a power-up is never required to finish a level, never times out, never costs anything, and the hint system must point at it like any other move.
 - [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). Specials appear from level 10. A special going off adds one step to the bar, plays its own sound, rings outward and punches the board.
 
+## 8. After launch: novelty for levels 30 and up
+
+Launch ships as is. Past level 30 nothing new happens to the player (sizes cycle, shapes
+and candy mixes change every level, the sixth color arrives at 41, specials since 10), so
+the first update should add novelty. Cheapest first:
+
+- [ ] **New board shapes** (code only): star, ring, zigzag, butterfly, letters; each unlocks at a later level like the current shapes (`LevelConfig.shapeUnlocks`). The current eight repeat forever from level 56.
+- [ ] **Worlds**: every 10 levels from 30 the backdrop, the floating decorations and the music mood change together (candy shop, beach, night sky, snow). Backdrops are code-drawn gradients; decorations and music already exist. Nothing about play changes.
+- [ ] **Milestone celebrations**: every 10th level a bigger Good Job (fireworks instead of rain, the jar grows a size).
+- [ ] **New candy art**: all 42 plain pieces of the pack are in play, so new candies need a second pack, ideally from the same artist for style. Requirements: 6 colors per silhouette, transparent PNG, dark outline, about 256 px. They join the palette pool (`CandyArt.shapes`) so mixes from level 30 draw from 10 to 12 silhouettes.
+- [ ] **A third special candy** (rainbow from a five-match: clears every candy of the color it is swapped with). More to understand than the current two; only after real players have met those.
+
 ## 7. Testing with real players
 
 - [ ] Run 3–5 sessions with the intended players and a caregiver observing. Note: swipe success rate, time to first match, reactions to sounds and confetti, any sign of frustration.
