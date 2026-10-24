@@ -18,7 +18,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 2. Feedback and motivation
 
-- [x] **Background music.** 17 gentle loops cycle: a new one on every Play screen visit and every level, crossfaded, ducked during Good Job. Caregiver toggle, quiet when another app plays audio.
+- [x] **Background music.** 17 gentle loops cycle: a new one on every Play screen visit and every level, crossfaded, faded out quickly on Good Job. Caregiver toggle, quiet when another app plays audio.
 - [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
 - [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
 - [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more (one candy per finished level). No rules, no unlocks. Not shown on the Play screen.

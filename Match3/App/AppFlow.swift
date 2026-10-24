@@ -17,7 +17,7 @@ final class AppFlow {
             guard screen != oldValue else { return }
             switch screen {
             case .play, .level: MusicPlayer.shared.next()
-            case .goodJob: MusicPlayer.shared.duck()
+            case .goodJob: MusicPlayer.shared.fadeOutQuickly()
             case .goodNight: MusicPlayer.shared.stop()
             }
         }

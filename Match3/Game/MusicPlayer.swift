@@ -53,9 +53,10 @@ final class MusicPlayer {
         start(tracks[cursor])
     }
 
-    /// Lower the music while the level-done sounds and celebration play.
-    func duck() {
-        current?.setVolume(volume * 0.45, fadeDuration: 0.4)
+    /// Quick fade-out when a level is done, so the level-done sounds play on their own.
+    /// The next level (or the Play screen) starts the next track.
+    func fadeOutQuickly() {
+        fadeOutCurrent(over: 0.3)
     }
 
     /// Fade out and forget (good-night screen).
@@ -98,14 +99,14 @@ final class MusicPlayer {
         current = player
     }
 
-    private func fadeOutCurrent() {
+    private func fadeOutCurrent(over seconds: Double = 1.0) {
         guard let old = current else { return }
         current = nil
         fadingOut?.stop()
         fadingOut = old
-        old.setVolume(0, fadeDuration: 1.0)
+        old.setVolume(0, fadeDuration: seconds)
         Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(1100))
+            try? await Task.sleep(for: .milliseconds(Int(seconds * 1000) + 100))
             guard let self, self.fadingOut === old else { return }
             old.stop()
             self.fadingOut = nil
