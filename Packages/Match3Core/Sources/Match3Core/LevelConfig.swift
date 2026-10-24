@@ -104,13 +104,11 @@ public struct LevelConfig: Hashable, Sendable {
         // After the opening table the size moves up only every five levels.
         let step = level - openingLevels.count - 1
         let (r, c) = laterSizes[min(step / 5, laterSizes.count - 1)]
-        // Walk the shape cycle until one fits this size, so small boards never get a
-        // degenerate shape and big boards still see every shape.
-        for offset in 0..<laterShapes.count {
-            let shape = laterShapes[(step + offset) % laterShapes.count]
-            if shape.fits(rows: r, cols: c), isValid(r, c, shape) { return (r, c, shape) }
-        }
-        return (r, c, .square)
+        // Cycle through the shapes that fit this size, so small boards never get a
+        // degenerate shape, big boards see every shape, and no shape repeats back to back.
+        let fitting = laterShapes.filter { $0.fits(rows: r, cols: c) && isValid(r, c, $0) }
+        guard !fitting.isEmpty else { return (r, c, .square) }
+        return (r, c, fitting[step % fitting.count])
     }
 
     private static func isValid(_ r: Int, _ c: Int, _ shape: BoardShape) -> Bool {
