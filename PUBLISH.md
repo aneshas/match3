@@ -1,0 +1,86 @@
+# Publishing checklist
+
+Everything that has to happen outside the code to get this game onto the App Store, in
+order, starting from no Apple Developer account. "You" items need you (Apple ID, money,
+legal decisions). "Ask Claude" items are repo changes I can make as soon as you give me
+the input. Tick items here as they are done; this file is the single place that tracks
+release readiness.
+
+Working title in the repo is "Match 3"; the real name is still to be chosen (step 2).
+
+## 1. Apple Developer account (you)
+
+- [ ] **Apple ID with two-factor authentication** that you want to publish under. Use the one you will keep for years; the account cannot be moved to another Apple ID later.
+- [ ] **Decide Individual vs Organization.** Individual: fastest, no paperwork, the App Store shows your personal name as the seller. Organization (e.g. a company): needs a D-U-N-S number (free, takes up to two weeks), a legal entity and authority to sign; the seller name is the company. For a one-person project Individual is fine; you can transfer the app to an organization account later.
+- [ ] **Enroll** at <https://developer.apple.com/programs/enroll/> (99 USD/year, or local equivalent). Enrollment through the Apple Developer app on an iPhone is usually approved within a day or two; the website route can take longer.
+- [ ] **Sign in to Xcode** with that Apple ID (Xcode > Settings > Accounts) and check the team shows as "Apple Development" with the paid program. `project.yml` currently carries team `59H75BATX8`; if the paid team is a different one, tell me the new ID (ask Claude).
+- [ ] **Accept the agreements** in App Store Connect > Business (formerly Agreements, Tax, and Banking): the free Apple Developer Program License Agreement, and the **Paid Apps Agreement**, which needs bank account, tax forms (W-8BEN for non-US individuals) and contact details. Without the paid agreement the in-app purchase cannot be tested in TestFlight or sold.
+- [ ] **Apple Small Business Program**: once the paid agreement is in place, enroll at <https://developer.apple.com/app-store/small-business-program/> to pay 15 % instead of 30 % commission. Takes a few days; enroll before the first sale.
+
+## 2. Name, identifiers, legal (you, then ask Claude)
+
+- [ ] **Choose the app name** (30 characters max, must be unique on the App Store worldwide). Check availability by trying to create the app record in App Store Connect (step 4); the form rejects taken names. Have two or three candidates. Also pick a **subtitle** (30 characters) such as "Calm match-3, no losing".
+- [ ] **Decide the bundle identifier for good.** It is `io.anes.match3` now. It cannot be changed after the first upload to App Store Connect, so if you want it to carry the final name (for example `io.anes.<name>`), decide now. The StoreKit product id (`io.anes.match3.unlock`) is independent but should also be settled now.
+- [ ] **Ask Claude to apply the name**: display name under the icon (`CFBundleDisplayName`, 12 characters or so before it truncates), product name, scheme, bundle id if changed, product id, StoreKit test file, this checklist, and the repo folder if you want.
+- [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). A page on your own site or a GitHub Pages page is enough. Ask Claude for the text: it will say that the app stores progress and settings only on the device, collects no personal data, has no analytics, no ads, no third-party SDKs, and that purchases go through Apple.
+- [ ] **Support URL** (required): an email address on a simple page, or the same page as the privacy policy with a contact line.
+- [ ] **Marketing URL** (optional).
+- [ ] **Licenses of the assets**, so nothing can trip App Review or a rights claim:
+  - Candy icons: Robert Brooks "Match three candy" pack, commercial use allowed, no attribution needed, no redistribution. Fine inside the app; keep the repo private.
+  - Hand cursor and the original effect sounds: Kenney, CC0.
+  - **Music loops (17 tracks) and the new effect sounds**: source and license still unknown to the repo. Tell me where they come from so I can add the license text; if any needs attribution, it goes on the privacy/support page and in the App Store description.
+  - Code-drawn art and app icon: yours.
+
+## 3. Devices and testing before the store (you + Claude)
+
+- [ ] **Run on your iPhone Duo via Xcode** with the final build settings (Release scheme once, to make sure Debug-only flags are really gone).
+- [ ] **iPad check.** The app targets iPhone and iPad (`TARGETED_DEVICE_FAMILY 1,2`), so App Review will run it on an iPad and iPad screenshots are mandatory. Landscape layout has never been seen on a real tablet. Either borrow an iPad / use the unfolded Duo and send me screenshots, or decide to ship iPhone-only for version 1 (ask Claude: one line in `project.yml`, and no iPad screenshots needed).
+- [ ] **Accessibility pass** on the device: Reduce Motion on, Increase Contrast on, largest Dynamic Type (the caregiver panel is the only text), VoiceOver through the caregiver panel.
+- [ ] **Sister test**: a few sessions with the intended player; note what confuses her and tell me.
+- [ ] **In-app purchase test** on the device with a Sandbox tester account (App Store Connect > Users and Access > Sandbox > Testers; any unused email). Buy, delete the app, reinstall, Restore. Then check Family Sharing with a second sandbox account in the same sandbox family if you want.
+
+## 4. App Store Connect setup (you)
+
+- [ ] **Create the app record**: App Store Connect > Apps > "+" > New App. Platform iOS, name, primary language, bundle id (register it first at <https://developer.apple.com/account/resources/identifiers/list> or let Xcode do it), SKU (any string, e.g. `match3-001`), full access.
+- [ ] **In-app purchase**: Apps > your app > In-App Purchases > "+": type Non-Consumable, reference name "All levels", **product id exactly as in the code** (`io.anes.match3.unlock` unless renamed), price (suggested 9.99 USD tier, the roadmap argues for 7.99–12.99), localized display name "All levels" and description "Every level, forever. No ads, no timers, no losing.", a review screenshot (any screenshot of the caregiver panel's unlock section), **Family Sharing: on** (cannot be turned off again). Submit the IAP with the first app version.
+- [ ] **App information**: subtitle, category Games > Puzzle (secondary: Family or Education), content rights (no third-party content: yes, the assets are licensed), age rating questionnaire (all "None" → 4+).
+- [ ] **Pricing and availability**: Free, all countries (or your pick). Tick "Available for volume purchase" (Apple Business Manager / Apple School Manager) so care homes and schools can buy in bulk. If you want the app discoverable by institutions only via code, use "Custom app" distribution instead (not now).
+- [ ] **App privacy**: "Data not collected" for every category. Keep it true: no analytics SDK, ever.
+- [ ] **Version information**: description (first two lines state the audience plainly: for people with intellectual disabilities, no losing, no timers, no ads; caregiver panel; one purchase unlocks everything), keywords (100 characters, comma separated, no spaces after commas: e.g. `match 3,candy,calm,relaxing,no ads,disability,autism,dementia,seniors,easy,puzzle`), promotional text, "What's New", support URL, marketing URL, copyright line ("2026 Anes Hasicic").
+- [ ] **Screenshots** (ask Claude to produce them from the simulator with the final name):
+  - iPhone 6.9" (1320 x 2868) **required**, iPhone 6.5" (1284 x 2778) optional but recommended.
+  - iPad 13" (2064 x 2752) **required while iPad is supported**.
+  - 3 to 6 per size: Play screen, small board, shaped board, Good Job with the jar, caregiver panel, high contrast. No device frames needed.
+- [ ] **App preview video**: optional, skip for version 1.
+- [ ] **App Review information**: contact name, phone, email. **Notes for the reviewer** (ask Claude for the text): the game is for players with intellectual disabilities, there is deliberately no menu; the caregiver panel opens by holding three fingers on the Play screen for three seconds; the purchase sits in that panel behind a parental gate; the first 20 levels are free. No login, so no demo account.
+- [ ] **Sign-in**: not required, say so in the review form.
+- [ ] **Export compliance**: already answered in the build (`ITSAppUsesNonExemptEncryption = false`), so no questions at upload.
+
+## 5. Build and upload (you, with Claude's prep)
+
+- [ ] **Version and build number** (ask Claude): `MARKETING_VERSION` 1.0 and `CURRENT_PROJECT_VERSION` 1 in `project.yml`, bumped for every upload (build number must increase every time).
+- [ ] **App icon**: all sizes come from `AppIconView` via `Tools/render-art.sh`; check the 1024 x 1024 icon has no transparency and no rounded corners (App Store rejects both).
+- [ ] **Launch screen**: the app uses `UILaunchScreen` (plain background). Ask Claude for a launch screen that matches the cream-pink background so the start does not flash white.
+- [ ] **Archive**: open `Match3.xcodeproj` in Xcode, pick "Any iOS Device (arm64)", Product > Archive. (`xcodegen generate` first if `project.yml` changed.) Signing is automatic with the team in `project.yml`.
+- [ ] **Upload**: Window > Organizer > Distribute App > App Store Connect > Upload. Or export the `.ipa` and use the Transporter app.
+- [ ] **TestFlight**: internal testing with your own Apple ID first (no review needed), then optionally external testers (short Apple review). Install on the Duo through the TestFlight app and play a session; test the purchase with the sandbox account.
+- [ ] **Submit for review**: attach the build to version 1.0, make sure the IAP is attached, submit. Choose "Manually release this version" if you want to control launch day.
+
+## 6. After approval
+
+- [ ] **Release** (if manual).
+- [ ] **Check the IAP is live** and buy it once with a real account, then refund yourself via <https://reportaproblem.apple.com> if you do not want to keep the charge.
+- [ ] **Small Business Program** confirmed active (step 1), otherwise you pay 30 % on the first sales.
+- [ ] **Respond to reviews** in App Store Connect; the audience's caregivers write detailed ones.
+- [ ] **Crashes**: Xcode > Organizer > Crashes, or App Store Connect > TestFlight > Crashes. No third-party crash reporter.
+- [ ] **Volume purchase**: once live, institutions buy through Apple Business Manager; mention it on the support page.
+- [ ] **Next version**: bump build number, repeat step 5. Roadmap items live in `ROADMAP.md`.
+
+## Open decisions (answer in chat, I update this file)
+
+- Final app name and subtitle.
+- Keep bundle id `io.anes.match3` or rename it with the app.
+- iPad support in version 1, or iPhone-only.
+- Price of the unlock.
+- Source and license of the music and the new sounds.
+- Individual or Organization developer account.

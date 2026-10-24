@@ -40,7 +40,7 @@ on a soft cream-to-pink background.
 
 ## Roadmap
 
-Planned features, asset shopping list and testing plan live in `ROADMAP.md`. Check items off there as they ship.
+Planned features, asset shopping list and testing plan live in `ROADMAP.md`. Check items off there as they ship. Every manual step to reach the App Store (account, name, App Store Connect, screenshots, upload) is tracked in `PUBLISH.md`; keep it current when anything release-related changes (bundle id, product id, assets, licenses).
 
 ## Build / run / test
 
