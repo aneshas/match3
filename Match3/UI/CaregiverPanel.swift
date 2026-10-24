@@ -66,9 +66,19 @@ struct CaregiverPanel: View {
                         if let purchaseMessage {
                             Text(purchaseMessage).font(.footnote).foregroundStyle(.secondary)
                         }
-                        Text("One purchase, no subscription, no ads. Shared with your family group.")
-                            .font(.footnote).foregroundStyle(.secondary)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label("Every level, forever", systemImage: "infinity")
+                            Label("One purchase, no subscription", systemImage: "checkmark.circle")
+                            Label("No ads, no timers, no losing", systemImage: "hand.raised")
+                            Label("Shared with your family group", systemImage: "person.2")
+                        }
+                        .font(.footnote).foregroundStyle(.secondary)
                     }
+                    if let privacy = AppLinks.privacyPolicy {
+                        Link("Privacy policy", destination: privacy)
+                    }
+                    Text("Institutions: available in volume through Apple Business Manager and Apple School Manager.")
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
 
                 Section("Progress") {
