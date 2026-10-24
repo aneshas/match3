@@ -4,6 +4,7 @@ import Match3Core
 /// Progress on top, board in the middle. No level number, no score, no buttons.
 struct LevelScreen: View {
     let session: GameSession
+    var onHome: () -> Void = {}
     @Environment(\.screenInsets) private var insets
 
     var body: some View {
@@ -11,9 +12,12 @@ struct LevelScreen: View {
             if geo.size.width > geo.size.height {
                 // Landscape: the bar stands on the left, the board uses the full height.
                 HStack(spacing: 16) {
-                    ProgressBarView(fraction: session.progressFraction, axis: .vertical)
-                        .padding(.leading, 20 + insets.leading)
-                        .padding(.vertical, 20)
+                    VStack(spacing: 16) {
+                        ProgressBarView(fraction: session.progressFraction, axis: .vertical)
+                        HomeButton(action: onHome)
+                    }
+                    .padding(.leading, 20 + insets.leading)
+                    .padding(.vertical, 20)
                     BoardView(session: session)
                         .padding(.trailing, 12 + insets.trailing)
                         .padding(.vertical, 12)
@@ -27,7 +31,13 @@ struct LevelScreen: View {
                         .padding(.top, 20)
                     BoardView(session: session)
                         .padding(.horizontal, 12)
-                        .padding(.bottom, 20)
+                    // Its own row, so the button can never sit on top of a candy.
+                    HStack {
+                        Spacer()
+                        HomeButton(action: onHome)
+                    }
+                    .padding(.trailing, 20 + insets.trailing)
+                    .padding(.bottom, 16)
                 }
             }
         }

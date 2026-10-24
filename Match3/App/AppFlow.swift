@@ -59,6 +59,13 @@ final class AppFlow {
         return minutes > 0 && elapsed >= Double(minutes) * 60
     }
 
+    /// Home button on the level screen: back to Play. The unfinished level is simply dropped.
+    func goHome() {
+        session = nil
+        sessionStart = nil
+        screen = .play
+    }
+
     /// After the good-night screen: back to Play. Pressing Play starts a fresh session.
     func endSession() {
         session = nil

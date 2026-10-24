@@ -57,7 +57,7 @@ struct RootView: View {
                     .transition(.scale(scale: 0.9).combined(with: .opacity))
             case .level:
                 if let session = flow.session {
-                    LevelScreen(session: session)
+                    LevelScreen(session: session, onHome: { flow.goHome() })
                         .id(session.config.level)
                         .transition(.opacity)
                 }
