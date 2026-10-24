@@ -22,7 +22,7 @@ Working title in the repo is "Match 3"; the real name is still to be chosen (ste
 - [ ] **Choose the app name** (30 characters max, must be unique on the App Store worldwide). Check availability by trying to create the app record in App Store Connect (step 4); the form rejects taken names. Have two or three candidates. Also pick a **subtitle** (30 characters) such as "Calm match-3, no losing".
 - [ ] **Decide the bundle identifier for good.** It is `io.anes.match3` now. It cannot be changed after the first upload to App Store Connect, so if you want it to carry the final name (for example `io.anes.<name>`), decide now. The StoreKit product id (`io.anes.match3.unlock`) is independent but should also be settled now.
 - [ ] **Ask Claude to apply the name**: display name under the icon (`CFBundleDisplayName`, 12 characters or so before it truncates), product name, scheme, bundle id if changed, product id, StoreKit test file, this checklist, and the repo folder if you want.
-- [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). A page on your own site or a GitHub Pages page is enough. Ask Claude for the text: it will say that the app stores progress and settings only on the device, collects no personal data, has no analytics, no ads, no third-party SDKs, and that purchases go through Apple.
+- [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). The text is ready in `Store/privacy-policy.md`; put it on your own site or a GitHub Pages page, add the support email, then give me the URL so the caregiver panel can link to it (`AppLinks.privacyPolicy`).
 - [ ] **Support URL** (required): an email address on a simple page, or the same page as the privacy policy with a contact line.
 - [ ] **Marketing URL** (optional).
 - [ ] **Licenses of the assets**, so nothing can trip App Review or a rights claim:
@@ -46,21 +46,22 @@ Working title in the repo is "Match 3"; the real name is still to be chosen (ste
 - [ ] **App information**: subtitle, category Games > Puzzle (secondary: Family or Education), content rights (no third-party content: yes, the assets are licensed), age rating questionnaire (all "None" → 4+).
 - [ ] **Pricing and availability**: Free, all countries (or your pick). Tick "Available for volume purchase" (Apple Business Manager / Apple School Manager) so care homes and schools can buy in bulk. If you want the app discoverable by institutions only via code, use "Custom app" distribution instead (not now).
 - [ ] **App privacy**: "Data not collected" for every category. Keep it true: no analytics SDK, ever.
-- [ ] **Version information**: description (first two lines state the audience plainly: for people with intellectual disabilities, no losing, no timers, no ads; caregiver panel; one purchase unlocks everything), keywords (100 characters, comma separated, no spaces after commas: e.g. `match 3,candy,calm,relaxing,no ads,disability,autism,dementia,seniors,easy,puzzle`), promotional text, "What's New", support URL, marketing URL, copyright line ("2026 Anes Hasicic").
+- [ ] **Version information**: description, keywords, promotional text and "What's New" are drafted in `Store/listing.md`; add support URL, marketing URL and the copyright line ("2026 Anes Hasicic").
 - [ ] **Screenshots** (ask Claude to produce them from the simulator with the final name):
   - iPhone 6.9" (1320 x 2868) **required**, iPhone 6.5" (1284 x 2778) optional but recommended.
   - iPad 13" (2064 x 2752) **required while iPad is supported**.
   - 3 to 6 per size: Play screen, small board, shaped board, Good Job with the jar, caregiver panel, high contrast. No device frames needed.
 - [ ] **App preview video**: optional, skip for version 1.
-- [ ] **App Review information**: contact name, phone, email. **Notes for the reviewer** (ask Claude for the text): the game is for players with intellectual disabilities, there is deliberately no menu; the caregiver panel opens by holding three fingers on the Play screen for three seconds; the purchase sits in that panel behind a parental gate; the first 20 levels are free. No login, so no demo account.
+- [ ] **App Review information**: contact name, phone, email. Notes for the reviewer are drafted in `Store/listing.md`.
 - [ ] **Sign-in**: not required, say so in the review form.
 - [ ] **Export compliance**: already answered in the build (`ITSAppUsesNonExemptEncryption = false`), so no questions at upload.
 
 ## 5. Build and upload (you, with Claude's prep)
 
-- [ ] **Version and build number** (ask Claude): `MARKETING_VERSION` 1.0 and `CURRENT_PROJECT_VERSION` 1 in `project.yml`, bumped for every upload (build number must increase every time).
-- [ ] **App icon**: all sizes come from `AppIconView` via `Tools/render-art.sh`; check the 1024 x 1024 icon has no transparency and no rounded corners (App Store rejects both).
-- [ ] **Launch screen**: the app uses `UILaunchScreen` (plain background). Ask Claude for a launch screen that matches the cream-pink background so the start does not flash white.
+- [x] **Version and build number**: `MARKETING_VERSION` 1.0 and `CURRENT_PROJECT_VERSION` 1 in `project.yml`. Bump the build number for every upload (ask Claude, or edit the line).
+- [x] **App icon**: rendered opaque by `Tools/render-art.sh` (no alpha channel, square; iOS rounds the corners).
+- [x] **Launch screen**: `UILaunchScreen` with the cream `LaunchBackground` color, so the start does not flash white.
+- [x] **Release configuration builds** (checked on the simulator; Debug-only flags and the logo hold compile out).
 - [ ] **Archive**: open `Match3.xcodeproj` in Xcode, pick "Any iOS Device (arm64)", Product > Archive. (`xcodegen generate` first if `project.yml` changed.) Signing is automatic with the team in `project.yml`.
 - [ ] **Upload**: Window > Organizer > Distribute App > App Store Connect > Upload. Or export the `.ipa` and use the Transporter app.
 - [ ] **TestFlight**: internal testing with your own Apple ID first (no review needed), then optionally external testers (short Apple review). Install on the Duo through the TestFlight app and play a session; test the purchase with the sandbox account.

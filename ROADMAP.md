@@ -22,7 +22,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
 - [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
 - [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more (one candy per finished level). No rules, no unlocks. Not shown on the Play screen.
-- [ ] **No streaks.** No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
+- [x] **No streaks.** (Checked: nothing in the app depends on dates except the caregiver's finished-levels count.) No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
 - [x] **Fixed celebration length.** `GoodJobScreen.duration` (5.5 s) is constant; the candy drop fits inside it.
 
 ## 3. Caregiver panel
@@ -69,11 +69,11 @@ Yes let's go with C
 - [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
 - [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.kurrent.match3.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
 - [x] **Parental gate** in the caregiver panel before the purchase button: a multiplication question (3–9 × 3–9) in an alert; wrong answers just return to the panel.
-- [ ] **Purchase screen** in the caregiver panel: price, what you get ("all levels, forever"), restore button, link to privacy policy.
+- [x] **Purchase screen** in the caregiver panel: price, what you get, restore button; the privacy policy link appears once `AppLinks.privacyPolicy` is set.
 - [ ] **Tip jar** non-consumables (optional, caregiver panel only).
-- [ ] **Volume purchase** enabled in App Store Connect; one line in the panel: "Institutions: available via Apple Business Manager".
+- [x] **Volume purchase**: the panel line is in. Still to tick in App Store Connect: "Available for volume purchase" (see PUBLISH.md).
 - [ ] **Enroll in the Apple Small Business Program.**
-- [ ] **Privacy label and policy** with no tracking; keep it that way (no analytics SDK that fingerprints; if analytics are wanted, use Apple's or a first-party counter).
+- [x] **Privacy label and policy** with no tracking (policy text in `Store/privacy-policy.md`, label answers in `Store/listing.md`); keep it that way (no analytics SDK that fingerprints; if analytics are wanted, use Apple's or a first-party counter).
 - [x] **Ads dropped entirely** (option C). The ad hook was removed; `UnlockStore` is the only monetization seam.
 
 ## 5. Accessibility details
@@ -96,7 +96,7 @@ The [gamedeveloperstudio license](https://www.gamedeveloperstudio.com/license.ph
 commercial use with no attribution, but **forbids redistributing the files** outside a built
 app. Consequences:
 
-- [ ] Keep `candy_game_2/` and the asset catalog out of any public repository (private repo or `.gitignore` them and keep a private copy).
+- [x] Keep `candy_game_2/` and the asset catalog out of any public repository: `candy_game_2/` is not tracked; the repo must stay private because the catalog is.
 - [ ] Keep the itch.io purchase receipt with the project.
 
 ### Found sources, per asset
