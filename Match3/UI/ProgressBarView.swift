@@ -6,7 +6,7 @@ struct ProgressBarView: View {
     let fraction: Double
     /// Vertical in landscape: the bar stands beside the board and fills bottom to top.
     var axis: Axis = .horizontal
-    private let height: CGFloat = 36
+    private let height: CGFloat = 29
 
     @State private var shimmer = false
     @State private var pulse = false

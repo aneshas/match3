@@ -14,7 +14,7 @@ final class MusicPlayer {
     static let shared = MusicPlayer()
 
     /// Playback level under the effects.
-    private let volume: Float = 0.4
+    private let volume: Float = 0.28
     private let tracks: [URL]
     private var cursor: Int
     private var current: AVAudioPlayer?
