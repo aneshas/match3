@@ -11,6 +11,13 @@ struct PlayScreen: View {
 
     @State private var breathing = false
     @State private var logoSpin = false
+
+    /// The Play button is a big candy from the whole pack, picked once per launch.
+    private static let launchCandy: String = {
+        let shape = CandyArt.shapes.randomElement() ?? CandyArt.shapes[0]
+        let color = CandyArt.CandyColor.allCases.randomElement() ?? .red
+        return CandyArt.CandyType(shape: shape, color: color).imageName()
+    }()
     @State private var candies: [FloatingCandy] = FloatingCandy.makePlayScreen()
 
     var body: some View {
@@ -36,30 +43,28 @@ struct PlayScreen: View {
                         .accessibilityIdentifier("logo")
                         .debugLogoHold(onCaregiverHold)
 
+                    // The button: a big candy (a little bigger than the logo) with a play icon on
+                    // top. Icon only, so the app has no words in any language. Locked: the candy
+                    // fades to grey and the icon becomes a lock.
+                    let candySize = logoSize * 1.2
                     Button(action: { guard !locked else { return }; SoundPlayer.shared.play(.tap); onPlay() }) {
-                        HStack(spacing: 20) {
-                            if locked {
-                                Image(systemName: "lock.fill")
-                                    .font(.system(size: 64, weight: .bold))
-                            } else {
-                                // Icon only, so the app has no words in any language.
-                                Image(systemName: "play.fill")
-                                    .font(.system(size: 72, weight: .bold))
-                            }
+                        ZStack {
+                            CandyArt.load(PlayScreen.launchCandy)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: candySize, height: candySize)
+                                .saturation(locked ? 0.1 : 1)
+                                .opacity(locked ? 0.75 : 1)
+                                .shadow(color: Color.black.opacity(0.22), radius: 12, y: 8)
+                            OutlinedSymbol(name: locked ? "lock.fill" : "play.fill",
+                                           font: .system(size: candySize * 0.42, weight: .bold),
+                                           fill: .white, outline: Theme.text, width: 3)
+                                .offset(x: locked ? 0 : candySize * 0.03)  // a triangle looks centered a touch right
+                                .shadow(color: Color.black.opacity(0.3), radius: 6, y: 4)
                         }
-                        .foregroundStyle(.white)
-                        .shadow(color: Color.black.opacity(0.25), radius: 2, y: 2)
-                        .frame(width: landscape ? min(geo.size.width * 0.45, 360) : max(geo.size.width * 0.75, 280), height: 140)
-                        .background(locked ? AnyShapeStyle(Color(red: 0.72, green: 0.66, blue: 0.70)) : AnyShapeStyle(Theme.playButton), in: Capsule())
-                        .overlay(alignment: .top) {
-                            Capsule()
-                                .fill(Color.white.opacity(0.28))
-                                .frame(height: 52)
-                                .padding(.horizontal, 22)
-                                .padding(.top, 10)
-                        }
-                        .overlay(Capsule().strokeBorder(Color.white, lineWidth: 5))
-                        .shadow(color: Theme.magenta.opacity(0.45), radius: 18, y: 10)
+                        .frame(width: candySize * 1.1, height: candySize * 1.1)
+                        .contentShape(Circle())
+                        .shadow(color: Theme.magenta.opacity(locked ? 0 : 0.4), radius: 24, y: 10)
                     }
                     .buttonStyle(PressableButtonStyle())
                     .scaleEffect(breathing && !locked ? 1.04 : 1.0)

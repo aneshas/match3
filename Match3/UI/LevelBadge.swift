@@ -43,3 +43,24 @@ struct OutlinedText: View {
         .compositingGroup()
     }
 }
+
+/// An SF Symbol with a solid outline, stamped the same way as `OutlinedText`.
+struct OutlinedSymbol: View {
+    let name: String
+    let font: Font
+    let fill: Color
+    let outline: Color
+    let width: CGFloat
+
+    var body: some View {
+        ZStack {
+            ForEach(0..<8, id: \.self) { i in
+                let angle = Double(i) / 8 * 2 * .pi
+                Image(systemName: name).font(font).foregroundStyle(outline)
+                    .offset(x: cos(angle) * width, y: sin(angle) * width)
+            }
+            Image(systemName: name).font(font).foregroundStyle(fill)
+        }
+        .compositingGroup()
+    }
+}
