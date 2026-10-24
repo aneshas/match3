@@ -173,7 +173,12 @@ the first update should add novelty. Cheapest first:
 - [ ] **Worlds**: every 10 levels from 30 the backdrop, the floating decorations and the music mood change together (candy shop, beach, night sky, snow). Backdrops are code-drawn gradients; decorations and music already exist. Nothing about play changes.
 - [ ] **Milestone celebrations**: every 10th level a bigger Good Job (fireworks instead of rain, the jar grows a size).
 - [ ] **New candy art**: all 42 plain pieces of the pack are in play, so new candies need a second pack, ideally from the same artist for style. Requirements: 6 colors per silhouette, transparent PNG, dark outline, about 256 px. They join the palette pool (`CandyArt.shapes`) so mixes from level 30 draw from 10 to 12 silhouettes.
-- [ ] **A third special candy** (rainbow from a five-match: clears every candy of the color it is swapped with). More to understand than the current two; only after real players have met those.
+- [ ] **More special candies**, for bigger effects and faster progress on the long later levels (goals reach 48 steps). Each follows the existing rules: earned by a bigger or shaped match, matched like any candy, never required, one step on the bar per trigger (or more for the big ones). Ideas, in order of how little they ask of the player:
+  - **Rainbow candy**: from a five-match in an L or T. Swapping it with any candy clears every candy of that color on the board, with a rainbow sweep. Worth 2 steps.
+  - **Bomb candy**: from a match of six or more in a line. Clears a 5x5 area with a big shockwave. Worth 2 steps.
+  - **Combos**: two specials swapped into each other go off together (striped + wrapped clears three rows and three columns; two striped clear the whole board). Worth 3 steps. Pure spectacle, no new gesture.
+  - **Special-candy art**: the pack has no rainbow or bomb piece; use the code-drawn route (a swirl of all six colors, a dark ball with a fuse) or buy matching art.
+  - Unlock them one at a time, each 10 to 15 levels apart from level 30, so every tier of levels brings one new thing.
 
 ## 7. Testing with real players
 
