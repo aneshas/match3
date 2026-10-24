@@ -58,6 +58,7 @@ struct BoardView: View {
                             .opacity(tile.opacity)
                             .position(center(row: tile.row, col: tile.col, cell: cell))
                             .accessibilityIdentifier("tile.\(Int(tile.row.rounded())).\(Int(tile.col.rounded()))")
+                            .accessibilityValue(tile.power.kind.map { "\($0)" } ?? "")
                             .gesture(swipeGesture(for: tile))
                     }
 
