@@ -40,6 +40,9 @@ final class AppFlow {
     let unlock: UnlockStore
     private var advancing = false
     private var sessionStart: Date?
+    /// The palette prepared for the next level while the current one is played (its newcomer
+    /// is the candy at the end of the bar), so the promise on the bar is kept.
+    private var nextPalette: CandyArt.Palette?
 
     /// Levels playable without the purchase. The last free level stays playable forever.
     static let freeLevels = 20
@@ -77,6 +80,7 @@ final class AppFlow {
     func goHome() {
         session = nil
         sessionStart = nil
+        nextPalette = nil
         screen = .play
     }
 
@@ -92,12 +96,21 @@ final class AppFlow {
                                  assist: DebugFlags.assist ?? progress.assist,
                                  maxColors: Settings.shared.maxColors,
                                  maxRows: boardMaxRows)
-        let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
+        // Use the palette promised on the previous level's bar if it still fits (the color
+        // count can change with assist or the caregiver cap); otherwise draw a fresh one.
+        let previous = self.session?.palette
+        var palette = nextPalette ?? CandyArt.Palette.random(level: level, count: config.colorCount, avoiding: previous)
+        if palette.types.count != config.colorCount {
+            palette = CandyArt.Palette.random(level: level, count: config.colorCount, avoiding: previous)
+        }
+        let session = GameSession(config: config, palette: palette, swipeDemo: !progress.hasEverSwiped)
         let next = LevelConfig(level: level + 1,
                                assist: DebugFlags.assist ?? progress.assist,
                                maxColors: Settings.shared.maxColors,
                                maxRows: boardMaxRows)
-        session.nextCandy = CandyArt.Preview.forLevel(next)
+        let upcoming = CandyArt.Palette.random(level: next.level, count: next.colorCount, avoiding: palette)
+        nextPalette = upcoming
+        session.nextCandy = CandyArt.Preview(type: upcoming.newType(comparedTo: palette))
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
         }
@@ -119,6 +132,7 @@ final class AppFlow {
     func resetProgress() {
         progress.reset()
         session = nil
+        nextPalette = nil
         screen = .play
     }
 

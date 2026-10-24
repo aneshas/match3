@@ -31,17 +31,9 @@ enum Theme {
                        startPoint: .top, endPoint: .bottom)
     }
 
-    /// Burst particle color per tile color (matches the candy's hue).
-    private static let particleColors: [Color] = [
-        Color(red: 0.20, green: 0.65, blue: 0.95),  // blue
-        Color(red: 1.00, green: 0.85, blue: 0.20),  // yellow
-        Color(red: 0.90, green: 0.20, blue: 0.25),  // red
-        Color(red: 0.45, green: 0.78, blue: 0.25),  // green
-        Color(red: 0.75, green: 0.30, blue: 0.90),  // purple
-        Color(red: 1.00, green: 0.60, blue: 0.15),  // orange
-    ]
-
+    /// Burst particle color for the classic six (board effects use the level's palette:
+    /// `CandyArt.Palette.particleColor`).
     static func particleColor(for tile: TileColor) -> Color {
-        particleColors[tile.index]
+        CandyArt.CandyColor.allCases[tile.index].particle
     }
 }

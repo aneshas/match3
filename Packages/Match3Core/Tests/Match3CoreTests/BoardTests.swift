@@ -252,7 +252,7 @@ final class BoardTests: XCTestCase {
         var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
         b.setPower(.striped(.horizontal), at: Position(row: 2, col: 2))
         let striped = b.expandedRemoval(for: [Position(row: 2, col: 2)])
-        XCTAssertEqual(striped.removed, Set((0..<5).map { Position(row: 2, col: $0) }))
+        XCTAssertEqual(striped.removed, Set((0..<5).map { Position(row: 2, col: $0) } + (0..<5).map { Position(row: $0, col: 2) }), "row and column")
         XCTAssertEqual(striped.triggered.map(\.position), [Position(row: 2, col: 2)])
 
         b.setPower(.wrapped, at: Position(row: 0, col: 0))

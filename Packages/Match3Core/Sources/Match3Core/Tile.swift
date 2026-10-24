@@ -26,8 +26,8 @@ public enum Power: Hashable, Sendable {
     case none
     /// Earned by a match of four (or an L/T). When matched it also bursts its 8 neighbors.
     case wrapped
-    /// Earned by five in a line. When matched it clears its whole row (horizontal stripes)
-    /// or column (vertical stripes).
+    /// Earned by five in a line. When matched it clears its whole row and its whole
+    /// column. The axis only picks the artwork (stripes along the line that earned it).
     case striped(LineAxis)
 }
 

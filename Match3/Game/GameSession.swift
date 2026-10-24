@@ -17,6 +17,15 @@ struct TileState: Identifiable, Equatable {
     var power: Power = .none
 }
 
+/// A special candy going off: an expanding ring from its cell, drawn over the board.
+struct Shockwave: Identifiable, Equatable {
+    let id = UUID()
+    let row: Int
+    let col: Int
+    let color: TileColor
+    let big: Bool
+}
+
 /// A striped candy going off: a flash along its whole row or column.
 struct Sweep: Identifiable, Equatable {
     let id = UUID()
@@ -55,7 +64,9 @@ final class GameSession {
     }
 
     let config: LevelConfig
-    /// What the bar fills toward: a candy from the next level (set by AppFlow).
+    /// Which candy types this level plays (one per color index).
+    let palette: CandyArt.Palette
+    /// What the bar fills toward: the next level's newcomer candy (set by AppFlow).
     var nextCandy: CandyArt.Preview?
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
@@ -74,8 +85,14 @@ final class GameSession {
     static let cascadeCredit = 0.5
     /// Steps added when a special candy goes off.
     static let powerCredit = 1.0
+    /// Special candies are only created from this level on; the first levels stay plain.
+    static let powerUpsFromLevel = 10
     /// Striped-candy flashes currently on screen.
     private(set) var sweeps: [Sweep] = []
+    /// Rings from special candies going off.
+    private(set) var shockwaves: [Shockwave] = []
+    /// Toggled for a moment when a special goes off: the whole board gives a little punch.
+    private(set) var boardPunch = false
     /// How many special candies have gone off this level (debug counters, tests).
     private(set) var triggeredPowers = 0
     /// Whether matches of four and five create special candies (caregiver setting, read
@@ -114,8 +131,9 @@ final class GameSession {
     var progressPoints: Double { min(Double(goal), points) }
     var progressFraction: Double { progressPoints / Double(goal) }
 
-    init(config: LevelConfig, swipeDemo: Bool = false) {
+    init(config: LevelConfig, palette: CandyArt.Palette, swipeDemo: Bool = false) {
         self.config = config
+        self.palette = palette
         self.wantsDemo = swipeDemo
         self.powersEnabled = Settings.shared.powerUpsEnabled
         self.board = config.makeBoard()
@@ -244,7 +262,7 @@ final class GameSession {
             // and transforms instead of popping.
             var base = Set(groups.flatMap { $0.positions })
             var creations: [(at: Position, power: Power)] = []
-            if powersEnabled {
+            if powersEnabled, config.level >= GameSession.powerUpsFromLevel {
                 for g in groups {
                     guard let power = g.earnedPower,
                           let pivot = pivot(for: g, preferring: depth == 0 ? swapped : []) else { continue }
@@ -265,17 +283,40 @@ final class GameSession {
             let stepsNow = groups.reduce(0.0) { $0 + GameSession.stepValue(matched: $1.positions.count) }
             points += (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit)
                 + Double(expansion.triggered.count) * GameSession.powerCredit
-            Haptics.matchMade(big: big)
-            SoundPlayer.shared.playMatch(big: big)
-
-            // Striped candies flash along their line, behind the popping candies.
-            for t in expansion.triggered {
-                guard case .striped(let axis) = t.power, let tile = board.tile(at: t.position) else { continue }
-                let sweep = Sweep(axis: axis, index: axis == .horizontal ? t.position.row : t.position.col, color: tile.color)
-                sweeps.append(sweep)
+            if expansion.triggered.isEmpty {
+                Haptics.matchMade(big: big)
+                SoundPlayer.shared.playMatch(big: big)
+            } else {
+                // A special going off: its own sound, a heavier thump, a ring from its cell
+                // and a little punch of the whole board.
+                Haptics.powerUp()
+                let powers = Set(expansion.triggered.map { $0.power.isStriped })
+                if powers.contains(true) { SoundPlayer.shared.play(.striped) }
+                if powers.contains(false) { SoundPlayer.shared.play(.wrapped) }
+                for t in expansion.triggered {
+                    guard let tile = board.tile(at: t.position) else { continue }
+                    let wave = Shockwave(row: t.position.row, col: t.position.col, color: tile.color, big: t.power.isStriped)
+                    shockwaves.append(wave)
+                    Task { [weak self] in
+                        try? await Task.sleep(for: .milliseconds(900))
+                        self?.shockwaves.removeAll { $0.id == wave.id }
+                    }
+                    if t.power.isStriped {
+                        // Both lines flash, behind the popping candies.
+                        for axis in [LineAxis.horizontal, .vertical] {
+                            let sweep = Sweep(axis: axis, index: axis == .horizontal ? t.position.row : t.position.col, color: tile.color)
+                            sweeps.append(sweep)
+                            Task { [weak self] in
+                                try? await Task.sleep(for: .milliseconds(700))
+                                self?.sweeps.removeAll { $0.id == sweep.id }
+                            }
+                        }
+                    }
+                }
+                boardPunch = true
                 Task { [weak self] in
-                    try? await Task.sleep(for: .milliseconds(700))
-                    self?.sweeps.removeAll { $0.id == sweep.id }
+                    try? await Task.sleep(for: .milliseconds(140))
+                    self?.boardPunch = false
                 }
             }
 
@@ -482,4 +523,11 @@ final class GameSession {
     private var popDuration: Double { 0.3 * motionScale }
     private var fallDuration: Double { 0.38 * motionScale }
     private var wiggleDuration: Double { 0.35 }
+}
+
+extension Power {
+    var isStriped: Bool {
+        if case .striped = self { return true }
+        return false
+    }
 }

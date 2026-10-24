@@ -22,6 +22,14 @@ enum Haptics {
         #endif
     }
 
+    /// A special candy going off: heavier than any match.
+    @MainActor static func powerUp() {
+        guard Settings.shared.hapticsEnabled else { return }
+        #if canImport(UIKit)
+        UIImpactFeedbackGenerator(style: .heavy).impactOccurred()
+        #endif
+    }
+
     @MainActor static func levelDone() {
         guard Settings.shared.hapticsEnabled else { return }
         #if canImport(UIKit)

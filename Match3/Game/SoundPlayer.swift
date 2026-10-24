@@ -13,6 +13,8 @@ final class SoundPlayer {
     enum Sound: String, CaseIterable {
         case match, matchAlt = "match_alt", matchBig = "match_big"
         case invalid, shuffle, tap
+        /// Special candies going off.
+        case striped, wrapped
         /// Two layers that always play together (see `playLevelDone`).
         case levelDoneA = "level_done_0", levelDoneB = "level_done_1"
     }

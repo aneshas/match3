@@ -299,10 +299,9 @@ public struct Board: Sendable {
                 extra = []
             case .wrapped:
                 extra = (-1...1).flatMap { dr in (-1...1).map { dc in Position(row: p.row + dr, col: p.col + dc) } }
-            case .striped(.horizontal):
-                extra = (0..<cols).map { Position(row: p.row, col: $0) }
-            case .striped(.vertical):
-                extra = (0..<rows).map { Position(row: $0, col: p.col) }
+            case .striped:
+                // Whole row and whole column, whichever way the stripes run.
+                extra = (0..<cols).map { Position(row: p.row, col: $0) } + (0..<rows).map { Position(row: $0, col: p.col) }
             }
             for q in extra where tile(at: q) != nil && !removed.contains(q) {
                 removed.insert(q)

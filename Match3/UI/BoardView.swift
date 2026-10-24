@@ -38,7 +38,7 @@ struct BoardView: View {
 
                     ForEach(session.sweeps) { sweep in
                         let horizontal = sweep.axis == .horizontal
-                        SweepView(color: Theme.particleColor(for: sweep.color), horizontal: horizontal)
+                        SweepView(color: session.palette.particleColor(for: sweep.color), horizontal: horizontal)
                             .frame(width: horizontal ? boardWidth : cell * 0.9, height: horizontal ? cell * 0.9 : boardHeight)
                             .position(x: horizontal ? boardWidth / 2 : (CGFloat(sweep.index) + 0.5) * cell,
                                       y: horizontal ? (CGFloat(sweep.index) + 0.5) * cell : boardHeight / 2)
@@ -46,13 +46,12 @@ struct BoardView: View {
                     }
 
                     ForEach(session.tiles) { tile in
-                        TileView(color: tile.color,
+                        TileView(imageName: session.palette.imageName(for: tile.color, power: tile.power),
                                  size: cell * 0.88,
                                  wiggling: session.wigglingIDs.contains(tile.id),
                                  hinting: session.hintIDs.contains(tile.id),
                                  hintStrength: session.hintLevel,
-                                 outlined: highContrast,
-                                 finish: tile.power.finish)
+                                 outlined: highContrast)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)
@@ -62,7 +61,7 @@ struct BoardView: View {
                     }
 
                     ForEach(session.bursts) { burst in
-                        BurstView(color: Theme.particleColor(for: burst.color), radius: cell * 0.5, big: burst.big)
+                        BurstView(color: session.palette.particleColor(for: burst.color), radius: cell * 0.5, big: burst.big)
                             .position(center(row: Double(burst.row), col: Double(burst.col), cell: cell))
                     }
 
@@ -85,6 +84,17 @@ struct BoardView: View {
                 }
                 .frame(width: boardWidth, height: boardHeight)
                 .clipped()
+                .scaleEffect(session.boardPunch ? 1.035 : 1)
+                .animation(.spring(response: 0.22, dampingFraction: 0.45), value: session.boardPunch)
+
+                // Rings from special candies, outside the clip so they can spread past the board.
+                ForEach(session.shockwaves) { wave in
+                    ShockwaveView(color: session.palette.particleColor(for: wave.color), big: wave.big)
+                        .frame(width: cell * (wave.big ? 6 : 4), height: cell * (wave.big ? 6 : 4))
+                        .position(x: (geo.size.width - boardWidth) / 2 + center(row: Double(wave.row), col: Double(wave.col), cell: cell).x,
+                                  y: (geo.size.height - boardHeight) / 2 + center(row: Double(wave.row), col: Double(wave.col), cell: cell).y)
+                        .allowsHitTesting(false)
+                }
             }
             .position(x: geo.size.width / 2, y: geo.size.height / 2)
         }
