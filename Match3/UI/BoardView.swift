@@ -42,7 +42,8 @@ struct BoardView: View {
                                  wiggling: session.wigglingIDs.contains(tile.id),
                                  hinting: session.hintIDs.contains(tile.id),
                                  hintStrength: session.hintLevel,
-                                 outlined: highContrast)
+                                 outlined: highContrast,
+                                 finish: CandyArt.finish(for: session.config.level))
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)

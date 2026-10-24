@@ -11,6 +11,8 @@ struct TileView: View {
     var hintStrength: Int = 1
     /// High contrast: a thick dark rim traced around the candy's silhouette.
     var outlined: Bool = false
+    /// Cosmetic finish for this level (plain, striped, wrapped).
+    var finish: CandyArt.Finish = .plain
 
     @State private var hintPulse = false
 
@@ -32,7 +34,7 @@ struct TileView: View {
             }
     }
 
-    private var image: Image { Image(CandyArt.image(for: color)) }
+    private var image: Image { CandyArt.load(CandyArt.image(for: color, finish: finish)) }
 
     /// The candy, and in high contrast the same image stamped in black at eight offsets
     /// underneath it, which traces an outline that follows each candy's own shape.

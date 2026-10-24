@@ -27,7 +27,10 @@ on a soft cream-to-pink background.
 - Candy icons are Robert Brooks's paid "Match three candy" pack (gamedeveloperstudio license: commercial use OK, no attribution, no redistribution). They live only in `Match3/Resources/Assets.xcassets/Candy/<name>.imageset` as single-scale universal images. Do not publish the repo publicly with them in it.
 - `CandyArt` maps tile colors to images. Each color has its own silhouette so pieces differ
   by shape as well as color: blue ball, yellow bean, red heart, green triangle, purple square,
-  orange pear. The striped/wrapper variants are imported but unused (reserved for later).
+  orange pear. The pack's four finishes (plain, horizontal stripe, vertical stripe, wrapper) are
+  purely cosmetic: levels 1 to 3 are plain, then the finish rotates every level (`CandyArt.finish(for:)`).
+  The oval silhouette and the wrapped ovals are decoration only (background, Good Job rain).
+  If power-ups ever arrive (see ROADMAP), give them the striped/wrapper look and stop the rotation.
 - `Theme` holds all colors/gradients. `CandyBackground` is the shared animated backdrop.
 - Code-drawn art lives in `Match3/UI/Art/` (jar, sleeping candy, hint arrow, app icon). `Tools/render-art.sh` renders them to PNG for review and writes the app icon; it needs only Command Line Tools. Any view that shows a candy image must go through `CandyArt.load` so the tool can swap in file loading.
 - Caregiver panel: `CaregiverPanel` (sheet over Play, opened by `ThreeFingerHold`; in Debug builds also by holding the logo 3 s with one finger, for the Simulator), edits `Settings` (sound, haptics, high contrast, color cap, session length) and can reset `Progress`. High contrast (`Settings.highContrastActive`, also on under iOS Increase Contrast) gives `TileView` a dark rim traced from the candy's own silhouette, cocoa cells in `BoardView` and fades the background candies. `Motion.reduceMotion` follows the system Reduce Motion setting only.
