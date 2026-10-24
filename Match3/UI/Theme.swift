@@ -11,6 +11,10 @@ enum Theme {
     }
 
     static let cell = Color.white.opacity(0.55)
+    static let cellBorder = Color.white.opacity(0.7)
+    /// High contrast: cocoa cells with a dark rim so bright candies sit on a dark, even ground.
+    static let cellHighContrast = Color(red: 0.45, green: 0.26, blue: 0.36)
+    static let cellBorderHighContrast = Color(red: 0.22, green: 0.08, blue: 0.16)
 
     static let text = Color(red: 0.32, green: 0.13, blue: 0.22)
     static let gold = Color(red: 1.00, green: 0.78, blue: 0.16)

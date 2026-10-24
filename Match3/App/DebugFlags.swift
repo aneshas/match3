@@ -43,6 +43,8 @@ enum DebugFlags {
     }
     /// MATCH3_UNLOCKED=1 behaves as if the purchase was made.
     static var forceUnlocked: Bool { flag("MATCH3_UNLOCKED") }
+    /// MATCH3_HIGH_CONTRAST=1 turns the high-contrast look on for this launch.
+    static var highContrast: Bool { flag("MATCH3_HIGH_CONTRAST") }
 
     static var startLevel: Int? {
         #if DEBUG

@@ -15,6 +15,9 @@ struct CaregiverPanel: View {
                 Section("Play") {
                     Toggle("Sounds", isOn: $settings.soundEnabled)
                     Toggle("Vibration", isOn: $settings.hapticsEnabled)
+                    Toggle("High contrast", isOn: $settings.highContrast)
+                    Text("Thick dark outlines around the candies, darker cells and a plainer background. Also on whenever iOS Increase Contrast is on.")
+                        .font(.footnote).foregroundStyle(.secondary)
                 }
 
                 Section("Session") {

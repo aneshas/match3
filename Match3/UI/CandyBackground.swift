@@ -4,8 +4,13 @@ import SwiftUI
 /// transitions feel like staying in one place.
 struct CandyBackground: View {
     @State private var items: [FloatingCandy] = FloatingCandy.makeBackground()
+    @State private var settings = Settings.shared
+    @Environment(\.colorSchemeContrast) private var systemContrast
 
     var body: some View {
+        // In high contrast the drifting candies fade right back so nothing behind the board
+        // competes with the candies on it.
+        let highContrast = settings.highContrastActive(systemIncreased: systemContrast == .increased)
         ZStack {
             Theme.background
             GeometryReader { geo in
@@ -14,6 +19,7 @@ struct CandyBackground: View {
                         .position(x: item.x * geo.size.width, y: item.y * geo.size.height)
                 }
             }
+            .opacity(highContrast ? 0.3 : 1)
             .allowsHitTesting(false)
         }
         .ignoresSafeArea()

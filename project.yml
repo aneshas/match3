@@ -91,6 +91,9 @@ schemes:
         - variable: MATCH3_UNLOCKED
           value: "1"
           isEnabled: false
+        - variable: MATCH3_HIGH_CONTRAST
+          value: "1"
+          isEnabled: false
     test:
       config: Debug
       targets:

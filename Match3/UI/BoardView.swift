@@ -8,8 +8,11 @@ struct BoardView: View {
     /// One swipe per finger-down. Without this a long drag could trigger a second swap
     /// from the tile's new position once the first one finishes.
     @State private var dragConsumed = false
+    @State private var settings = Settings.shared
+    @Environment(\.colorSchemeContrast) private var systemContrast
 
     var body: some View {
+        let highContrast = settings.highContrastActive(systemIncreased: systemContrast == .increased)
         GeometryReader { geo in
             let rows = session.config.rows
             let cols = session.config.cols
@@ -26,8 +29,9 @@ struct BoardView: View {
                     // Faint cells show the playable area, so holes read as "not part of the board".
                     ForEach(session.board.allPositions, id: \.self) { p in
                         RoundedRectangle(cornerRadius: cell * 0.22, style: .continuous)
-                            .fill(Theme.cell)
-                            .overlay(RoundedRectangle(cornerRadius: cell * 0.22, style: .continuous).strokeBorder(Color.white.opacity(0.7), lineWidth: 2))
+                            .fill(highContrast ? Theme.cellHighContrast : Theme.cell)
+                            .overlay(RoundedRectangle(cornerRadius: cell * 0.22, style: .continuous)
+                                .strokeBorder(highContrast ? Theme.cellBorderHighContrast : Theme.cellBorder, lineWidth: highContrast ? 3 : 2))
                             .frame(width: cell * 0.92, height: cell * 0.92)
                             .position(center(row: Double(p.row), col: Double(p.col), cell: cell))
                     }
@@ -37,7 +41,8 @@ struct BoardView: View {
                                  size: cell * 0.88,
                                  wiggling: session.wigglingIDs.contains(tile.id),
                                  hinting: session.hintIDs.contains(tile.id),
-                                 hintStrength: session.hintLevel)
+                                 hintStrength: session.hintLevel,
+                                 outlined: highContrast)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)

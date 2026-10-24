@@ -15,6 +15,7 @@ final class Settings {
         hapticsEnabled = defaults.object(forKey: "hapticsEnabled") as? Bool ?? true
         maxColors = defaults.object(forKey: "maxColors") as? Int ?? 6
         sessionMinutes = defaults.object(forKey: "sessionMinutes") as? Int ?? 0
+        highContrast = defaults.object(forKey: "highContrast") as? Bool ?? false
     }
 
     /// Caregiver session length in minutes; 0 = no limit. When it runs out the game ends
@@ -25,4 +26,13 @@ final class Settings {
     var hapticsEnabled: Bool { didSet { defaults.set(hapticsEnabled, forKey: "hapticsEnabled") } }
     /// Caps the number of candy colors regardless of level (3...6).
     var maxColors: Int { didSet { defaults.set(maxColors, forKey: "maxColors") } }
+    /// Thick dark outline around every candy, darker cells and a quieter backdrop.
+    var highContrast: Bool { didSet { defaults.set(highContrast, forKey: "highContrast") } }
+
+    /// High contrast is on when the caregiver asked for it, when iOS "Increase Contrast" is
+    /// on, or when a Debug launch forces it. `systemIncreased` comes from the view's
+    /// `\.colorSchemeContrast` environment so SwiftUI refreshes it live.
+    func highContrastActive(systemIncreased: Bool) -> Bool {
+        highContrast || systemIncreased || DebugFlags.highContrast
+    }
 }
