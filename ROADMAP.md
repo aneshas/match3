@@ -21,7 +21,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Background music.** 17 gentle loops cycle: a new one on every Play screen visit and every level, crossfaded, faded out quickly on Good Job. Caregiver toggle, quiet when another app plays audio.
 - [x] **Sound as the main reward.** Match (two alternating plucks), big match, level done jingle, soft "bong" for invalid swaps, shuffle whoosh, Play tap. Mute lives in the caregiver panel.
 - [x] **Match-to-bar sparkle.** A gold burst fires at the end of the fill (top of the fill in landscape) on every gain, alongside the pulse.
-- [x] **Candy jar collection.** The jar sits on the Good Job screen under the text; a candy flies from the star into it, the jar bounces and shows one more (one candy per finished level). No rules, no unlocks. Not shown on the Play screen.
+- [x] **Next-candy reward.** The Good Job screen shows the next level's new candy (the one promised at the end of the progress bar): it zooms in spinning, winds up and bursts into particles of its own color. Replaced the earlier candy jar collection, which was removed after play testing. No rules, no unlocks.
 - [x] **No streaks.** (Checked: nothing in the app depends on dates except the caregiver's finished-levels count.) No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
 - [x] **Fixed celebration length.** `GoodJobScreen.duration` (5.5 s) is constant; the candy drop fits inside it.
 
@@ -56,7 +56,7 @@ Go with **C now and E later**. Drop ads entirely unless downloads are huge and r
 Yes let's go with C
 
 - **Free part:** the first 18 levels, playable forever and replayable. This is the whole "is it right for my sister" test a caregiver needs.
-- **The stop moment:** when the free levels run out, the next Good Job screen ends with the candy jar and a single soft lock icon, no text, and the game returns to the Play screen, whose button now shows a lock. A caregiver unlocks or resets. Nothing looks like losing.
+- **The stop moment:** when the free levels run out, the next Good Job screen ends with a single soft lock icon where the candy burst, no text, and the game returns to the Play screen, whose button now shows a lock. A caregiver unlocks or resets. Nothing looks like losing.
 - **The purchase:** one non-consumable "Unlock all levels" in the caregiver panel only, behind the three-finger hold and a parental gate (e.g. "hold for 3 seconds" or a simple sum). Price around 7.99–12.99; this audience's caregivers are used to paying more for far less polished apps, and a low price signals "disposable". Enable Family Sharing so one buy covers the household.
 - **Why not ads at all:** besides confusing the player, ad networks require privacy disclosures, consent prompts and age gating that collide with Apple's Kids Category rules if the app is listed there. The removal of ads is the cleanest story in the App Store listing: "No ads. No timers. No losing."
 - **Optional, zero-risk extras:** a "Buy the developer a coffee" tip in the caregiver panel for people who already paid and want to say thanks; a visible note that institutions can buy in volume.
@@ -66,7 +66,7 @@ Yes let's go with C
 ### Tasks
 
 - [x] **Free-level count:** 18 (`AppFlow.freeLevels`). `MATCH3_FREE_LEVELS=n` and `MATCH3_UNLOCKED=1` for testing.
-- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
+- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles where the candy burst, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
 - [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.kurrent.match3.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
 - [x] **Parental gate** in the caregiver panel before the purchase button: a multiplication question (3–9 × 3–9) in an alert; wrong answers just return to the panel.
 - [x] **Purchase screen** in the caregiver panel: price, what you get, restore button; the privacy policy link appears once `AppLinks.privacyPolicy` is set.
@@ -109,7 +109,6 @@ in the session scratchpad only; nothing has been added to the project yet.
 | Pointing hand for swipe demo | [Tapping finger](https://gamedeveloperstudio.itch.io/tapping-finger) by Robert Brooks (same artist as the candies) | gamedeveloperstudio license, name-your-price | Pressed + raised states, vector. Best style match. Fallback: Kenney [Cursor Pack](https://kenney.nl/assets/cursor-pack) `hand_point.png`, `hand_open.png`, `hand_closed.png` (PNG + SVG, Outline and Basic variants). |
 | Hint arrow | `HintArrowView` (done, code-drawn) | n/a | Gold, outlined, nudges along its direction. Used by the escalating hint. |
 | Sparkle particle | Kenney [Particle Pack](https://kenney.nl/assets/particle-pack) | CC0 | `star_01`…`star_09.png`, `spark_01`…`spark_07.png`, `twirl_01`…`03.png`, `light_01`…`03.png` in `PNG (Transparent)/`. White, tint in code. |
-| Candy jar | Draw in code | n/a | No free jar in the candies' style was found. A glass jar is a rounded rect, a lid, two white highlight strokes, and the existing candy images inside; cheaper than hunting. If an image is wanted later: [SVG Repo jar icons](https://www.svgrepo.com/vectors/jar/filled/2) (check each icon's license, many are CC0/PD). |
 | Waving / sleeping candy for session end | Reuse an existing candy + code-drawn closed eyes and "z z z", or Kenney `hand_open.png` waving | CC0 (Kenney) | No matching asset exists; code is the honest answer. SF Symbol `hand.wave.fill` is a fine fallback. |
 | Gear, lock icons (caregiver panel) | SF Symbols `gearshape.fill`, `lock.fill`, `lock.open.fill` | Built into iOS | Only caregivers see them; style match is irrelevant. Robert Brooks's [Unlocking lock animation](https://gamedeveloperstudio.itch.io/unlocking-lock-animation) ($5) exists if an animated candy-style lock is ever wanted. |
 | App icon 1024x1024 | Compose from the existing `jazzle.png` on the pink gradient | already owned | Can be generated with a short script (sips/ImageMagick) or in Figma. |
@@ -131,7 +130,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 
 ### Still to obtain (no free source found)
 
-- [x] **Candy jar** – `JarView` (code-drawn, filled with the game's candies), shown on the Good Job screen with the drop-in animation.
+- [x] **Next-candy burst** – the Good Job screen's reward uses the pack's candy images and `BurstView`; the code-drawn candy jar was removed.
 - [x] **Sleeping candy** – `SleepyCandyView`, used by the session-timer good-night screen.
 - [x] **App icon** – `AppIconView`, rendered by `Tools/render-art.sh` into the asset catalog.
 
@@ -171,7 +170,7 @@ the first update should add novelty. Cheapest first:
 
 - [ ] **New board shapes** (code only): star, ring, zigzag, butterfly, letters; each unlocks at a later level like the current shapes (`LevelConfig.shapeUnlocks`). The current eight repeat forever from level 56.
 - [ ] **Worlds**: every 10 levels from 30 the backdrop, the floating decorations and the music mood change together (candy shop, beach, night sky, snow). Backdrops are code-drawn gradients; decorations and music already exist. Nothing about play changes.
-- [ ] **Milestone celebrations**: every 10th level a bigger Good Job (fireworks instead of rain, the jar grows a size).
+- [ ] **Milestone celebrations**: every 10th level a bigger Good Job (fireworks instead of rain, a bigger burst).
 - [ ] **New candy art**: all 42 plain pieces of the pack are in play, so new candies need a second pack, ideally from the same artist for style. Requirements: 6 colors per silhouette, transparent PNG, dark outline, about 256 px. They join the palette pool (`CandyArt.shapes`) so mixes from level 30 draw from 10 to 12 silhouettes.
 - [ ] **More special candies**, for bigger effects and faster progress on the long later levels (goals reach 48 steps). Each follows the existing rules: earned by a bigger or shaped match, matched like any candy, never required, one step on the bar per trigger (or more for the big ones). Ideas, in order of how little they ask of the player:
   - **Rainbow candy**: from a five-match in an L or T. Swapping it with any candy clears every candy of that color on the board, with a rainbow sweep. Worth 2 steps.

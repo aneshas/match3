@@ -33,7 +33,7 @@ First release.
 
 ## App Review notes
 
-This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and no text at all outside the caregiver panel: the Play button is an icon, and finishing a level shows a star and the candy jar.
+This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and no text at all outside the caregiver panel: the Play button is an icon, and finishing a level shows a star and the next level's new candy bursting.
 
 - The caregiver panel opens by holding three fingers on the Play screen for about three seconds.
 - The in-app purchase "All levels" is inside that panel, behind a parental gate (a multiplication question). The first 18 levels are free; after them the Play button shows a lock until the purchase or a reset to level 1.

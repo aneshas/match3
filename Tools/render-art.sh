@@ -43,9 +43,6 @@ func loadImage(_ name: String) -> Image {
 MainActor.assumeIsolated {
     CandyArt.load = loadImage
     let bg = Theme.background
-    write(ZStack { bg; JarView(count: 0).padding(30) }, "jar_empty", size: 400)
-    write(ZStack { bg; JarView(count: 9).padding(30) }, "jar_9", size: 400)
-    write(ZStack { bg; JarView(count: 40).padding(30) }, "jar_full", size: 400)
     write(ZStack { bg; SleepyCandyView(animated: false).padding(30) }, "sleepy", size: 400)
     write(ZStack { bg; HStack { HintArrowView(animated: false); HintArrowView(direction: .down, animated: false) }.padding(40) }, "arrows", size: 400)
     write(AppIconView(), "AppIcon", size: 1024, opaque: true)

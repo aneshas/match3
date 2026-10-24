@@ -1,12 +1,14 @@
 import SwiftUI
 import Match3Core
 
-/// Full-screen celebration between levels: sunburst rays, a bouncing gold star, the words
-/// the candy jar, and candies raining down. No text. Goes away on its own, or on a tap.
+/// Full-screen celebration between levels: sunburst rays, a bouncing gold star, the next
+/// level's new candy zooming in, spinning and bursting, and candies raining down. No text.
+/// Goes away on its own, or on a tap.
 struct GoodJobScreen: View {
-    /// Levels finished including this one; the jar shows one candy per level.
-    var completedLevels: Int = 1
-    /// True when the free part is over: a soft lock settles on the jar before returning to Play.
+    /// The candy the progress bar promised: the one new type of the next level.
+    var nextCandy: CandyArt.Preview? = nil
+    /// True when the free part is over: a soft lock settles where the candy burst before
+    /// returning to Play.
     var showsLock = false
     let onContinue: () -> Void
     @State private var lockShown = false
@@ -16,11 +18,11 @@ struct GoodJobScreen: View {
     @State private var appeared = false
     @State private var bounce = false
     @State private var raysAngle = 0.0
-    // The reward: one candy flies from the star into the jar.
-    @State private var jarCount = 0
-    @State private var flyingCandy = false
-    @State private var candyLanded = false
-    @State private var jarBounce = false
+    // The reward: the next candy zooms in, spins up and bursts.
+    @State private var candyShown = false
+    @State private var candySpin = 0.0
+    @State private var candyBurst = false
+    @State private var burstID: UUID?
 
     /// Good Job always lasts the same time; routine is comforting.
     static let duration: Duration = .seconds(5.5)
@@ -31,6 +33,14 @@ struct GoodJobScreen: View {
         }
     }
 
+    private var candyImage: Image {
+        CandyArt.load(nextCandy?.imageName ?? CandyArt.tileImages[0])
+    }
+
+    private var candyColor: Color {
+        nextCandy?.type.color.particle ?? Theme.gold
+    }
+
     private func content(_ geo: GeometryProxy) -> some View {
         ZStack {
             GeometryReader { geo in
@@ -39,7 +49,7 @@ struct GoodJobScreen: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: drop.size, height: drop.size)
-                        .opacity(0.5)  // keeps the star and jar readable through the rain
+                        .opacity(0.5)  // keeps the star and candy readable through the rain
                         .rotationEffect(.degrees(dropped ? drop.spin : 0))
                         .position(x: drop.x * geo.size.width,
                                   y: dropped ? geo.size.height + 80 : -80)
@@ -51,12 +61,7 @@ struct GoodJobScreen: View {
             let short = min(geo.size.width, geo.size.height)
             let starSize = min(170, short * 0.3)
             let spacing = short * 0.04
-            let jarWidth = min(120, short * 0.26)
-            let jarHeight = jarWidth / 0.8
-            let starBlock = starSize * 1.5
-            let totalHeight = starBlock + spacing * 2 + jarHeight
-            let starCenterY = geo.size.height / 2 - totalHeight / 2 + starBlock / 2
-            let jarMouthY = geo.size.height / 2 + totalHeight / 2 - jarHeight * 0.9
+            let candySize = min(150, short * 0.32)
 
             VStack(spacing: spacing * 2) {
                 ZStack {
@@ -74,40 +79,45 @@ struct GoodJobScreen: View {
                 }
                 .frame(height: starSize * 1.5)
 
-                // No words anywhere in play: the star, the sounds and the jar say it.
-                JarView(count: jarCount)
-                    .frame(width: jarWidth)
-                    .scaleEffect(jarBounce ? 1.1 : 1, anchor: .bottom)
-                    .opacity(appeared ? 1 : 0)
-                    .overlay(alignment: .top) {
-                        if lockShown {
-                            Image(systemName: "lock.fill")
-                                .font(.system(size: jarWidth * 0.34, weight: .bold))
-                                .foregroundStyle(Theme.text.opacity(0.75))
-                                .padding(jarWidth * 0.1)
-                                .background(Color.white.opacity(0.85), in: Circle())
-                                .offset(y: -jarWidth * 0.3)
-                                .transition(.scale.combined(with: .opacity))
-                        }
+                // No words anywhere in play: the star, the sounds and the new candy say it.
+                ZStack {
+                    // A soft flash of the candy's color, then two rings of particles.
+                    Circle()
+                        .fill(candyColor.opacity(0.45))
+                        .frame(width: candySize, height: candySize)
+                        .scaleEffect(candyBurst ? 2.6 : 0.3)
+                        .opacity(candyBurst ? 0 : (burstID == nil ? 0 : 1))
+                    if let burstID {
+                        BurstView(color: candyColor, radius: candySize * 0.8, big: true)
+                            .id(burstID)
+                        BurstView(color: candyColor, radius: candySize * 1.3, big: true)
+                            .id(burstID.uuidString + "-outer")
                     }
-            }
-
-            if flyingCandy {
-                CandyArt.tileImage(TileColor(max(0, jarCount) % TileColor.maxCount))
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: candyLanded ? jarWidth * 0.28 : starSize * 0.5)
-                    .position(x: geo.size.width / 2, y: candyLanded ? jarMouthY : starCenterY)
-                    .opacity(candyLanded ? 0 : 1)
-                    .allowsHitTesting(false)
+                    candyImage
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: candySize, height: candySize)
+                        .shadow(color: candyColor.opacity(0.6), radius: 18)
+                        .rotationEffect(.degrees(candySpin))
+                        .scaleEffect(candyBurst ? 1.6 : (candyShown ? 1 : 0.05))
+                        .opacity(candyBurst ? 0 : (candyShown ? 1 : 0))
+                    if lockShown {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: candySize * 0.5, weight: .bold))
+                            .foregroundStyle(Theme.text.opacity(0.75))
+                            .padding(candySize * 0.14)
+                            .background(Color.white.opacity(0.85), in: Circle())
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .frame(width: candySize, height: candySize)
             }
         }
         .contentShape(Rectangle())
         .onTapGesture { onContinue() }
         .onAppear {
             Haptics.levelDone()
-            jarCount = max(0, completedLevels - 1)
-            Task { await dropCandyIntoJar() }
+            Task { await showNextCandy() }
             dropped = true
             withAnimation(.spring(response: 0.55, dampingFraction: 0.55)) { appeared = true }
             guard !Motion.reduceMotion else { return }
@@ -120,26 +130,34 @@ struct GoodJobScreen: View {
         }
     }
 
-    /// A candy leaves the star, drops into the jar, the jar bounces and shows one more.
-    private func dropCandyIntoJar() async {
+    /// The next level's candy zooms in while spinning, winds up faster, then bursts into
+    /// particles of its own color. With Reduce Motion it just fades in and out.
+    private func showNextCandy() async {
         try? await Task.sleep(for: .milliseconds(900))
         if Motion.reduceMotion {
-            jarCount = completedLevels
-            if showsLock { lockShown = true }
+            withAnimation(.easeOut(duration: 0.4)) { candyShown = true }
+            try? await Task.sleep(for: .milliseconds(2000))
+            withAnimation(.easeIn(duration: 0.4)) { candyBurst = true }
+            if showsLock {
+                try? await Task.sleep(for: .milliseconds(500))
+                withAnimation(.easeOut(duration: 0.3)) { lockShown = true }
+            }
             return
         }
-        flyingCandy = true
-        try? await Task.sleep(for: .milliseconds(150))
-        withAnimation(.easeIn(duration: 0.6)) { candyLanded = true }
-        try? await Task.sleep(for: .milliseconds(600))
-        flyingCandy = false
-        jarCount = completedLevels
-        SoundPlayer.shared.play(.match, volume: 0.8)
-        withAnimation(.spring(response: 0.3, dampingFraction: 0.4)) { jarBounce = true }
-        try? await Task.sleep(for: .milliseconds(300))
-        withAnimation(.easeOut(duration: 0.2)) { jarBounce = false }
+        // Zoom in with one slow turn.
+        withAnimation(.spring(response: 0.7, dampingFraction: 0.6)) { candyShown = true }
+        withAnimation(.easeOut(duration: 0.7)) { candySpin = 360 }
+        try? await Task.sleep(for: .milliseconds(900))
+        // Wind up: four fast turns, so the burst lands late in the screen.
+        withAnimation(.easeIn(duration: 2.0)) { candySpin = 360 + 1440 }
+        try? await Task.sleep(for: .milliseconds(2000))
+        // Burst.
+        burstID = UUID()
+        SoundPlayer.shared.play(.matchBig, volume: 0.9)
+        Haptics.powerUp()
+        withAnimation(.easeOut(duration: 0.5)) { candyBurst = true }
         if showsLock {
-            try? await Task.sleep(for: .milliseconds(900))
+            try? await Task.sleep(for: .milliseconds(700))
             withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { lockShown = true }
         }
     }
