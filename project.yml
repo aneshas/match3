@@ -42,7 +42,11 @@ targets:
   Match3UITests:
     type: bundle.ui-testing
     platform: iOS
-    sources: [Match3UITests]
+    sources:
+      - Match3UITests
+      # The local store file, so PurchaseTests can drive StoreKitTest without the purchase sheet.
+      - path: Match3.storekit
+        buildPhase: resources
     dependencies:
       - target: Match3
     settings:
@@ -58,6 +62,8 @@ schemes:
         Match3UITests: [test]
     run:
       config: Debug
+      # Local App Store: purchases in the Simulator go through this file, no App Store Connect needed.
+      storeKitConfiguration: Match3.storekit
       # Debug-only switches (see Match3/App/DebugFlags.swift). Tick one in
       # Product > Scheme > Edit Scheme > Run > Arguments to use it.
       environmentVariables:

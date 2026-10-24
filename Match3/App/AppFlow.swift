@@ -44,7 +44,7 @@ final class AppFlow {
     /// True when the player has finished every free level and nothing was bought.
     var isAtLock: Bool { !unlock.isUnlocked && progress.currentLevel > freeLevels }
 
-    init(progress: Progress = Progress(), unlock: UnlockStore = StubUnlockStore()) {
+    init(progress: Progress = Progress(), unlock: UnlockStore = StoreKitUnlockStore()) {
         self.progress = progress
         self.unlock = unlock
         if DebugFlags.forgetSwipe { progress.forgetSwipe() }
