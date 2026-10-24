@@ -23,7 +23,14 @@ struct Shockwave: Identifiable, Equatable {
     let row: Int
     let col: Int
     let color: TileColor
-    let big: Bool
+    /// Ring diameter in cells: 4 for a wrapped candy, 6 striped, 8 for the big ones.
+    let cells: CGFloat
+}
+
+/// A whole-board flash: rainbow-colored for a rainbow candy, white for a combo.
+struct BoardFlash: Identifiable, Equatable {
+    let id = UUID()
+    let rainbow: Bool
 }
 
 /// A striped candy going off: a flash along its whole row or column.
@@ -85,12 +92,22 @@ final class GameSession {
     static let cascadeCredit = 0.5
     /// Steps per candy a special candy clears beyond the match itself (a wrapped candy's
     /// neighbors, a striped candy's row and column), so the bar rewards how much actually
-    /// burst: a wrapped candy in open board is worth about 2 steps, a striped one 3 to 4.
+    /// burst: a wrapped candy in open board is worth about 2 steps, a striped one 3 to 4,
+    /// a rainbow 2 to 4, a bomb about 5.
     static let powerCandyCredit = 0.25
     /// Floor per special that goes off, so one in a corner still pays a full step.
     static let powerMinimumCredit = 1.0
+    /// Cap on what one blast can pay, so a board-wide combo stays a treat, not a level.
+    static let powerMaximumCredit = 8.0
     /// Special candies are only created from this level on; the first levels stay plain.
-    static let powerUpsFromLevel = 10
+    static let powerUpsFromLevel = LevelConfig.powerUnlocks[.wrapped] ?? 10
+    /// Which special candies this level can create (caregiver toggle, level ladder, or
+    /// every kind with the Debug "all special candies" switch), and whether two specials
+    /// swiped together combine.
+    let unlockedPowers: Set<PowerKind>
+    let combosEnabled: Bool
+    /// Whole-board flashes currently on screen.
+    private(set) var flashes: [BoardFlash] = []
     /// Striped-candy flashes currently on screen.
     private(set) var sweeps: [Sweep] = []
     /// Rings from special candies going off.
@@ -140,12 +157,26 @@ final class GameSession {
         self.palette = palette
         self.wantsDemo = swipeDemo
         self.powersEnabled = Settings.shared.powerUpsEnabled
+        if !powersEnabled {
+            unlockedPowers = []
+            combosEnabled = false
+        } else if Settings.shared.allPowersForced {
+            unlockedPowers = Set(PowerKind.allCases)
+            combosEnabled = true
+        } else {
+            unlockedPowers = LevelConfig.unlockedPowers(level: config.level)
+            combosEnabled = LevelConfig.combosUnlocked(level: config.level)
+        }
         self.board = config.makeBoard()
         if DebugFlags.powerDemo, powersEnabled, let move = board.findAnyMove() {
             // Debug: two specials placed on the first move the hint (and autoplay) will pick,
-            // so whichever side forms the match, a special candy goes off.
+            // so whichever side forms the match, a special candy goes off; plus a rainbow and
+            // a bomb in two far corners to look at.
             board.setPower(.striped(move.0.row == move.1.row ? .vertical : .horizontal), at: move.0)
             board.setPower(.wrapped, at: move.1)
+            let spare = board.allPositions.filter { $0 != move.0 && $0 != move.1 && !$0.isAdjacent(to: move.0) && !$0.isAdjacent(to: move.1) }
+            if let p = spare.first { board.setPower(.rainbow, at: p) }
+            if let p = spare.last, p != spare.first { board.setPower(.bomb, at: p) }
         }
         rebuildTileStates()
         // Start every tile above the board; `dropIn` lets them fall into place.
@@ -211,7 +242,8 @@ final class GameSession {
         }
         await sleep(swapDuration)
 
-        guard board.swapCreatesMatch(a, b) else {
+        let effect = board.swapEffect(a, b, combos: combosEnabled)
+        guard effect != .none else {
             // Not a match: slide back and wiggle. No sound, no red, just "nope".
             withAnimation(.easeInOut(duration: swapDuration)) {
                 move(idA, to: a)
@@ -237,7 +269,21 @@ final class GameSession {
         // Steps are credited inside `resolveCascades` (the swipe's own match in full, cascade
         // groups at half value). `matchesMade` stays the plain swipe count for the stats.
         matchesMade = min(goal, matchesMade + 1)
-        await resolveCascades(swapped: [a, b])
+        switch effect {
+        case .rainbow(let color, let at):
+            // The rainbow goes off on its own: no match group, a flash, then whatever falls
+            // into place cascades at the usual half credit.
+            let removal = board.rainbowRemoval(color: color, at: at)
+            await clear(removal, base: [at], steps: powerSteps(removal, base: [at]), creations: [], big: true, flash: BoardFlash(rainbow: true))
+            await resolveCascades(swapped: [], startDepth: 1)
+        case .combo(let p, let q):
+            let removal = board.comboRemoval(p, q)
+            await clear(removal, base: [p, q], steps: powerSteps(removal, base: [p, q]), creations: [], big: true,
+                        flash: BoardFlash(rainbow: removal.triggered.contains { $0.power.isRainbow }))
+            await resolveCascades(swapped: [], startDepth: 1)
+        default:
+            await resolveCascades(swapped: [a, b])
+        }
 
         if progressPoints >= Double(goal) {
             phase = .complete
@@ -249,14 +295,24 @@ final class GameSession {
             return
         }
 
-        if !board.hasAnyMove {
+        if board.findAnyMove(combos: combosEnabled) == nil {
             await reshuffle()
         }
         finishTurn()
     }
 
-    private func resolveCascades(swapped: Set<Position>) async {
-        var depth = 0
+    /// What the specials in a clear pay: a quarter step per candy beyond `base`, at least a
+    /// step per special, never more than the cap.
+    private func powerSteps(_ expansion: (removed: Set<Position>, triggered: [PowerTrigger]), base: Set<Position>) -> Double {
+        guard !expansion.triggered.isEmpty else { return 0 }
+        let extraCleared = expansion.removed.subtracting(base).count
+        return min(GameSession.powerMaximumCredit,
+                   max(Double(expansion.triggered.count) * GameSession.powerMinimumCredit,
+                       Double(extraCleared) * GameSession.powerCandyCredit))
+    }
+
+    private func resolveCascades(swapped: Set<Position>, startDepth: Int = 0) async {
+        var depth = startDepth
         while true {
             let groups = board.findMatches()
             if groups.isEmpty { return }
@@ -266,117 +322,138 @@ final class GameSession {
             // and transforms instead of popping.
             var base = Set(groups.flatMap { $0.positions })
             var creations: [(at: Position, power: Power)] = []
-            if powersEnabled, config.level >= GameSession.powerUpsFromLevel {
+            if !unlockedPowers.isEmpty {
                 for g in groups {
-                    guard let power = g.earnedPower,
+                    guard let power = g.earnedPower(allowed: unlockedPowers),
                           let pivot = pivot(for: g, preferring: depth == 0 ? swapped : []) else { continue }
                     creations.append((pivot, power))
                     base.remove(pivot)
                 }
             }
             let expansion = board.expandedRemoval(for: base)
-            // A pivot caught in a striped sweep is simply cleared; nothing is created there.
+            // A pivot caught in a blast is simply cleared; nothing is created there.
             creations.removeAll { expansion.removed.contains($0.at) }
-            let triggerPositions = Set(expansion.triggered.map(\.position))
-            triggeredPowers += expansion.triggered.count
 
             let big = depth > 0 || !expansion.triggered.isEmpty || groups.contains { $0.positions.count >= 4 }
             // Credit the bar right away so the reward lands with the burst: full value for
             // the swipe's own groups (depth 0), half for groups the board matched by itself,
-            // and for the specials a quarter step per extra candy they cleared, at least a
-            // full step per special.
+            // plus what the specials cleared.
             let stepsNow = groups.reduce(0.0) { $0 + GameSession.stepValue(matched: $1.positions.count) }
-            let extraCleared = expansion.removed.subtracting(base).count
-            let powerSteps = expansion.triggered.isEmpty ? 0 : max(
-                Double(expansion.triggered.count) * GameSession.powerMinimumCredit,
-                Double(extraCleared) * GameSession.powerCandyCredit)
-            points += (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps
-            if expansion.triggered.isEmpty {
-                Haptics.matchMade(big: big)
-                SoundPlayer.shared.playMatch(big: big)
-            } else {
-                // A special going off: its own sound, a heavier thump, a ring from its cell
-                // and a little punch of the whole board.
-                Haptics.powerUp()
-                let powers = Set(expansion.triggered.map { $0.power.isStriped })
-                if powers.contains(true) { SoundPlayer.shared.play(.striped) }
-                if powers.contains(false) { SoundPlayer.shared.play(.wrapped) }
-                for t in expansion.triggered {
-                    guard let tile = board.tile(at: t.position) else { continue }
-                    let wave = Shockwave(row: t.position.row, col: t.position.col, color: tile.color, big: t.power.isStriped)
-                    shockwaves.append(wave)
-                    Task { [weak self] in
-                        try? await Task.sleep(for: .milliseconds(900))
-                        self?.shockwaves.removeAll { $0.id == wave.id }
-                    }
-                    if t.power.isStriped {
-                        // Both lines flash, behind the popping candies.
-                        for axis in [LineAxis.horizontal, .vertical] {
-                            let sweep = Sweep(axis: axis, index: axis == .horizontal ? t.position.row : t.position.col, color: tile.color)
-                            sweeps.append(sweep)
-                            Task { [weak self] in
-                                try? await Task.sleep(for: .milliseconds(700))
-                                self?.sweeps.removeAll { $0.id == sweep.id }
-                            }
+            let steps = (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps(expansion, base: base)
+            let flash = expansion.triggered.contains { $0.power.isRainbow } ? BoardFlash(rainbow: true) : nil
+            await clear(expansion, base: base, steps: steps, creations: creations, big: big, flash: flash)
+            depth += 1
+        }
+    }
+
+    /// Clears `expansion.removed` from the board with sound, haptics and effects, credits
+    /// `steps`, turns `creations` into special candies and lets the board fall and refill.
+    private func clear(_ expansion: (removed: Set<Position>, triggered: [PowerTrigger]), base: Set<Position>, steps: Double,
+                       creations: [(at: Position, power: Power)], big: Bool, flash: BoardFlash?) async {
+        let triggerPositions = Set(expansion.triggered.map(\.position))
+        triggeredPowers += expansion.triggered.count
+        points += steps
+
+        if expansion.triggered.isEmpty {
+            Haptics.matchMade(big: big)
+            SoundPlayer.shared.playMatch(big: big)
+        } else {
+            // A special going off: its own sound, a heavier thump, a ring from its cell
+            // and a little punch of the whole board. The big ones also flash the board.
+            Haptics.powerUp()
+            let kinds = Set(expansion.triggered.compactMap { $0.power.kind })
+            if kinds.contains(.striped) || kinds.contains(.rainbow) { SoundPlayer.shared.play(.striped) }
+            if kinds.contains(.wrapped) || kinds.contains(.bomb) { SoundPlayer.shared.play(.wrapped) }
+            if kinds.contains(.rainbow) || kinds.contains(.bomb) || expansion.triggered.count > 1 { SoundPlayer.shared.play(.matchBig) }
+            for t in expansion.triggered {
+                guard let tile = board.tile(at: t.position) else { continue }
+                let wave = Shockwave(row: t.position.row, col: t.position.col, color: tile.color, cells: GameSession.ringCells(for: t.power))
+                shockwaves.append(wave)
+                Task { [weak self] in
+                    try? await Task.sleep(for: .milliseconds(900))
+                    self?.shockwaves.removeAll { $0.id == wave.id }
+                }
+                if t.power.isStriped {
+                    // Both lines flash, behind the popping candies.
+                    for axis in [LineAxis.horizontal, .vertical] {
+                        let sweep = Sweep(axis: axis, index: axis == .horizontal ? t.position.row : t.position.col, color: tile.color)
+                        sweeps.append(sweep)
+                        Task { [weak self] in
+                            try? await Task.sleep(for: .milliseconds(700))
+                            self?.sweeps.removeAll { $0.id == sweep.id }
                         }
                     }
                 }
-                boardPunch = true
+            }
+            if let flash {
+                flashes.append(flash)
                 Task { [weak self] in
-                    try? await Task.sleep(for: .milliseconds(140))
-                    self?.boardPunch = false
+                    try? await Task.sleep(for: .milliseconds(700))
+                    self?.flashes.removeAll { $0.id == flash.id }
                 }
             }
-
-            let removed = expansion.removed.compactMap { p in board.tile(at: p).map { (p, $0) } }
-            let removedIDs = Set(removed.map { $0.1.id })
-
-            // Puff up, then shrink away while particles fly out.
-            withAnimation(.easeOut(duration: popDuration * 0.4)) {
-                for i in tiles.indices where removedIDs.contains(tiles[i].id) { tiles[i].scale = 1.3 }
-            }
-            await sleep(popDuration * 0.4)
-            let newBursts = removed.map {
-                Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0))
-            }
-            bursts.append(contentsOf: newBursts)
-            withAnimation(.easeIn(duration: popDuration * 0.6)) {
-                for i in tiles.indices where removedIDs.contains(tiles[i].id) {
-                    tiles[i].scale = 0.01
-                    tiles[i].opacity = 0
-                }
-            }
-            await sleep(popDuration * 0.6)
+            boardPunch = true
             Task { [weak self] in
-                try? await Task.sleep(for: .milliseconds(800))
-                self?.bursts.removeAll { b in newBursts.contains(b) }
+                try? await Task.sleep(for: .milliseconds(140))
+                self?.boardPunch = false
             }
+        }
 
-            board.remove(expansion.removed)
-            tiles.removeAll { removedIDs.contains($0.id) }
+        let removed = expansion.removed.compactMap { p in board.tile(at: p).map { (p, $0) } }
+        let removedIDs = Set(removed.map { $0.1.id })
 
-            // Earned special candies transform in place with a little pop.
-            for c in creations {
-                board.setPower(c.power, at: c.at)
-                guard let id = board.tile(at: c.at)?.id, let i = tiles.firstIndex(where: { $0.id == id }) else { continue }
-                tiles[i].power = c.power
-                tiles[i].scale = 1.45
-                withAnimation(.spring(response: 0.4 * motionScale, dampingFraction: 0.5)) { tiles[i].scale = 1 }
+        // Puff up, then shrink away while particles fly out.
+        withAnimation(.easeOut(duration: popDuration * 0.4)) {
+            for i in tiles.indices where removedIDs.contains(tiles[i].id) { tiles[i].scale = 1.3 }
+        }
+        await sleep(popDuration * 0.4)
+        let newBursts = removed.map {
+            Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0))
+        }
+        bursts.append(contentsOf: newBursts)
+        withAnimation(.easeIn(duration: popDuration * 0.6)) {
+            for i in tiles.indices where removedIDs.contains(tiles[i].id) {
+                tiles[i].scale = 0.01
+                tiles[i].opacity = 0
             }
+        }
+        await sleep(popDuration * 0.6)
+        Task { [weak self] in
+            try? await Task.sleep(for: .milliseconds(800))
+            self?.bursts.removeAll { b in newBursts.contains(b) }
+        }
 
-            let result = board.applyGravityAndRefill()
-            // Spawned tiles start above the board, then everything falls together with a bounce.
-            for s in result.spawns {
-                tiles.append(TileState(id: s.tile.id, color: s.tile.color,
-                                       row: Double(s.at.row - s.rowsAbove), col: Double(s.at.col)))
-            }
-            withAnimation(.spring(response: fallDuration, dampingFraction: 0.62)) {
-                for f in result.falls { move(f.tileID, to: f.to) }
-                for s in result.spawns { move(s.tile.id, to: s.at) }
-            }
-            await sleep(fallDuration * 1.1)
+        board.remove(expansion.removed)
+        tiles.removeAll { removedIDs.contains($0.id) }
 
-            depth += 1
+        // Earned special candies transform in place with a little pop.
+        for c in creations {
+            board.setPower(c.power, at: c.at)
+            guard let id = board.tile(at: c.at)?.id, let i = tiles.firstIndex(where: { $0.id == id }) else { continue }
+            tiles[i].power = c.power
+            tiles[i].scale = 1.45
+            withAnimation(.spring(response: 0.4 * motionScale, dampingFraction: 0.5)) { tiles[i].scale = 1 }
+        }
+
+        let result = board.applyGravityAndRefill()
+        // Spawned tiles start above the board, then everything falls together with a bounce.
+        for s in result.spawns {
+            tiles.append(TileState(id: s.tile.id, color: s.tile.color,
+                                   row: Double(s.at.row - s.rowsAbove), col: Double(s.at.col)))
+        }
+        withAnimation(.spring(response: fallDuration, dampingFraction: 0.62)) {
+            for f in result.falls { move(f.tileID, to: f.to) }
+            for s in result.spawns { move(s.tile.id, to: s.at) }
+        }
+        await sleep(fallDuration * 1.1)
+    }
+
+    /// Ring size for a special going off, in cells.
+    private static func ringCells(for power: Power) -> CGFloat {
+        switch power {
+        case .none, .wrapped: return 4
+        case .striped: return 6
+        case .rainbow, .bomb: return 8
         }
     }
 
@@ -448,7 +525,7 @@ final class GameSession {
         demoTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(for: delay)
-            guard !Task.isCancelled, self.wantsDemo, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
+            guard !Task.isCancelled, self.wantsDemo, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
             self.demoShownOnce = true
             self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
             self.demo = DemoSwipe(from: p, to: q)
@@ -469,7 +546,7 @@ final class GameSession {
     private func scheduleAutoPlay() {
         Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(900))
-            guard let self, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
+            guard let self, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
             let direction: Direction = q.row > p.row ? .down : q.row < p.row ? .up : q.col > p.col ? .right : .left
             self.swipe(from: p, direction)
         }
@@ -485,7 +562,7 @@ final class GameSession {
             guard let self else { return }
             for level in 1...3 {
                 try? await Task.sleep(for: self.hintDelay)
-                guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove() else { return }
+                guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
                 self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
                 self.hintLevel = level
                 if level == 1 { self.stats.hintsShown += 1 }

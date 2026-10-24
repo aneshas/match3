@@ -45,7 +45,7 @@ enum DebugFlags {
     static var forceUnlocked: Bool { flag("MATCH3_UNLOCKED") }
     /// MATCH3_HIGH_CONTRAST=1 turns the high-contrast look on for this launch.
     static var highContrast: Bool { flag("MATCH3_HIGH_CONTRAST") }
-    /// MATCH3_POWER_DEMO=1 plants a wrapped and a striped candy on every fresh board.
+    /// MATCH3_POWER_DEMO=1 plants a striped, a wrapped, a rainbow and a bomb candy on every fresh board.
     static var powerDemo: Bool { flag("MATCH3_POWER_DEMO") }
 
     static var startLevel: Int? {

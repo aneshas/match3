@@ -18,6 +18,7 @@ final class Settings {
         highContrast = defaults.object(forKey: "highContrast") as? Bool ?? false
         musicEnabled = defaults.object(forKey: "musicEnabled") as? Bool ?? true
         powerUpsEnabled = defaults.object(forKey: "powerUpsEnabled") as? Bool ?? true
+        debugAllPowers = defaults.object(forKey: "debugAllPowers") as? Bool ?? false
     }
 
     /// Caregiver session length in minutes; 0 = no limit. When it runs out the game ends
@@ -28,8 +29,19 @@ final class Settings {
     /// Background music loops (separate from the effects).
     var musicEnabled: Bool { didSet { defaults.set(musicEnabled, forKey: "musicEnabled") } }
     var hapticsEnabled: Bool { didSet { defaults.set(hapticsEnabled, forKey: "hapticsEnabled") } }
-    /// Special candies (wrapped from a match of four, striped from five). Off = plain game.
+    /// Special candies (wrapped from a match of four, striped from five, rainbow from an L
+    /// or T, bomb from six, each unlocked by level). Off = plain game.
     var powerUpsEnabled: Bool { didSet { defaults.set(powerUpsEnabled, forKey: "powerUpsEnabled") } }
+    /// Debug builds only: every special candy and combos from level 1 (caregiver panel switch).
+    var debugAllPowers: Bool { didSet { defaults.set(debugAllPowers, forKey: "debugAllPowers") } }
+    /// True when all specials are forced on: only ever in Debug builds.
+    var allPowersForced: Bool {
+        #if DEBUG
+        return debugAllPowers
+        #else
+        return false
+        #endif
+    }
     /// Caps the number of candy colors regardless of level (3...6).
     var maxColors: Int { didSet { defaults.set(maxColors, forKey: "maxColors") } }
     /// Thick dark outline around every candy, darker cells and a quieter backdrop.

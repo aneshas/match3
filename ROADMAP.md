@@ -158,27 +158,25 @@ the one gesture they already know. Ideas, in order of how little they ask of the
 
 - [x] **Big matches make special candies** (instead of an automatic effect, so the reward is visible and the player decides nothing: the special is just a candy of its color that does more when matched).
 - [x] **Wrapped candy.** A match of 4 leaves one wrapped candy (the pack's `*_wrapper` art) in place. Swiping it into any match bursts its neighbors too. Same gesture, visibly different piece, forgiving if ignored (it is still a normal candy of its color).
+- [x] **Rainbow candy.** An L or T of five or more leaves the jazzle. It has no color and never joins a line; swiping it toward any neighbor clears every candy of that neighbor's color with a rainbow flash over the board. Caught in another special's blast it takes the board's most common color. Always a valid move, so the hint can point at it.
+- [x] **Bomb candy.** Six or more in any shape leave a swirl in the match's color; matched, it clears a 5x5 area with a big ring.
+- [x] **Combos.** Two specials swiped into each other go off together: striped + wrapped clears three rows and three columns, two striped (or two bombs, or two rainbows) the whole board, wrapped + wrapped a 5x5, bomb + wrapped a 7x7, bomb + striped lines plus a 5x5, rainbow + anything turns every candy of the other one's color into that special and sets them all off. White flash over the board. One blast pays at most 8 steps.
+- [x] **Shiver.** Every special candy on the board shivers all the time so it stands out without a label.
 - [x] **Striped candy** (clears its whole row and column). A match of 5 leaves a striped candy (`*_horizontal` / `*_vertical`); when it is part of a match it clears its row or column. Classic, but it introduces "this piece does something" reasoning; test with real players first.
 - [x] **Rule**: a power-up is never required to finish a level, never times out, never costs anything, and the hint system must point at it like any other move.
-- [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). Specials appear from level 10. A special going off adds a quarter step per extra candy it clears (at least one step; a wrapped candy is worth about 2, a striped one 3 to 4), plays its own sound, rings outward and punches the board.
+- [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). Specials arrive one per tier: wrapped 10, striped 15, rainbow 30, bomb 40, combos 50 (`LevelConfig.powerUnlocks`; a match too good for the unlocked kinds falls back to the best one available). A special going off adds a quarter step per extra candy it clears (at least one step; a wrapped candy is worth about 2, a striped one 3 to 4), plays its own sound, rings outward and punches the board.
 
 ## 8. After launch: novelty for levels 30 and up
 
 Launch ships as is. Past level 30 nothing new happens to the player (sizes cycle, shapes
-and candy mixes change every level, the sixth color arrives at 41, specials since 10), so
+and candy mixes change every level, the sixth color arrives at 41, the last special at 50), so
 the first update should add novelty. Cheapest first:
 
 - [ ] **New board shapes** (code only): star, ring, zigzag, butterfly, letters; each unlocks at a later level like the current shapes (`LevelConfig.shapeUnlocks`). The current eight repeat forever from level 56.
 - [ ] **Worlds**: every 10 levels from 30 the backdrop, the floating decorations and the music mood change together (candy shop, beach, night sky, snow). Backdrops are code-drawn gradients; decorations and music already exist. Nothing about play changes.
 - [ ] **Milestone celebrations**: every 10th level a bigger Good Job (fireworks instead of rain, a bigger burst).
 - [ ] **New candy art**: all 42 plain pieces of the pack are in play, so new candies need a second pack, ideally from the same artist for style. Requirements: 6 colors per silhouette, transparent PNG, dark outline, about 256 px. They join the palette pool (`CandyArt.shapes`) so mixes from level 30 draw from 10 to 12 silhouettes.
-- [ ] **More special candies**, for bigger effects and faster progress on the long later levels (goals reach 48 steps). Each follows the existing rules: earned by a bigger or shaped match, matched like any candy, never required, one step on the bar per trigger (or more for the big ones). Ideas, in order of how little they ask of the player:
-  - **Rainbow candy**: from a five-match in an L or T. Swapping it with any candy clears every candy of that color on the board, with a rainbow sweep. Worth 2 steps.
-  - **Bomb candy**: from a match of six or more in a line. Clears a 5x5 area with a big shockwave. Worth 2 steps.
-  - **Combos**: two specials swapped into each other go off together (striped + wrapped clears three rows and three columns; two striped clear the whole board). Worth 3 steps. Pure spectacle, no new gesture.
-  - **Art reserved for them**: the pack's pieces without a wrapper or stripe variant (the swirls, iced biscuits, liquorice stacks, coconut wheels, chocolate squares and the jazzle) stay off the board as plain candies on purpose. They float in the backgrounds and rain on Good Job for now, and are the art for these new special candies (a swirl for the rainbow candy, the jazzle for the bomb).
-  - **Special-candy art**: the pack has no rainbow or bomb piece; use the code-drawn route (a swirl of all six colors, a dark ball with a fuse) or buy matching art.
-  - Unlock them one at a time, each 10 to 15 levels apart from level 30, so every tier of levels brings one new thing.
+- [x] **More special candies** (shipped before launch after all, see 6c): rainbow (L or T of five or more, from level 30), bomb (six or more in any shape, from 40) and combos (two specials swiped into each other, from 50). Art: the jazzle is the rainbow candy, the swirl in the match's color is the bomb; the icing, liquorice, coconut wheels and chocolate stay decorations, reserved for whatever comes next.
 
 ## 7. Testing with real players
 

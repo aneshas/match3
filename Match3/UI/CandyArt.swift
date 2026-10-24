@@ -46,7 +46,15 @@ enum CandyArt {
         let types: [CandyType]
 
         func type(for color: TileColor) -> CandyType { types[color.index] }
-        func imageName(for color: TileColor, power: Power = .none) -> String { type(for: color).imageName(power.finish) }
+        /// The image for a tile: the type in the pack's finish for wrapped and striped; the
+        /// jazzle for a rainbow (no color) and the swirl in the type's color for a bomb.
+        func imageName(for color: TileColor, power: Power = .none) -> String {
+            switch power {
+            case .rainbow: return CandyArt.rainbow
+            case .bomb: return "\(type(for: color).color.rawValue)_swirl"
+            default: return type(for: color).imageName(power.finish)
+            }
+        }
         func particleColor(for color: TileColor) -> Color { type(for: color).color.particle }
 
         /// The first type that `previous` did not have (always index 0 when generated with
@@ -101,6 +109,8 @@ enum CandyArt {
     ]
 
     static let logo = "jazzle"
+    /// The rainbow candy: the one piece with every color on it.
+    static let rainbow = "jazzle"
 
     /// The candy shown at the end of the progress bar: the next level's newcomer.
     struct Preview: Equatable {
@@ -122,6 +132,7 @@ extension Power {
         case .wrapped: return .wrapper
         case .striped(.horizontal): return .horizontal
         case .striped(.vertical): return .vertical
+        case .rainbow, .bomb: return .plain  // drawn from their own images, see Palette.imageName
         }
     }
 }

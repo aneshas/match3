@@ -84,4 +84,5 @@ Working title in the repo is "Match 3"; the real name is still to be chosen (ste
 - iPad support in version 1, or iPhone-only.
 - Price of the unlock.
 - Source and license of the music and the new sounds.
+- Own sounds for the rainbow candy, the bomb and combos (they reuse the striped/wrapped sounds layered with the big-match sound for now).
 - Individual or Organization developer account.

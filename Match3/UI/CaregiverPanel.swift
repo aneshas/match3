@@ -40,8 +40,11 @@ struct CaregiverPanel: View {
                     Text("Levels still grow in size and shape. Lower this if telling candies apart is the hard part.")
                         .font(.footnote).foregroundStyle(.secondary)
                     Toggle("Special candies", isOn: $settings.powerUpsEnabled)
-                    Text("From level 10: four in a row leaves a wrapped candy that bursts its neighbors when matched; five in a row leaves a striped candy that clears its whole row and column. They are never needed to finish a level. Turn off for a plainer game. Applies from the next level.")
+                    Text("Arrive one at a time: from level 10 four in a row leaves a wrapped candy that bursts its neighbors; from 15 five in a row leaves a striped candy that clears its row and column; from 30 an L or T leaves a rainbow candy that clears a whole color when swiped; from 40 six or more leave a bomb; from 50 two specials swiped together combine. They are never needed to finish a level. Turn off for a plainer game. Applies from the next level.")
                         .font(.footnote).foregroundStyle(.secondary)
+                    #if DEBUG
+                    Toggle("All special candies from level 1 (debug)", isOn: $settings.debugAllPowers)
+                    #endif
                 }
 
                 Section("All levels") {

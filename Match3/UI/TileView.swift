@@ -12,8 +12,11 @@ struct TileView: View {
     var hintStrength: Int = 1
     /// High contrast: a thick dark rim traced around the candy's silhouette.
     var outlined: Bool = false
+    /// Special candies shiver all the time so they can be told from the plain ones.
+    var special: Bool = false
 
     @State private var hintPulse = false
+    @State private var shiver = false
 
     var body: some View {
         let strong = hinting && hintStrength >= 2
@@ -23,7 +26,13 @@ struct TileView: View {
                     radius: hinting && hintPulse ? size * (strong ? 0.45 : 0.25) : 0)
             .shadow(color: strong && hintPulse ? Theme.gold.opacity(0.8) : .clear, radius: size * 0.2)
             .scaleEffect(hinting && hintPulse ? (strong ? 1.22 : 1.14) : 1)
+            .rotationEffect(.degrees(special && shiver ? 4 : (special ? -4 : 0)))
+            .scaleEffect(special && shiver ? 1.04 : 1)
             .modifier(WiggleModifier(active: wiggling))
+            .onChange(of: special, initial: true) { _, isSpecial in
+                guard isSpecial, !Motion.reduceMotion else { return }
+                withAnimation(.easeInOut(duration: 0.16).repeatForever(autoreverses: true)) { shiver = true }
+            }
             .onChange(of: hinting, initial: true) { _, isHinting in
                 if isHinting {
                     withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) { hintPulse = true }

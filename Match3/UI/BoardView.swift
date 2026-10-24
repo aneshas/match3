@@ -51,7 +51,8 @@ struct BoardView: View {
                                  wiggling: session.wigglingIDs.contains(tile.id),
                                  hinting: session.hintIDs.contains(tile.id),
                                  hintStrength: session.hintLevel,
-                                 outlined: highContrast)
+                                 outlined: highContrast,
+                                 special: tile.power != .none)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)
@@ -83,14 +84,24 @@ struct BoardView: View {
                     }
                 }
                 .frame(width: boardWidth, height: boardHeight)
-                .clipped()
+                // Hide candies falling in from above, but let the hint glow and the pop
+                // overshoot spill past the edges: the clip reaches well outside the board on
+                // three sides and only a little above (where new candies wait).
+                .clipShape(Rectangle().inset(by: -cell * 0.7).offset(y: cell * 0.3))
                 .scaleEffect(session.boardPunch ? 1.035 : 1)
                 .animation(.spring(response: 0.22, dampingFraction: 0.45), value: session.boardPunch)
 
+                // Whole-board flashes (rainbow, combos), over everything, fading out.
+                ForEach(session.flashes) { flash in
+                    BoardFlashView(rainbow: flash.rainbow, cornerRadius: cell * 0.3)
+                        .frame(width: boardWidth + cell * 0.3, height: boardHeight + cell * 0.3)
+                        .allowsHitTesting(false)
+                }
+
                 // Rings from special candies, outside the clip so they can spread past the board.
                 ForEach(session.shockwaves) { wave in
-                    ShockwaveView(color: session.palette.particleColor(for: wave.color), big: wave.big)
-                        .frame(width: cell * (wave.big ? 6 : 4), height: cell * (wave.big ? 6 : 4))
+                    ShockwaveView(color: session.palette.particleColor(for: wave.color), big: wave.cells >= 6)
+                        .frame(width: cell * wave.cells, height: cell * wave.cells)
                         .position(x: (geo.size.width - boardWidth) / 2 + center(row: Double(wave.row), col: Double(wave.col), cell: cell).x,
                                   y: (geo.size.height - boardHeight) / 2 + center(row: Double(wave.row), col: Double(wave.col), cell: cell).y)
                         .allowsHitTesting(false)
