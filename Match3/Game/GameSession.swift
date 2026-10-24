@@ -54,6 +54,10 @@ final class GameSession {
     private(set) var tiles: [TileState] = []
     private(set) var bursts: [Burst] = []
     private(set) var matchesMade = 0
+    /// Extra progress from cascades: every group that matches on its own after a swipe is
+    /// worth half a step. Cascades feel rewarded, but a level still needs real swipes.
+    private(set) var cascadeBonus: Double = 0
+    static let cascadeCredit = 0.5
     private(set) var phase: Phase = .busy  // busy until the entrance animation is done
     /// Tiles briefly shaking after an invalid swap.
     private(set) var wigglingIDs: Set<UUID> = []
@@ -80,7 +84,9 @@ final class GameSession {
     private let demoRepeatDelay: Duration = .seconds(3)
 
     var goal: Int { config.goalMatches }
-    var progressFraction: Double { min(1, Double(matchesMade) / Double(goal)) }
+    /// Progress toward the goal in steps: one per swipe plus the cascade bonus.
+    var progressPoints: Double { min(Double(goal), Double(matchesMade) + cascadeBonus) }
+    var progressFraction: Double { progressPoints / Double(goal) }
 
     init(config: LevelConfig, swipeDemo: Bool = false) {
         self.config = config
@@ -173,12 +179,12 @@ final class GameSession {
             wantsDemo = false
             onPlayerSwiped?()
         }
-        // One step on the bar per successful swipe. Cascades burst and sound but do not
-        // count, so a level always takes about `goal` swipes.
+        // One step on the bar per successful swipe; cascades add half a step each (see
+        // `resolveCascades`), so a lucky chain is visibly rewarded without playing the level.
         matchesMade = min(goal, matchesMade + 1)
         await resolveCascades()
 
-        if matchesMade >= goal {
+        if progressPoints >= Double(goal) {
             phase = .complete
             stats.matches = matchesMade
             stats.seconds = playableSince.map { Date().timeIntervalSince($0) } ?? 0
@@ -201,6 +207,11 @@ final class GameSession {
             if groups.isEmpty { return }
 
             let big = depth > 0 || groups.contains { $0.positions.count >= 4 }
+            if depth > 0 {
+                // A cascade: the board matched by itself. Half a step per group, shown on the
+                // bar right away so the reward lands with the burst.
+                cascadeBonus += Double(groups.count) * GameSession.cascadeCredit
+            }
             Haptics.matchMade(big: big)
             SoundPlayer.shared.playMatch(big: big)
 
