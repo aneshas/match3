@@ -1,7 +1,7 @@
 import AVFoundation
 import Foundation
 
-/// Plays the game's short sounds and speaks "Good job!". Sounds are the main reward for
+/// Plays the game's short sounds and speaks "See you soon!". Sounds are the main reward for
 /// this audience, so they are warm and short, and nothing here is ever startling.
 ///
 /// Respects the caregiver mute (`soundEnabled` in UserDefaults, default on) and the device
@@ -66,11 +66,7 @@ final class SoundPlayer {
         play(.levelDoneB)
     }
 
-    /// Speaks in the device language. No audio asset needed; a recorded caregiver voice can
-    /// replace this later.
-    func sayGoodJob() { say(String(localized: "Good job!")) }
-
-    /// Spoken at the end of a timed session.
+    /// Spoken at the end of a timed session, in the device language.
     func saySeeYouSoon() { say(String(localized: "See you soon!")) }
 
     private func say(_ text: String) {

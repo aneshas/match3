@@ -12,7 +12,16 @@ final class AppFlow {
         case goodNight  // caregiver session timer ran out
     }
 
-    private(set) var screen: Screen = .play
+    private(set) var screen: Screen = .play {
+        didSet {
+            guard screen != oldValue else { return }
+            switch screen {
+            case .play, .level: MusicPlayer.shared.next()
+            case .goodJob: MusicPlayer.shared.duck()
+            case .goodNight: MusicPlayer.shared.stop()
+            }
+        }
+    }
     private(set) var session: GameSession?
 
     /// Levels finished so far; what the candy jar on the Play screen shows.

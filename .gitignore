@@ -8,3 +8,6 @@ DerivedData/
 *.ipa
 *.dSYM.zip
 .DS_Store
+
+# Raw music sources (~135 MB of ogg); the converted .m4a files under Match3/Resources/Music are what ships.
+music/

@@ -14,6 +14,8 @@ struct CaregiverPanel: View {
             Form {
                 Section("Play") {
                     Toggle("Sounds", isOn: $settings.soundEnabled)
+                    Toggle("Music", isOn: $settings.musicEnabled)
+                        .onChange(of: settings.musicEnabled) { MusicPlayer.shared.refresh() }
                     Toggle("Vibration", isOn: $settings.hapticsEnabled)
                     Toggle("High contrast", isOn: $settings.highContrast)
                     Text("Thick dark outlines around the candies, darker cells and a plainer background. Also on whenever iOS Increase Contrast is on.")

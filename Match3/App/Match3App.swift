@@ -19,6 +19,7 @@ struct Match3App: App {
 /// Play / finishing a level.
 struct RootView: View {
     @Environment(AppFlow.self) private var flow
+    @Environment(\.scenePhase) private var scenePhase
 
     var body: some View {
         // The whole hierarchy is laid out in full-window coordinates and only the top and
@@ -39,7 +40,15 @@ struct RootView: View {
             CaregiverPanel()
                 .environment(flow)
         }
+        .onChange(of: scenePhase) { _, phase in
+            switch phase {
+            case .active: MusicPlayer.shared.resume()
+            case .background: MusicPlayer.shared.pause()
+            default: break
+            }
+        }
         .task {
+            MusicPlayer.shared.ensurePlaying()
             // Debug: open the caregiver panel once the window exists (presenting from init is dropped).
             guard DebugFlags.openPanel else { return }
             try? await Task.sleep(for: .milliseconds(400))

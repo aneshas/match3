@@ -115,10 +115,6 @@ struct GoodJobScreen: View {
         .onAppear {
             Haptics.levelDone()
             jarCount = max(0, completedLevels - 1)
-            Task {
-                try? await Task.sleep(for: .milliseconds(350))
-                SoundPlayer.shared.sayGoodJob()
-            }
             Task { await dropCandyIntoJar() }
             dropped = true
             withAnimation(.spring(response: 0.55, dampingFraction: 0.55)) { appeared = true }

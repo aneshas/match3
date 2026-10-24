@@ -16,6 +16,7 @@ final class Settings {
         maxColors = defaults.object(forKey: "maxColors") as? Int ?? 6
         sessionMinutes = defaults.object(forKey: "sessionMinutes") as? Int ?? 0
         highContrast = defaults.object(forKey: "highContrast") as? Bool ?? false
+        musicEnabled = defaults.object(forKey: "musicEnabled") as? Bool ?? true
     }
 
     /// Caregiver session length in minutes; 0 = no limit. When it runs out the game ends
@@ -23,6 +24,8 @@ final class Settings {
     var sessionMinutes: Int { didSet { defaults.set(sessionMinutes, forKey: "sessionMinutes") } }
 
     var soundEnabled: Bool { didSet { defaults.set(soundEnabled, forKey: "soundEnabled") } }
+    /// Background music loops (separate from the effects).
+    var musicEnabled: Bool { didSet { defaults.set(musicEnabled, forKey: "musicEnabled") } }
     var hapticsEnabled: Bool { didSet { defaults.set(hapticsEnabled, forKey: "hapticsEnabled") } }
     /// Caps the number of candy colors regardless of level (3...6).
     var maxColors: Int { didSet { defaults.set(maxColors, forKey: "maxColors") } }
