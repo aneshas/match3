@@ -45,7 +45,7 @@ final class AppFlow {
     private var nextPalette: CandyArt.Palette?
 
     /// Levels playable without the purchase. The last free level stays playable forever.
-    static let freeLevels = 15
+    static let freeLevels = 18
     var freeLevels: Int { DebugFlags.freeLevels ?? AppFlow.freeLevels }
 
     /// True when the player has finished every free level and nothing was bought.
