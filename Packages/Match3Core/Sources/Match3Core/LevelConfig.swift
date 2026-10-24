@@ -73,15 +73,20 @@ public struct LevelConfig: Hashable, Sendable {
     /// The first levels are hand-picked: tiny, then gently non-square, then the first shapes.
     private static let openingLevels: [(Int, Int, BoardShape)] = [
         (4, 4, .square),          // 1
-        (5, 4, .square),          // 2  tall
-        (4, 5, .square),          // 3  wide
-        (5, 5, .roundedCorners),  // 4
-        (6, 5, .roundedCorners),  // 5  tall
-        (6, 6, .diamond),         // 6
-        (5, 6, .roundedCorners),  // 7  wide
-        (6, 6, .triangle),        // 8
-        (7, 7, .cross),           // 9
-        (7, 7, .heart),           // 10
+        (4, 5, .square),          // 2  wide
+        (4, 5, .square),          // 3
+        (5, 4, .square),          // 4  tall
+        (5, 5, .roundedCorners),  // 5
+        (5, 5, .square),          // 6
+        (6, 5, .roundedCorners),  // 7  tall
+        (5, 6, .roundedCorners),  // 8  wide
+        (6, 6, .diamond),         // 9
+        (6, 6, .triangle),        // 10
+        (6, 6, .roundedCorners),  // 11
+        (7, 6, .diamond),         // 12
+        (6, 7, .square),          // 13
+        (7, 7, .cross),           // 14
+        (7, 7, .heart),           // 15
     ]
 
     /// (rows, cols). Columns stop at 7; rows keep growing so later boards are tall.
@@ -96,8 +101,9 @@ public struct LevelConfig: Hashable, Sendable {
         if level <= openingLevels.count {
             return openingLevels[level - 1]
         }
+        // After the opening table the size moves up only every five levels.
         let step = level - openingLevels.count - 1
-        let (r, c) = laterSizes[min(step / 3, laterSizes.count - 1)]
+        let (r, c) = laterSizes[min(step / 5, laterSizes.count - 1)]
         // Walk the shape cycle until one fits this size, so small boards never get a
         // degenerate shape and big boards still see every shape.
         for offset in 0..<laterShapes.count {

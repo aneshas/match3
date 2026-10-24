@@ -15,7 +15,7 @@ There is nothing to lose. No timers, no move limits, no lives, no ads, and not a
 
 For caregivers: hold three fingers on the Play screen for three seconds to open the caregiver panel. There you can turn sound, music and vibration on or off, switch on high contrast, cap the number of candy colors, set a session length that ends the game gently, see how many levels were finished this week, and start again from level 1.
 
-The first 20 levels are free. One purchase unlocks every level forever, shared with your family group. No subscription.
+The first 15 levels are free. One purchase unlocks every level forever, shared with your family group. No subscription.
 
 Works with iOS Reduce Motion and Increase Contrast. Pair it with Guided Access to keep the player inside the game.
 
@@ -36,7 +36,7 @@ First release.
 This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and no text at all outside the caregiver panel: the Play button is an icon, and finishing a level shows a star and the candy jar.
 
 - The caregiver panel opens by holding three fingers on the Play screen for about three seconds.
-- The in-app purchase "All levels" is inside that panel, behind a parental gate (a multiplication question). The first 20 levels are free; after them the Play button shows a lock until the purchase or a reset to level 1.
+- The in-app purchase "All levels" is inside that panel, behind a parental gate (a multiplication question). The first 15 levels are free; after them the Play button shows a lock until the purchase or a reset to level 1.
 - Restore Purchases is in the same panel.
 - There is no account or sign-in. No demo account is needed.
 - Music and sounds can be switched off in the caregiver panel.

@@ -39,9 +39,19 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(a.tiles.map { $0.tile.color }, b.tiles.map { $0.tile.color })
     }
 
-    func testShapesVaryAfterLevelEight() {
-        let shapes = Set((1...12).map { LevelConfig(level: $0).shape })
+    func testShapesVaryAcrossTheOpeningLevels() {
+        let shapes = Set((1...15).map { LevelConfig(level: $0).shape })
         XCTAssertGreaterThanOrEqual(shapes.count, 5)
+    }
+
+    func testBoardSizeGrowsSlowly() {
+        // No size jump of more than one row or column between consecutive levels, and the
+        // same size for at least two levels in a row before each step up during the opening.
+        for level in 1..<60 {
+            let a = LevelConfig(level: level), b = LevelConfig(level: level + 1)
+            XCTAssertLessThanOrEqual(abs(a.rows - b.rows) + abs(a.cols - b.cols), 2, "jump at level \(level)")
+        }
+        XCTAssertLessThanOrEqual(LevelConfig(level: 15).rows * LevelConfig(level: 15).cols, 49, "still at most 7x7 by level 15")
     }
 
     func testAssistSoftensWithoutBreakingBoards() {
