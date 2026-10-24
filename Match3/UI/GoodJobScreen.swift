@@ -2,7 +2,7 @@ import SwiftUI
 import Match3Core
 
 /// Full-screen celebration between levels: sunburst rays, a bouncing gold star, the words
-/// "Good Job!" popping in, and candies raining down. Goes away on its own, or on a tap.
+/// the candy jar, and candies raining down. No text. Goes away on its own, or on a tap.
 struct GoodJobScreen: View {
     /// Levels finished including this one; the jar shows one candy per level.
     var completedLevels: Int = 1
@@ -39,7 +39,7 @@ struct GoodJobScreen: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: drop.size, height: drop.size)
-                        .opacity(0.5)  // keeps the star, text and jar readable through the rain
+                        .opacity(0.5)  // keeps the star and jar readable through the rain
                         .rotationEffect(.degrees(dropped ? drop.spin : 0))
                         .position(x: drop.x * geo.size.width,
                                   y: dropped ? geo.size.height + 80 : -80)
@@ -51,15 +51,14 @@ struct GoodJobScreen: View {
             let short = min(geo.size.width, geo.size.height)
             let starSize = min(170, short * 0.3)
             let spacing = short * 0.04
-            let textSize = min(60, short * 0.11)
             let jarWidth = min(120, short * 0.26)
             let jarHeight = jarWidth / 0.8
             let starBlock = starSize * 1.5
-            let totalHeight = starBlock + spacing + textSize * 1.3 + spacing + jarHeight
+            let totalHeight = starBlock + spacing * 2 + jarHeight
             let starCenterY = geo.size.height / 2 - totalHeight / 2 + starBlock / 2
             let jarMouthY = geo.size.height / 2 + totalHeight / 2 - jarHeight * 0.9
 
-            VStack(spacing: spacing) {
+            VStack(spacing: spacing * 2) {
                 ZStack {
                     SunburstView()
                         .frame(width: starSize * 2.5, height: starSize * 2.5)
@@ -75,14 +74,7 @@ struct GoodJobScreen: View {
                 }
                 .frame(height: starSize * 1.5)
 
-                Text("Good Job!")
-                    .font(.system(size: textSize, weight: .heavy, design: .rounded))
-                    .foregroundStyle(Theme.text)
-                    .shadow(color: .white, radius: 0, x: 2, y: 2)
-                    .shadow(color: Theme.magenta.opacity(0.3), radius: 10, y: 6)
-                    .scaleEffect(appeared ? 1 : 0.3)
-                    .opacity(appeared ? 1 : 0)
-
+                // No words anywhere in play: the star, the sounds and the jar say it.
                 JarView(count: jarCount)
                     .frame(width: jarWidth)
                     .scaleEffect(jarBounce ? 1.1 : 1, anchor: .bottom)

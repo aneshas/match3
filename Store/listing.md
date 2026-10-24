@@ -11,7 +11,7 @@ Drafts for App Store Connect. Replace "Match 3" with the final name.
 
 A match-3 game made for people with intellectual disabilities, and for anyone who wants a game that is only ever kind.
 
-There is nothing to lose. No timers, no move limits, no lives, no ads, no reading. One gesture: swipe a candy toward its neighbor. Every swipe that matches fills the bar; when it is full the candies celebrate and the next level starts. Boards grow slowly in size, shape and color count, and the game quietly makes the next level easier after a hard one.
+There is nothing to lose. No timers, no move limits, no lives, no ads, and not a single word to read: the game speaks only in candy, sound and a golden star. One gesture: swipe a candy toward its neighbor. Every swipe that matches fills the bar; when it is full the candies celebrate and the next level starts. Boards grow slowly in size, shape and color count, and the game quietly makes the next level easier after a hard one.
 
 For caregivers: hold three fingers on the Play screen for three seconds to open the caregiver panel. There you can turn sound, music and vibration on or off, switch on high contrast, cap the number of candy colors, set a session length that ends the game gently, see how many levels were finished this week, and start again from level 1.
 
@@ -33,7 +33,7 @@ First release.
 
 ## App Review notes
 
-This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and only two words of text ("Play", "Good Job!").
+This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and no text at all outside the caregiver panel: the Play button is an icon, and finishing a level shows a star and the candy jar.
 
 - The caregiver panel opens by holding three fingers on the Play screen for about three seconds.
 - The in-app purchase "All levels" is inside that panel, behind a parental gate (a multiplication question). The first 20 levels are free; after them the Play button shows a lock until the purchase or a reset to level 1.

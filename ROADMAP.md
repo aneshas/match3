@@ -123,7 +123,7 @@ in the session scratchpad only; nothing has been added to the project yet.
 | Play button tap | Kenney Interface Sounds `select_00x.ogg` / `click_00x.ogg` | CC0 | |
 | Voice "Good job!" | iOS `AVSpeechSynthesizer` | built in, free | Speaks in the device language with no asset files. Record a human voice only if the synthetic one tests badly. Caregiver recording covers the personal version. |
 | Background loop (optional) | [Heavenly Loop](https://opengameart.org/content/heavenly-loop) by isaiah658 | CC0 | Seamless, dreamy, OGG/FLAC. Also OGA's "CC0 – Calm / Relaxing Music" collection. Default off. |
-| Font | [Fredoka](https://fonts.google.com/specimen/Fredoka) or [Baloo 2](https://fonts.google.com/specimen/Baloo+2) on Google Fonts | SIL OFL 1.1 | Both rounded, both allow bundling in an app. Only "Play" and "Good Job!" are rendered. |
+| Font | [Fredoka](https://fonts.google.com/specimen/Fredoka) or [Baloo 2](https://fonts.google.com/specimen/Baloo+2) on Google Fonts | SIL OFL 1.1 | Both rounded, both allow bundling in an app. No text is rendered in play any more; a font would only matter for the caregiver panel. |
 
 Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 `afconvert -f caff -d LEI16 in.wav out.caf` (WAV) or via ffmpeg for OGG. Keep the Kenney
@@ -137,7 +137,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 
 ### Localization strings (not assets, but to gather)
 
-- [ ] "Play" and "Good Job!" in each target language, checked with a native speaker for the simplest everyday wording.
+- [x] No words in play at all: the Play button is an icon and the Good Job screen has no text, so nothing needs translating for the player. Only the caregiver panel has text (English for now).
 
 ## 6b. Pacing (done)
 

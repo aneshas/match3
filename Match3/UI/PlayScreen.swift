@@ -42,10 +42,9 @@ struct PlayScreen: View {
                                 Image(systemName: "lock.fill")
                                     .font(.system(size: 64, weight: .bold))
                             } else {
+                                // Icon only, so the app has no words in any language.
                                 Image(systemName: "play.fill")
-                                    .font(.system(size: 56, weight: .bold))
-                                Text("Play")
-                                    .font(.system(size: 64, weight: .heavy, design: .rounded))
+                                    .font(.system(size: 72, weight: .bold))
                             }
                         }
                         .foregroundStyle(.white)

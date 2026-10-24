@@ -8,7 +8,7 @@ on a soft cream-to-pink background.
 - **One gesture only**: swipe a tile toward a neighbor. No tap-to-select, no double tap, no long press.
 - **Never lose**: no move limits, timers, lives or fail screens. A stuck board reshuffles silently.
 - **Progress = swipes**: the bar advances one step per successful swap (`goalMatches` is a swipe count, 3 to 15). Cascades burst and sound but never fill the bar; refills avoid free matches so levels do not play themselves.
-- **No text or numbers in play**: the only words in the app are "Play" and "Good Job!". Progress is a filling bar with a star, never a counter or score.
+- **No text or numbers in play, in any language**: the Play button is a play icon, the Good Job screen is a star, sounds and the jar. Nothing the player sees needs reading, so there is nothing to localize outside the caregiver panel. Progress is a filling bar with a star, never a counter or score.
 - **No objectives that need reading or reasoning**: no "collect 10 red", no special pieces, no blockers, no boosters.
 - **Orientation**: all orientations. `LevelScreen` switches to a landscape layout (vertical bar + board) when width > height; other screens scale with the short side.
 - **Flow**: Play button -> current level -> Good Job -> next level, forever. No world map, no menus. A round house button (bottom right of the level screen) returns to Play; the unfinished level is dropped. A caregiver session timer can end a session gently after a Good Job (good-night screen, back to Play).
