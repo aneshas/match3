@@ -13,7 +13,7 @@ struct LevelScreen: View {
                 // Landscape: the bar stands on the left, the board uses the full height.
                 HStack(spacing: 16) {
                     VStack(spacing: 16) {
-                        ProgressBarView(fraction: session.progressFraction, axis: .vertical)
+                        ProgressBarView(fraction: session.progressFraction, goal: session.nextCandy, axis: .vertical)
                         HomeButton(action: onHome)
                     }
                     .padding(.leading, 20 + insets.leading)
@@ -25,7 +25,7 @@ struct LevelScreen: View {
             } else {
                 VStack(spacing: 20) {
                     // Keeps clear of the camera cutout on screens with a one-sided inset.
-                    ProgressBarView(fraction: session.progressFraction)
+                    ProgressBarView(fraction: session.progressFraction, goal: session.nextCandy)
                         .padding(.leading, 24 + insets.leading)
                         .padding(.trailing, 24 + insets.trailing)
                         .padding(.top, 44)  // clear of the notch / camera on phones that report no top inset

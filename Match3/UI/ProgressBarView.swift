@@ -1,9 +1,12 @@
 import SwiftUI
 
-/// A big bar that fills up as matches are made. No digits anywhere: the star at the end is
+/// A big bar that fills up as matches are made. No digits anywhere: the candy at the end
+/// (one from the next level) is
 /// the goal, and it lights up when reached. The fill shimmers and the bar pulses on each gain.
 struct ProgressBarView: View {
     let fraction: Double
+    /// The candy shown at the end of the bar: a taste of the next level.
+    var goal: CandyArt.Preview? = nil
     /// Vertical in landscape: the bar stands beside the board and fills bottom to top.
     var axis: Axis = .horizontal
     private let height: CGFloat = 29
@@ -62,18 +65,20 @@ struct ProgressBarView: View {
         .accessibilityValue("\(Int(fraction * 100)) percent")
     }
 
+    /// The goal candy: a little faded while the bar fills, then full color, a gold glow,
+    /// a bounce and a spin when the bar is full.
     private var star: some View {
-        Image(systemName: "star.fill")
-            .font(.system(size: 44))
-            .foregroundStyle(
-                fraction >= 1
-                    ? AnyShapeStyle(LinearGradient(colors: [Theme.gold, Theme.goldDark], startPoint: .top, endPoint: .bottom))
-                    : AnyShapeStyle(Color.white.opacity(0.8))
-            )
-            .shadow(color: fraction >= 1 ? Theme.gold.opacity(0.7) : Color.black.opacity(0.1), radius: fraction >= 1 ? 12 : 2, y: 2)
-            .scaleEffect(fraction >= 1 ? 1.3 : 1)
+        let done = fraction >= 1
+        return CandyArt.load(goal?.imageName ?? CandyArt.tileImages[0])
+            .resizable()
+            .scaledToFit()
+            .frame(width: 52, height: 52)
+            .opacity(done ? 1 : 0.8)
+            .shadow(color: Color.black.opacity(0.18), radius: 3, y: 2)
+            .shadow(color: done ? Theme.gold.opacity(0.8) : .clear, radius: done ? 14 : 0)
+            .scaleEffect(done ? 1.3 : 1)
             .rotationEffect(.degrees(starSpin ? 360 : 0))
-            .animation(.spring(response: 0.45, dampingFraction: 0.5), value: fraction >= 1)
+            .animation(.spring(response: 0.45, dampingFraction: 0.5), value: done)
     }
 
     private func pulseOnChange(_ new: Double) {

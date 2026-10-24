@@ -45,6 +45,8 @@ final class GameSession {
     }
 
     let config: LevelConfig
+    /// What the bar fills toward: a candy from the next level (set by AppFlow).
+    var nextCandy: CandyArt.Preview?
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
     /// Debug/UI-test counter: every swipe that reached the session, valid or not.

@@ -93,6 +93,11 @@ final class AppFlow {
                                  maxColors: Settings.shared.maxColors,
                                  maxRows: boardMaxRows)
         let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
+        let next = LevelConfig(level: level + 1,
+                               assist: DebugFlags.assist ?? progress.assist,
+                               maxColors: Settings.shared.maxColors,
+                               maxRows: boardMaxRows)
+        session.nextCandy = CandyArt.Preview.forLevel(next)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()
         }

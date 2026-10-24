@@ -54,6 +54,20 @@ enum CandyArt {
 
     static let logo = "jazzle"
 
+    /// One candy from the coming level, shown at the end of the progress bar as the goal:
+    /// a random color from that level's set, in that level's finish.
+    struct Preview: Equatable {
+        let color: TileColor
+        let finish: Finish
+        var imageName: String { CandyArt.image(for: color, finish: finish) }
+
+        static func forLevel(_ config: LevelConfig) -> Preview {
+            var rng = SeededRandom(seed: config.seed ^ 0xCA4D7)
+            let color = TileColor(Int(rng.next() % UInt64(config.colorCount)))
+            return Preview(color: color, finish: CandyArt.finish(for: config.level))
+        }
+    }
+
     /// Everything that may rain down on the Good Job screen: the board pieces in every
     /// finish, the ovals in their wrappers, and the decorations.
     static let rain: [String] =
