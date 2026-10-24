@@ -57,9 +57,8 @@ struct PlayScreen: View {
                                 .opacity(locked ? 0.75 : 1)
                                 .shadow(color: Color.black.opacity(0.22), radius: 12, y: 8)
                             OutlinedSymbol(name: locked ? "lock.fill" : "play.fill",
-                                           font: .system(size: candySize * 0.42, weight: .bold),
+                                           font: .system(size: candySize * 0.38, weight: .bold),
                                            fill: .white, outline: Theme.text, width: 3)
-                                .offset(x: locked ? 0 : candySize * 0.03)  // a triangle looks centered a touch right
                                 .shadow(color: Color.black.opacity(0.3), radius: 6, y: 4)
                         }
                         .frame(width: candySize * 1.1, height: candySize * 1.1)
