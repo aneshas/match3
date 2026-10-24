@@ -70,45 +70,43 @@ public struct LevelConfig: Hashable, Sendable {
     /// Fewest playable cells a board may have. Small early boards are the point.
     public static let minPlayableCells = 12
 
-    /// The first levels are hand-picked: tiny, then gently non-square, then the first shapes.
-    private static let openingLevels: [(Int, Int, BoardShape)] = [
-        (4, 4, .square),          // 1
-        (4, 5, .square),          // 2  wide
-        (4, 5, .square),          // 3
-        (5, 4, .square),          // 4  tall
-        (5, 5, .roundedCorners),  // 5
-        (5, 5, .square),          // 6
-        (6, 5, .roundedCorners),  // 7  tall
-        (5, 6, .roundedCorners),  // 8  wide
-        (6, 6, .diamond),         // 9
-        (6, 6, .triangle),        // 10
-        (6, 6, .roundedCorners),  // 11
-        (7, 6, .diamond),         // 12
-        (6, 7, .square),          // 13
-        (7, 7, .cross),           // 14
-        (7, 7, .heart),           // 15
+    /// The opening: ten sizes over fifty levels, each lasting four to seven levels
+    /// (rows, cols, first level at which the size appears). Sizes never jump by more than
+    /// one row or column.
+    private static let openingSizes: [(rows: Int, cols: Int, from: Int)] = [
+        (4, 4, 1), (4, 5, 5), (5, 4, 9), (5, 5, 13), (6, 5, 19),
+        (5, 6, 24), (6, 6, 29), (7, 6, 36), (6, 7, 41), (7, 7, 46),
     ]
+    public static let openingLength = 50
 
-    /// (rows, cols). Columns stop at 7; rows keep growing so later boards are tall.
+    /// After the opening the size changes every five levels, cycling through these
+    /// (rows, cols). Columns stop at 7; rows grow so later boards are tall.
     private static let laterSizes: [(Int, Int)] = [
         (6, 6), (7, 6), (6, 7), (7, 7), (8, 6), (8, 7), (9, 6), (9, 7),
     ]
-    private static let laterShapes: [BoardShape] = [
-        .square, .roundedCorners, .heart, .cross, .diamond, .triangle, .circle, .octagon,
+
+    /// Level at which each shape may first appear (if the size allows it). A shape shows
+    /// on its unlock level, then the unlocked shapes take turns.
+    private static let shapeUnlocks: [(BoardShape, Int)] = [
+        (.square, 1), (.roundedCorners, 13), (.diamond, 29), (.triangle, 32),
+        (.cross, 46), (.heart, 48), (.octagon, 51), (.circle, 56),
     ]
 
     private static func geometry(for level: Int) -> (Int, Int, BoardShape) {
-        if level <= openingLevels.count {
-            return openingLevels[level - 1]
+        let r: Int, c: Int
+        if level <= openingLength {
+            let size = openingSizes.last { $0.from <= level }!
+            (r, c) = (size.rows, size.cols)
+        } else {
+            let step = (level - openingLength - 1) / 5
+            (r, c) = laterSizes[step % laterSizes.count]
         }
-        // After the opening table the size moves up only every five levels.
-        let step = level - openingLevels.count - 1
-        let (r, c) = laterSizes[min(step / 5, laterSizes.count - 1)]
-        // Cycle through the shapes that fit this size, so small boards never get a
-        // degenerate shape, big boards see every shape, and no shape repeats back to back.
-        let fitting = laterShapes.filter { $0.fits(rows: r, cols: c) && isValid(r, c, $0) }
-        guard !fitting.isEmpty else { return (r, c, .square) }
-        return (r, c, fitting[step % fitting.count])
+        let unlocked = shapeUnlocks.filter { $0.1 <= level && $0.0.fits(rows: r, cols: c) && isValid(r, c, $0.0) }
+        guard let newest = unlocked.max(by: { $0.1 < $1.1 }) else { return (r, c, .square) }
+        // Newest shape first, then the older ones in turn: an unlock shows right away and
+        // no shape repeats back to back.
+        let order = unlocked.sorted { $0.1 > $1.1 }.map { $0.0 }
+        return (r, c, order[(level - newest.1) % order.count])
     }
 
     private static func isValid(_ r: Int, _ c: Int, _ shape: BoardShape) -> Bool {

@@ -10,7 +10,7 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(l1.colorCount, 3)
         XCTAssertEqual(l1.goalMatches, 3)
         XCTAssertEqual(l1.shape, .square)
-        XCTAssertNotEqual(LevelConfig(level: 2).rows, LevelConfig(level: 2).cols, "level 2 is not square")
+        XCTAssertNotEqual(LevelConfig(level: 5).rows, LevelConfig(level: 5).cols, "level 5 is the first non-square board")
         XCTAssertEqual(LevelConfig(level: 12).colorCount, 3, "three colors well past level 5")
         XCTAssertEqual(LevelConfig(level: 19).goalMatches, LevelConfig.maxGoal, "goal caps around level 19")
         XCTAssertEqual(LevelConfig(level: 13).colorCount, 4)
@@ -40,8 +40,10 @@ final class LevelConfigTests: XCTestCase {
     }
 
     func testShapesVaryAcrossTheOpeningLevels() {
-        let shapes = Set((1...15).map { LevelConfig(level: $0).shape })
-        XCTAssertGreaterThanOrEqual(shapes.count, 5)
+        let shapes = Set((1...LevelConfig.openingLength).map { LevelConfig(level: $0).shape })
+        XCTAssertGreaterThanOrEqual(shapes.count, 6)
+        XCTAssertTrue((1...4).allSatisfy { LevelConfig(level: $0).shape == .square }, "the first levels are plain squares")
+        XCTAssertEqual(LevelConfig(level: 13).shape, .roundedCorners, "a shape shows on its unlock level")
     }
 
     func testBoardSizeGrowsSlowly() {
@@ -51,7 +53,8 @@ final class LevelConfigTests: XCTestCase {
             let a = LevelConfig(level: level), b = LevelConfig(level: level + 1)
             XCTAssertLessThanOrEqual(abs(a.rows - b.rows) + abs(a.cols - b.cols), 2, "jump at level \(level)")
         }
-        XCTAssertLessThanOrEqual(LevelConfig(level: 15).rows * LevelConfig(level: 15).cols, 49, "still at most 7x7 by level 15")
+        XCTAssertLessThanOrEqual(LevelConfig(level: 45).rows * LevelConfig(level: 45).cols, 42, "7x7 only from level 46")
+        XCTAssertEqual(LevelConfig(level: 12).rows * LevelConfig(level: 12).cols, 20, "still 5x4 at level 12")
     }
 
     func testAssistSoftensWithoutBreakingBoards() {
