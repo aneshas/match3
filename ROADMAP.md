@@ -176,6 +176,7 @@ the first update should add novelty. Cheapest first:
   - **Rainbow candy**: from a five-match in an L or T. Swapping it with any candy clears every candy of that color on the board, with a rainbow sweep. Worth 2 steps.
   - **Bomb candy**: from a match of six or more in a line. Clears a 5x5 area with a big shockwave. Worth 2 steps.
   - **Combos**: two specials swapped into each other go off together (striped + wrapped clears three rows and three columns; two striped clear the whole board). Worth 3 steps. Pure spectacle, no new gesture.
+  - **Art reserved for them**: the pack's pieces without a wrapper or stripe variant (the swirls, iced biscuits, liquorice stacks, coconut wheels, chocolate squares and the jazzle) stay off the board as plain candies on purpose. They float in the backgrounds and rain on Good Job for now, and are the art for these new special candies (a swirl for the rainbow candy, the jazzle for the bomb).
   - **Special-candy art**: the pack has no rainbow or bomb piece; use the code-drawn route (a swirl of all six colors, a dark ball with a fuse) or buy matching art.
   - Unlock them one at a time, each 10 to 15 levels apart from level 30, so every tier of levels brings one new thing.
 

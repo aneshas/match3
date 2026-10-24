@@ -31,7 +31,9 @@ on a soft cream-to-pink background.
   (`Palette.random(level:count:avoiding:)`, slot 0). `AppFlow` prepares the next level's palette
   while the current one is played and its newcomer is the candy at the end of the progress bar,
   so the promise is kept. Board effects take their particle color from the palette. The classic
-  six (`tileImages`) are used off-board (Play screen, sleepy candy). The pack's finishes mark
+  six (`tileImages`) are used off-board (Play screen, sleepy candy). The pack's pieces without
+  finish variants (`decorations`: swirls, icing, liquorice, coconut wheels, chocolate, jazzle) never
+  play as plain candies; they are reserved as the art for future special candies (see ROADMAP). The pack's finishes mark
   the special candies (`Power.finish`): wrapper = wrapped, stripes = striped; plain candies are
   always plain. `SweepView` is the striped flash, `ShockwaveView` the ring.
 - `Theme` holds all colors/gradients. `CandyBackground` is the shared animated backdrop.
