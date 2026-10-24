@@ -145,7 +145,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 - [x] **Refill avoids free matches.** New candies pick a color that does not complete a line; cascades drop from ~1 per swap to occasional.
 - [x] **Goal curve:** 3 swipes at level 1, about +2 every 3 levels, capped at 15.
 
-- [x] **Cascade bonus** (added after play testing): each self-made match group in a cascade adds half a step to the bar, so chains still feel rewarded; swipes remain the main currency.
+- [x] **Cascade bonus and match size** (added after play testing): three candies = 1 step, four = 1.5, five or more = 2; a group that matches on its own in a cascade is worth half of that. Swipes remain the main currency.
 
 ## 7. Testing with real players
 
