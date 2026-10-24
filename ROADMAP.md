@@ -79,8 +79,8 @@ Yes let's go with C
 ## 5. Accessibility details
 
 - [x] **High contrast option.** Thicker dark outline around candies, darker cells. Caregiver toggle; also follows iOS Increase Contrast. `MATCH3_HIGH_CONTRAST=1` previews it.
-- [ ] **Keep layout fixed.** Star stays on the right for everyone; no layout customization.
-- [ ] **Haptics toggle** in the caregiver panel.
+- [x] **Keep layout fixed.** Star stays on the right for everyone; no layout customization.
+- [x] **Haptics toggle** in the caregiver panel.
 
 ## 6. Assets to obtain
 
