@@ -58,6 +58,36 @@ public struct Board: Sendable {
             fillFresh()
             attempts += 1
         }
+        if !hasAnyMove { plantMove() }
+    }
+
+    /// Last resort after random re-coloring kept failing (only conceivable on tiny boards
+    /// with many colors): writes a guaranteed move, "A A B A" along some row or column,
+    /// without creating a match. Tile ids are kept so the UI can animate the change.
+    mutating func plantMove() {
+        let colors = (0..<colorCount).map(TileColor.init)
+        for horizontal in [true, false] {
+            let lines = horizontal ? rows : cols
+            let length = horizontal ? cols : rows
+            for line in 0..<lines {
+                for start in 0..<max(0, length - 3) {
+                    let run = (start..<start + 4).map { horizontal ? Position(row: line, col: $0) : Position(row: $0, col: line) }
+                    guard run.allSatisfy({ isPlayable($0) }) else { continue }
+                    let saved = run.map { tile(at: $0) }
+                    for a in colors {
+                        for b in colors where b != a {
+                            recolor(run[0], a); recolor(run[1], a); recolor(run[2], b); recolor(run[3], a)
+                            if findMatches().isEmpty { return }
+                        }
+                    }
+                    for (p, t) in zip(run, saved) { cells[p.row][p.col] = t }
+                }
+            }
+        }
+    }
+
+    private mutating func recolor(_ p: Position, _ color: TileColor) {
+        cells[p.row][p.col] = Tile(id: cells[p.row][p.col]?.id ?? UUID(), color: color)
     }
 
     /// Fills every playable cell with a new tile, never creating a match.
@@ -298,5 +328,6 @@ public struct Board: Sendable {
             }
             attempts += 1
         } while (!findMatches().isEmpty || !hasAnyMove) && attempts < 200
+        if !hasAnyMove { plantMove() }
     }
 }

@@ -137,4 +137,93 @@ final class BoardTests: XCTestCase {
         XCTAssertGreaterThan(spawns, 200)
         XCTAssertLessThan(Double(matchingSpawns) / Double(spawns), 0.10, "\(matchingSpawns) of \(spawns) spawned tiles matched on arrival")
     }
+
+    // MARK: - Playability guarantees
+
+    /// Plays every level/assist/color-cap combination for a while with random valid moves,
+    /// resolving cascades and shuffling when stuck, and checks the board can always
+    /// progress: a valid move exists after every turn and shuffles never leave a match.
+    func testEveryConfigurationStaysPlayable() {
+        var rng = SeededRandom(seed: 99)
+        var shuffles = 0
+        for level in [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30, 40, 50, 60, 80, 100, 150, 200] {
+            for assist in 0...3 {
+                for maxColors in [3, 4, 6] {
+                    let config = LevelConfig(level: level, assist: assist, maxColors: maxColors)
+                    var b = config.makeBoard()
+                    let tag = "level \(level) assist \(assist) cap \(maxColors) (\(b.rows)x\(b.cols) \(config.shape) \(b.colorCount) colors)"
+                    XCTAssertTrue(b.hasAnyMove, "\(tag): starts stuck")
+                    XCTAssertTrue(b.findMatches().isEmpty, "\(tag): starts with a match")
+                    for turn in 0..<40 {
+                        guard let move = randomMove(in: b, rng: &rng) else {
+                            XCTFail("\(tag): no move at turn \(turn)"); break
+                        }
+                        b.swap(move.0, move.1)
+                        var cascades = 0
+                        while true {
+                            let groups = b.findMatches()
+                            if groups.isEmpty { break }
+                            for g in groups { b.remove(g.positions) }
+                            _ = b.applyGravityAndRefill()
+                            cascades += 1
+                            XCTAssertLessThan(cascades, 50, "\(tag): endless cascade")
+                        }
+                        if !b.hasAnyMove {
+                            b.shuffle()
+                            shuffles += 1
+                            XCTAssertTrue(b.hasAnyMove, "\(tag): still stuck after shuffle at turn \(turn)")
+                            XCTAssertTrue(b.findMatches().isEmpty, "\(tag): shuffle left a match at turn \(turn)")
+                        }
+                    }
+                }
+            }
+        }
+        print("shuffles needed across the run: \(shuffles)")
+    }
+
+    /// The hardest case for random generation: the smallest boards with every color in
+    /// play. Fresh boards and shuffles must always come out with a move.
+    func testTinyBoardsWithSixColorsAlwaysHaveAMove() {
+        let sizes: [(BoardShape, Int, Int)] = [
+            (.square, 4, 4), (.square, 5, 4), (.square, 4, 5), (.roundedCorners, 5, 5),
+            (.diamond, 6, 6), (.triangle, 6, 6), (.cross, 7, 7), (.octagon, 7, 7), (.circle, 7, 7), (.heart, 7, 7),
+        ]
+        for (shape, rows, cols) in sizes {
+            for seed in 0..<300 {
+                var b = Board(rows: rows, cols: cols, shape: shape, colorCount: 6, seed: UInt64(seed))
+                XCTAssertTrue(b.hasAnyMove, "\(shape) \(rows)x\(cols) seed \(seed): fresh board stuck")
+                XCTAssertTrue(b.findMatches().isEmpty, "\(shape) \(rows)x\(cols) seed \(seed): fresh board has a match")
+                b.shuffle()
+                XCTAssertTrue(b.hasAnyMove, "\(shape) \(rows)x\(cols) seed \(seed): stuck after shuffle")
+                XCTAssertTrue(b.findMatches().isEmpty, "\(shape) \(rows)x\(cols) seed \(seed): match after shuffle")
+            }
+        }
+    }
+
+    /// The planted-move fallback must work on its own, in case random re-coloring ever
+    /// exhausts its attempts: start from a board with no move and no match, and check the
+    /// fallback produces a move without a match.
+    func testPlantedMoveFallback() {
+        var b = board([
+            "abcd",
+            "efab",
+            "cdef",
+            "abcd",
+        ])
+        XCTAssertFalse(b.hasAnyMove, "fixture should start stuck")
+        b.forcePlantMove()
+        XCTAssertTrue(b.hasAnyMove)
+        XCTAssertTrue(b.findMatches().isEmpty)
+    }
+
+    /// A uniformly random valid move (not just the first one found), so play explores
+    /// the board rather than always matching in the top-left corner.
+    private func randomMove(in b: Board, rng: inout SeededRandom) -> (Position, Position)? {
+        var moves: [(Position, Position)] = []
+        for p in b.allPositions {
+            for d in [Direction.right, .down] where b.swapCreatesMatch(p, p.offset(d)) { moves.append((p, p.offset(d))) }
+        }
+        guard !moves.isEmpty else { return nil }
+        return moves[Int(rng.next() % UInt64(moves.count))]
+    }
 }

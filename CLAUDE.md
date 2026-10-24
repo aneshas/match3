@@ -6,7 +6,7 @@ on a soft cream-to-pink background.
 ## Design rules (do not break these)
 
 - **One gesture only**: swipe a tile toward a neighbor. No tap-to-select, no double tap, no long press.
-- **Never lose**: no move limits, timers, lives or fail screens. A stuck board reshuffles silently.
+- **Never lose**: no move limits, timers, lives or fail screens. A stuck board reshuffles silently. Playability is guaranteed, not probable: fresh boards and shuffles re-color at random until a move exists, and if that ever fails `Board.plantMove` writes an "A A B A" move in; `BoardTests` plays every level/assist/color-cap combination and the smallest boards with six colors to prove it.
 - **Progress = steps**: a swipe's match is worth 1 step for three candies, 1.5 for four, 2 for five or more (`GameSession.stepValue`); a group that matches on its own in a cascade is worth half of that (`cascadeCredit`). `goalMatches` is the step count (3 to 15). Refills avoid free matches so levels do not play themselves, but big matches and chains are visibly rewarded.
 - **No text or numbers in play, in any language**: the Play button is a play icon, the Good Job screen is a star, sounds and the jar. Nothing the player sees needs reading, so there is nothing to localize outside the caregiver panel. Progress is a filling bar with a star, never a counter or score.
 - **No objectives that need reading or reasoning**: no "collect 10 red", no special pieces, no blockers, no boosters.

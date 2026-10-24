@@ -23,4 +23,7 @@ extension Board {
     public mutating func setCell(row: Int, col: Int, _ tile: Tile?) {
         cells[row][col] = tile
     }
+
+    /// Test hook: run the planted-move fallback directly.
+    mutating func forcePlantMove() { plantMove() }
 }
