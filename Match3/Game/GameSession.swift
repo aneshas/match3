@@ -14,6 +14,16 @@ struct TileState: Identifiable, Equatable {
     var scale: Double = 1
     var opacity: Double = 1
     var rotation: Double = 0
+    var power: Power = .none
+}
+
+/// A striped candy going off: a flash along its whole row or column.
+struct Sweep: Identifiable, Equatable {
+    let id = UUID()
+    let axis: LineAxis
+    /// Row index for a horizontal sweep, column index for a vertical one.
+    let index: Int
+    let color: TileColor
 }
 
 /// An animated hand showing the player how to swipe: it appears on `from`, drags to `to`.
@@ -62,6 +72,15 @@ final class GameSession {
     /// swipes; bigger matches and chains just get there sooner.
     private(set) var points: Double = 0
     static let cascadeCredit = 0.5
+    /// Steps added when a special candy goes off.
+    static let powerCredit = 1.0
+    /// Striped-candy flashes currently on screen.
+    private(set) var sweeps: [Sweep] = []
+    /// How many special candies have gone off this level (debug counters, tests).
+    private(set) var triggeredPowers = 0
+    /// Whether matches of four and five create special candies (caregiver setting, read
+    /// when the level starts so it never changes mid-level).
+    let powersEnabled: Bool
     static func stepValue(matched count: Int) -> Double {
         count >= 5 ? 2 : (count == 4 ? 1.5 : 1)
     }
@@ -98,7 +117,14 @@ final class GameSession {
     init(config: LevelConfig, swipeDemo: Bool = false) {
         self.config = config
         self.wantsDemo = swipeDemo
+        self.powersEnabled = Settings.shared.powerUpsEnabled
         self.board = config.makeBoard()
+        if DebugFlags.powerDemo, powersEnabled, let move = board.findAnyMove() {
+            // Debug: two specials placed on the first move the hint (and autoplay) will pick,
+            // so whichever side forms the match, a special candy goes off.
+            board.setPower(.striped(move.0.row == move.1.row ? .vertical : .horizontal), at: move.0)
+            board.setPower(.wrapped, at: move.1)
+        }
         rebuildTileStates()
         // Start every tile above the board; `dropIn` lets them fall into place.
         for i in tiles.indices { tiles[i].row -= Double(config.rows + 1) }
@@ -189,7 +215,7 @@ final class GameSession {
         // Steps are credited inside `resolveCascades` (the swipe's own match in full, cascade
         // groups at half value). `matchesMade` stays the plain swipe count for the stats.
         matchesMade = min(goal, matchesMade + 1)
-        await resolveCascades()
+        await resolveCascades(swapped: [a, b])
 
         if progressPoints >= Double(goal) {
             phase = .complete
@@ -207,21 +233,53 @@ final class GameSession {
         finishTurn()
     }
 
-    private func resolveCascades() async {
+    private func resolveCascades(swapped: Set<Position>) async {
         var depth = 0
         while true {
             let groups = board.findMatches()
             if groups.isEmpty { return }
 
-            let big = depth > 0 || groups.contains { $0.positions.count >= 4 }
+            // Which candies clear, and which special candies this match earns. The earning
+            // candy (the one the player moved, else the middle of the run) stays on the board
+            // and transforms instead of popping.
+            var base = Set(groups.flatMap { $0.positions })
+            var creations: [(at: Position, power: Power)] = []
+            if powersEnabled {
+                for g in groups {
+                    guard let power = g.earnedPower,
+                          let pivot = pivot(for: g, preferring: depth == 0 ? swapped : []) else { continue }
+                    creations.append((pivot, power))
+                    base.remove(pivot)
+                }
+            }
+            let expansion = board.expandedRemoval(for: base)
+            // A pivot caught in a striped sweep is simply cleared; nothing is created there.
+            creations.removeAll { expansion.removed.contains($0.at) }
+            let triggerPositions = Set(expansion.triggered.map(\.position))
+            triggeredPowers += expansion.triggered.count
+
+            let big = depth > 0 || !expansion.triggered.isEmpty || groups.contains { $0.positions.count >= 4 }
             // Credit the bar right away so the reward lands with the burst: full value for
-            // the swipe's own groups (depth 0), half for groups the board matched by itself.
+            // the swipe's own groups (depth 0), half for groups the board matched by itself,
+            // and a full step for every special candy that went off.
             let stepsNow = groups.reduce(0.0) { $0 + GameSession.stepValue(matched: $1.positions.count) }
-            points += depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit
+            points += (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit)
+                + Double(expansion.triggered.count) * GameSession.powerCredit
             Haptics.matchMade(big: big)
             SoundPlayer.shared.playMatch(big: big)
 
-            let removed = groups.flatMap { g in g.positions.compactMap { p in board.tile(at: p).map { (p, $0) } } }
+            // Striped candies flash along their line, behind the popping candies.
+            for t in expansion.triggered {
+                guard case .striped(let axis) = t.power, let tile = board.tile(at: t.position) else { continue }
+                let sweep = Sweep(axis: axis, index: axis == .horizontal ? t.position.row : t.position.col, color: tile.color)
+                sweeps.append(sweep)
+                Task { [weak self] in
+                    try? await Task.sleep(for: .milliseconds(700))
+                    self?.sweeps.removeAll { $0.id == sweep.id }
+                }
+            }
+
+            let removed = expansion.removed.compactMap { p in board.tile(at: p).map { (p, $0) } }
             let removedIDs = Set(removed.map { $0.1.id })
 
             // Puff up, then shrink away while particles fly out.
@@ -229,7 +287,9 @@ final class GameSession {
                 for i in tiles.indices where removedIDs.contains(tiles[i].id) { tiles[i].scale = 1.3 }
             }
             await sleep(popDuration * 0.4)
-            let newBursts = removed.map { Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big) }
+            let newBursts = removed.map {
+                Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0))
+            }
             bursts.append(contentsOf: newBursts)
             withAnimation(.easeIn(duration: popDuration * 0.6)) {
                 for i in tiles.indices where removedIDs.contains(tiles[i].id) {
@@ -243,8 +303,17 @@ final class GameSession {
                 self?.bursts.removeAll { b in newBursts.contains(b) }
             }
 
-            for g in groups { board.remove(g.positions) }
+            board.remove(expansion.removed)
             tiles.removeAll { removedIDs.contains($0.id) }
+
+            // Earned special candies transform in place with a little pop.
+            for c in creations {
+                board.setPower(c.power, at: c.at)
+                guard let id = board.tile(at: c.at)?.id, let i = tiles.firstIndex(where: { $0.id == id }) else { continue }
+                tiles[i].power = c.power
+                tiles[i].scale = 1.45
+                withAnimation(.spring(response: 0.4 * motionScale, dampingFraction: 0.5)) { tiles[i].scale = 1 }
+            }
 
             let result = board.applyGravityAndRefill()
             // Spawned tiles start above the board, then everything falls together with a bounce.
@@ -262,7 +331,16 @@ final class GameSession {
         }
     }
 
-    /// Candies spin away row by row before the Good Job screen.
+    /// Where an earned special candy appears: the candy the player moved if it is in the
+    /// group, otherwise the middle of the group. Never on top of an existing special.
+    private func pivot(for group: MatchGroup, preferring preferred: Set<Position>) -> Position? {
+        let plain = group.positions.filter { board.tile(at: $0)?.power == Power.none }
+        if let p = plain.first(where: { preferred.contains($0) }) { return p }
+        let sorted = plain.sorted { ($0.row, $0.col) < ($1.row, $1.col) }
+        guard !sorted.isEmpty else { return nil }
+        return sorted[sorted.count / 2]
+    }
+
     private func celebrateBoard() async {
         await sleep(0.35)
         let perRow = 0.06 * motionScale
@@ -379,7 +457,8 @@ final class GameSession {
 
     private func rebuildTileStates() {
         tiles = board.tiles.map { TileState(id: $0.tile.id, color: $0.tile.color,
-                                            row: Double($0.position.row), col: Double($0.position.col)) }
+                                            row: Double($0.position.row), col: Double($0.position.col),
+                                            power: $0.tile.power) }
     }
 
     private func move(_ id: UUID, to p: Position) {

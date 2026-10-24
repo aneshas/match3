@@ -226,4 +226,63 @@ final class BoardTests: XCTestCase {
         guard !moves.isEmpty else { return nil }
         return moves[Int(rng.next() % UInt64(moves.count))]
     }
+
+    // MARK: - Special candies
+
+    func testMatchSizeDecidesTheEarnedPower() {
+        let three = board(["aaab", "bcdb", "cdcb", "dcdd"]).findMatches()
+        XCTAssertEqual(three.count, 2)
+        XCTAssertTrue(three.allSatisfy { $0.earnedPower == nil })
+
+        let four = board(["aaaa", "bcdb", "cdcb", "dcdd"]).findMatches()
+        XCTAssertEqual(four.first?.earnedPower, .wrapped)
+
+        let lShape = board(["aaab", "acdc", "adcb", "bcdd"]).findMatches()
+        XCTAssertEqual(lShape.count, 1, "L shape should merge into one group")
+        XCTAssertEqual(lShape.first?.earnedPower, .wrapped)
+
+        let five = board(["aaaaa", "bcdbc", "cdcbd", "dcddc", "bcbdb"]).findMatches()
+        XCTAssertEqual(five.first?.earnedPower, .striped(.horizontal))
+
+        let fiveDown = board(["abcde", "acdbc", "adcbd", "acddc", "abbdb"]).findMatches()
+        XCTAssertEqual(fiveDown.first?.earnedPower, .striped(.vertical))
+    }
+
+    func testStripedClearsItsLineAndWrappedItsNeighbors() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        b.setPower(.striped(.horizontal), at: Position(row: 2, col: 2))
+        let striped = b.expandedRemoval(for: [Position(row: 2, col: 2)])
+        XCTAssertEqual(striped.removed, Set((0..<5).map { Position(row: 2, col: $0) }))
+        XCTAssertEqual(striped.triggered.map(\.position), [Position(row: 2, col: 2)])
+
+        b.setPower(.wrapped, at: Position(row: 0, col: 0))
+        let wrapped = b.expandedRemoval(for: [Position(row: 0, col: 0)])
+        XCTAssertEqual(wrapped.removed, Set([Position(row: 0, col: 0), Position(row: 0, col: 1), Position(row: 1, col: 0), Position(row: 1, col: 1)]))
+
+        // Plain candies trigger nothing.
+        let plain = b.expandedRemoval(for: [Position(row: 4, col: 4)])
+        XCTAssertEqual(plain.removed, [Position(row: 4, col: 4)])
+        XCTAssertTrue(plain.triggered.isEmpty)
+    }
+
+    func testPowersChainAndTerminate() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        for p in b.allPositions { b.setPower(.striped((p.row + p.col) % 2 == 0 ? .horizontal : .vertical), at: p) }
+        let all = b.expandedRemoval(for: [Position(row: 0, col: 0)])
+        XCTAssertEqual(all.removed.count, 25, "a board of striped candies clears entirely")
+        XCTAssertEqual(all.triggered.count, 25)
+    }
+
+    func testShuffleAndGravityKeepPowers() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        b.setPower(.wrapped, at: Position(row: 0, col: 1))
+        let id = b.tile(at: Position(row: 0, col: 1))!.id
+        b.remove([Position(row: 4, col: 1)])
+        _ = b.applyGravityAndRefill()
+        let afterFall = b.tiles.first { $0.tile.id == id }
+        XCTAssertEqual(afterFall?.tile.power, .wrapped)
+        XCTAssertEqual(afterFall?.position, Position(row: 1, col: 1))
+        b.shuffle()
+        XCTAssertEqual(b.tiles.first { $0.tile.id == id }?.tile.power, .wrapped)
+    }
 }

@@ -4,6 +4,39 @@ import Foundation
 public struct MatchGroup: Hashable, Sendable {
     public let positions: Set<Position>
     public let color: TileColor
+
+    /// Longest straight run inside the group and its axis.
+    public var longestRun: (length: Int, axis: LineAxis) {
+        var best = (length: 1, axis: LineAxis.horizontal)
+        for p in positions {
+            if !positions.contains(Position(row: p.row, col: p.col - 1)) {
+                var n = 1
+                while positions.contains(Position(row: p.row, col: p.col + n)) { n += 1 }
+                if n > best.length { best = (n, .horizontal) }
+            }
+            if !positions.contains(Position(row: p.row - 1, col: p.col)) {
+                var n = 1
+                while positions.contains(Position(row: p.row + n, col: p.col)) { n += 1 }
+                if n > best.length { best = (n, .vertical) }
+            }
+        }
+        return best
+    }
+
+    /// Which special candy this match earns: five in a line gives a striped candy along
+    /// that line, four (or an L/T) gives a wrapped candy, three gives nothing.
+    public var earnedPower: Power? {
+        let run = longestRun
+        if run.length >= 5 { return .striped(run.axis) }
+        if positions.count >= 4 { return .wrapped }
+        return nil
+    }
+}
+
+/// A special candy that went off while a match was cleared.
+public struct PowerTrigger: Hashable, Sendable {
+    public let position: Position
+    public let power: Power
 }
 
 /// A tile that fell from one cell to another during gravity.
@@ -87,7 +120,7 @@ public struct Board: Sendable {
     }
 
     private mutating func recolor(_ p: Position, _ color: TileColor) {
-        cells[p.row][p.col] = Tile(id: cells[p.row][p.col]?.id ?? UUID(), color: color)
+        cells[p.row][p.col] = Tile(id: cells[p.row][p.col]?.id ?? UUID(), color: color, power: cells[p.row][p.col]?.power ?? .none)
     }
 
     /// Fills every playable cell with a new tile, never creating a match.
@@ -242,6 +275,43 @@ public struct Board: Sendable {
         for p in positions where isPlayable(p) { cells[p.row][p.col] = nil }
     }
 
+    /// Turns the tile at `p` into a special candy (or back into a plain one).
+    public mutating func setPower(_ power: Power, at p: Position) {
+        guard isInside(p), let t = cells[p.row][p.col] else { return }
+        cells[p.row][p.col] = Tile(id: t.id, color: t.color, power: power)
+    }
+
+    /// Everything that gets cleared when `positions` are matched: the positions themselves
+    /// plus whatever the special candies among them (and among what they clear, in a
+    /// chain) take with them. Terminates because the set only ever grows within the board.
+    public func expandedRemoval(for positions: Set<Position>) -> (removed: Set<Position>, triggered: [PowerTrigger]) {
+        var removed = Set(positions.filter { tile(at: $0) != nil })
+        var queue = Array(removed).sorted { ($0.row, $0.col) < ($1.row, $1.col) }
+        var triggered: [PowerTrigger] = []
+        var seen = Set<Position>()
+        while let p = queue.popLast() {
+            guard !seen.contains(p), let t = tile(at: p), t.power != .none else { continue }
+            seen.insert(p)
+            triggered.append(PowerTrigger(position: p, power: t.power))
+            let extra: [Position]
+            switch t.power {
+            case .none:
+                extra = []
+            case .wrapped:
+                extra = (-1...1).flatMap { dr in (-1...1).map { dc in Position(row: p.row + dr, col: p.col + dc) } }
+            case .striped(.horizontal):
+                extra = (0..<cols).map { Position(row: p.row, col: $0) }
+            case .striped(.vertical):
+                extra = (0..<rows).map { Position(row: $0, col: p.col) }
+            }
+            for q in extra where tile(at: q) != nil && !removed.contains(q) {
+                removed.insert(q)
+                queue.append(q)
+            }
+        }
+        return (removed, triggered)
+    }
+
     // MARK: - Gravity
 
     /// Drops tiles down within each column and spawns new tiles at the top to fill gaps.
@@ -323,7 +393,7 @@ public struct Board: Sendable {
                 for c in 0..<cols {
                     guard let old = cells[r][c] else { continue }
                     cells[r][c] = nil
-                    cells[r][c] = Tile(id: old.id, color: randomColorAvoidingMatch(row: r, col: c))
+                    cells[r][c] = Tile(id: old.id, color: randomColorAvoidingMatch(row: r, col: c), power: old.power)
                 }
             }
             attempts += 1

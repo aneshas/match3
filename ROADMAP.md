@@ -146,21 +146,21 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 - [x] **Goal curve:** 3 swipes at level 1, about +2 every 3 levels, capped at 15.
 
 - [x] **Next-level candy as the goal**: the bar ends in a candy from the coming level (random color from its set, in its finish) instead of a star.
-- [x] **All of the candy pack in use**: the board rotates finishes level by level (plain, striped, wrapped), the ovals and wrapped ovals decorate the background and the rain.
+- [x] **All of the candy pack in use**: stripes and wrappers are the special candies (6c), the ovals and wrapped ovals decorate the background and the rain.
 - [x] **Board width cap** (after play testing on the phone): never more than 7 columns; later levels grow to 9 rows instead, clamped to what the screen shows at the 7-column candy size (`BoardFit`).
 - [x] **Cascade bonus and match size** (added after play testing): three candies = 1 step, four = 1.5, five or more = 2; a group that matches on its own in a cascade is worth half of that. Swipes remain the main currency.
 
-## 6c. Power-ups (idea, not scheduled)
+## 6c. Special candies (shipped)
 
 The design rule is still "no objectives that need reading or reasoning", so any power-up
 must be something the player never has to understand: it just happens, or it responds to
 the one gesture they already know. Ideas, in order of how little they ask of the player:
 
-- [ ] **Automatic big-match effect.** Matching 5 or more clears that whole row or column with fireworks. No new piece, no new gesture, no decision; the player only sees that a big match is a big deal. Lowest risk; could ship as the only power-up.
-- [ ] **Wrapped candy.** A match of 4 leaves one wrapped candy (the pack's `*_wrapper` art) in place. Swiping it into any match bursts its neighbors too. Same gesture, visibly different piece, forgiving if ignored (it is still a normal candy of its color).
-- [ ] **Striped candy.** A match of 5 leaves a striped candy (`*_horizontal` / `*_vertical`); when it is part of a match it clears its row or column. Classic, but it introduces "this piece does something" reasoning; test with real players first.
-- [ ] **Rule**: a power-up is never required to finish a level, never times out, never costs anything, and the hint system must point at it like any other move.
-- [ ] If any of these ship, stop the cosmetic finish rotation (`CandyArt.finish(for:)`) so stripes and wrappers mean one thing only.
+- [x] **Big matches make special candies** (instead of an automatic effect, so the reward is visible and the player decides nothing: the special is just a candy of its color that does more when matched).
+- [x] **Wrapped candy.** A match of 4 leaves one wrapped candy (the pack's `*_wrapper` art) in place. Swiping it into any match bursts its neighbors too. Same gesture, visibly different piece, forgiving if ignored (it is still a normal candy of its color).
+- [x] **Striped candy.** A match of 5 leaves a striped candy (`*_horizontal` / `*_vertical`); when it is part of a match it clears its row or column. Classic, but it introduces "this piece does something" reasoning; test with real players first.
+- [x] **Rule**: a power-up is never required to finish a level, never times out, never costs anything, and the hint system must point at it like any other move.
+- [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). A special going off adds one step to the bar.
 
 ## 7. Testing with real players
 

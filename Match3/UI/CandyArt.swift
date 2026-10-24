@@ -2,11 +2,11 @@ import SwiftUI
 import Match3Core
 
 /// Which images from the candy set are used where. Every tile color has its own
-/// silhouette, so pieces differ by shape as well as color. The pack has four finishes per
-/// piece; the board rotates through them level by level purely for variety (same shapes,
-/// same colors, nothing new to learn).
+/// silhouette, so pieces differ by shape as well as color. The pack's finishes mark the
+/// special candies: wrapper = wrapped, stripes = striped (along the stripes). Plain
+/// candies are always plain, so a finish means exactly one thing on the board.
 enum CandyArt {
-    /// Finish of a piece in the asset pack. Purely cosmetic in this game.
+    /// Finish of a piece in the asset pack.
     enum Finish: String, CaseIterable {
         case plain, horizontal, vertical, wrapper
     }
@@ -24,14 +24,6 @@ enum CandyArt {
 
     /// The plain pieces, indexed by `TileColor.index`.
     static let tileImages = pieces.map { "\($0.shape)_\($0.color)_plain" }
-
-    /// The first levels stay plain so the six shapes settle in; after that the finish
-    /// changes every level: plain, striped, wrapped, striped the other way, and round again.
-    static func finish(for level: Int) -> Finish {
-        guard level > 3 else { return .plain }
-        let cycle: [Finish] = [.plain, .horizontal, .wrapper, .vertical]
-        return cycle[(level - 4) % cycle.count]
-    }
 
     /// Loads a named candy image. The app uses the asset catalog; the art-rendering tool
     /// swaps this for file loading so views can be previewed outside Xcode.
@@ -64,7 +56,7 @@ enum CandyArt {
         static func forLevel(_ config: LevelConfig) -> Preview {
             var rng = SeededRandom(seed: config.seed ^ 0xCA4D7)
             let color = TileColor(Int(rng.next() % UInt64(config.colorCount)))
-            return Preview(color: color, finish: CandyArt.finish(for: config.level))
+            return Preview(color: color, finish: .plain)
         }
     }
 
@@ -74,4 +66,16 @@ enum CandyArt {
         pieces.flatMap { p in Finish.allCases.map { "\(p.shape)_\(p.color)_\($0.rawValue)" } }
         + ["blue", "green", "orange", "purple", "red", "yellow"].map { "oval_\($0)_wrapper" }
         + decorations
+}
+
+extension Power {
+    /// The pack's finish that marks each special candy.
+    var finish: CandyArt.Finish {
+        switch self {
+        case .none: return .plain
+        case .wrapped: return .wrapper
+        case .striped(.horizontal): return .horizontal
+        case .striped(.vertical): return .vertical
+        }
+    }
 }

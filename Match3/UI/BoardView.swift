@@ -36,6 +36,15 @@ struct BoardView: View {
                             .position(center(row: Double(p.row), col: Double(p.col), cell: cell))
                     }
 
+                    ForEach(session.sweeps) { sweep in
+                        let horizontal = sweep.axis == .horizontal
+                        SweepView(color: Theme.particleColor(for: sweep.color), horizontal: horizontal)
+                            .frame(width: horizontal ? boardWidth : cell * 0.9, height: horizontal ? cell * 0.9 : boardHeight)
+                            .position(x: horizontal ? boardWidth / 2 : (CGFloat(sweep.index) + 0.5) * cell,
+                                      y: horizontal ? (CGFloat(sweep.index) + 0.5) * cell : boardHeight / 2)
+                            .allowsHitTesting(false)
+                    }
+
                     ForEach(session.tiles) { tile in
                         TileView(color: tile.color,
                                  size: cell * 0.88,
@@ -43,7 +52,7 @@ struct BoardView: View {
                                  hinting: session.hintIDs.contains(tile.id),
                                  hintStrength: session.hintLevel,
                                  outlined: highContrast,
-                                 finish: CandyArt.finish(for: session.config.level))
+                                 finish: tile.power.finish)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)

@@ -5,11 +5,30 @@ import Foundation
 public struct Tile: Identifiable, Hashable, Sendable {
     public let id: UUID
     public let color: TileColor
+    /// Special candy, if any. Matches by color exactly like a plain candy; the power only
+    /// changes what gets cleared when it is matched.
+    public var power: Power
 
-    public init(id: UUID = UUID(), color: TileColor) {
+    public init(id: UUID = UUID(), color: TileColor, power: Power = .none) {
         self.id = id
         self.color = color
+        self.power = power
     }
+}
+
+public enum LineAxis: Hashable, Sendable {
+    case horizontal, vertical
+}
+
+/// Special candies. They are never required: a level is finished by ordinary matches, and
+/// a special candy is still a normal candy of its color if the player ignores it.
+public enum Power: Hashable, Sendable {
+    case none
+    /// Earned by a match of four (or an L/T). When matched it also bursts its 8 neighbors.
+    case wrapped
+    /// Earned by five in a line. When matched it clears its whole row (horizontal stripes)
+    /// or column (vertical stripes).
+    case striped(LineAxis)
 }
 
 /// A board position. `row` 0 is the top row, `col` 0 is the leftmost column.
