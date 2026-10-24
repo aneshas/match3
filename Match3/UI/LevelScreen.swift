@@ -53,7 +53,7 @@ struct LevelScreen: View {
     /// Invisible to players; lets UI tests read what the session received.
     @ViewBuilder private var debugCounters: some View {
         #if DEBUG
-        Text("swipes \(session.swipeAttempts) matches \(session.matchesMade) points \(Int(session.progressPoints * 2)) powers \(session.triggeredPowers)")
+        Text("swipes \(session.swipeAttempts) matches \(session.matchesMade) points \(Int(session.progressPoints * 4)) powers \(session.triggeredPowers)")
             .font(.system(size: 1))
             .opacity(0.01)
             .accessibilityIdentifier("debug.counters")

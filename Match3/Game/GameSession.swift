@@ -83,8 +83,12 @@ final class GameSession {
     /// swipes; bigger matches and chains just get there sooner.
     private(set) var points: Double = 0
     static let cascadeCredit = 0.5
-    /// Steps added when a special candy goes off.
-    static let powerCredit = 1.0
+    /// Steps per candy a special candy clears beyond the match itself (a wrapped candy's
+    /// neighbors, a striped candy's row and column), so the bar rewards how much actually
+    /// burst: a wrapped candy in open board is worth about 2 steps, a striped one 3 to 4.
+    static let powerCandyCredit = 0.25
+    /// Floor per special that goes off, so one in a corner still pays a full step.
+    static let powerMinimumCredit = 1.0
     /// Special candies are only created from this level on; the first levels stay plain.
     static let powerUpsFromLevel = 10
     /// Striped-candy flashes currently on screen.
@@ -279,10 +283,14 @@ final class GameSession {
             let big = depth > 0 || !expansion.triggered.isEmpty || groups.contains { $0.positions.count >= 4 }
             // Credit the bar right away so the reward lands with the burst: full value for
             // the swipe's own groups (depth 0), half for groups the board matched by itself,
-            // and a full step for every special candy that went off.
+            // and for the specials a quarter step per extra candy they cleared, at least a
+            // full step per special.
             let stepsNow = groups.reduce(0.0) { $0 + GameSession.stepValue(matched: $1.positions.count) }
-            points += (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit)
-                + Double(expansion.triggered.count) * GameSession.powerCredit
+            let extraCleared = expansion.removed.subtracting(base).count
+            let powerSteps = expansion.triggered.isEmpty ? 0 : max(
+                Double(expansion.triggered.count) * GameSession.powerMinimumCredit,
+                Double(extraCleared) * GameSession.powerCandyCredit)
+            points += (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps
             if expansion.triggered.isEmpty {
                 Haptics.matchMade(big: big)
                 SoundPlayer.shared.playMatch(big: big)

@@ -161,7 +161,7 @@ the one gesture they already know. Ideas, in order of how little they ask of the
 - [x] **Wrapped candy.** A match of 4 leaves one wrapped candy (the pack's `*_wrapper` art) in place. Swiping it into any match bursts its neighbors too. Same gesture, visibly different piece, forgiving if ignored (it is still a normal candy of its color).
 - [x] **Striped candy** (clears its whole row and column). A match of 5 leaves a striped candy (`*_horizontal` / `*_vertical`); when it is part of a match it clears its row or column. Classic, but it introduces "this piece does something" reasoning; test with real players first.
 - [x] **Rule**: a power-up is never required to finish a level, never times out, never costs anything, and the hint system must point at it like any other move.
-- [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). Specials appear from level 10. A special going off adds one step to the bar, plays its own sound, rings outward and punches the board.
+- [x] Cosmetic finish rotation removed; stripes and wrappers mean one thing only. Caregiver toggle "Special candies" (on by default). Specials appear from level 10. A special going off adds a quarter step per extra candy it clears (at least one step; a wrapped candy is worth about 2, a striped one 3 to 4), plays its own sound, rings outward and punches the board.
 
 ## 8. After launch: novelty for levels 30 and up
 
