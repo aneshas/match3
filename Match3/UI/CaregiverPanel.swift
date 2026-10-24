@@ -9,6 +9,9 @@ struct CaregiverPanel: View {
     @State private var settings = Settings.shared
     @State private var confirmReset = false
     @State private var purchaseMessage: String?
+    /// Parental gate before a purchase: a small sum only an adult is expected to solve.
+    @State private var gate: ParentalGate?
+    @State private var gateAnswer = ""
 
     var body: some View {
         NavigationStack {
@@ -45,7 +48,8 @@ struct CaregiverPanel: View {
                     } else {
                         LabeledContent("Free levels", value: "1 to \(flow.freeLevels)")
                         Button {
-                            Task { await buy() }
+                            gateAnswer = ""
+                            gate = ParentalGate()
                         } label: {
                             HStack {
                                 Text("Unlock all levels, forever")
@@ -88,6 +92,21 @@ struct CaregiverPanel: View {
                     Button("Done") { dismiss() }
                 }
             }
+            .alert("Ask an adult", isPresented: Binding(get: { gate != nil }, set: { if !$0 { gate = nil } }), presenting: gate) { gate in
+                TextField("Answer", text: $gateAnswer)
+                    .keyboardType(.numberPad)
+                    .accessibilityIdentifier("gate.answer")
+                Button("Continue") {
+                    if gate.accepts(gateAnswer) {
+                        Task { await buy() }
+                    } else {
+                        purchaseMessage = "That was not the right answer. Tap Unlock to try again."
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: { gate in
+                Text("To continue to the purchase, what is \(gate.question)?")
+            }
             .onChange(of: flow.unlock.isUnlocked) { _, unlocked in
                 if unlocked { purchaseMessage = nil }
             }
@@ -98,6 +117,15 @@ struct CaregiverPanel: View {
                 Text("The jar empties and the next game starts at level 1.")
             }
         }
+    }
+
+    /// The gate is a multiplication with both factors between 3 and 9: trivial for an adult,
+    /// not something a tap or a swipe can get past. A new pair each time.
+    struct ParentalGate {
+        let a = Int.random(in: 3...9)
+        let b = Int.random(in: 3...9)
+        var question: String { "\(a) × \(b)" }
+        func accepts(_ answer: String) -> Bool { Int(answer.trimmingCharacters(in: .whitespaces)) == a * b }
     }
 
     private func buy() async {

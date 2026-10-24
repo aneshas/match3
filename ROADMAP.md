@@ -68,7 +68,7 @@ Yes let's go with C
 - [x] **Free-level count:** 20 (`AppFlow.freeLevels`). `MATCH3_FREE_LEVELS=n` and `MATCH3_UNLOCKED=1` for testing.
 - [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles on the jar, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
 - [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.kurrent.match3.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
-- [ ] **Parental gate** in the caregiver panel before the purchase button.
+- [x] **Parental gate** in the caregiver panel before the purchase button: a multiplication question (3–9 × 3–9) in an alert; wrong answers just return to the panel.
 - [ ] **Purchase screen** in the caregiver panel: price, what you get ("all levels, forever"), restore button, link to privacy policy.
 - [ ] **Tip jar** non-consumables (optional, caregiver panel only).
 - [ ] **Volume purchase** enabled in App Store Connect; one line in the panel: "Institutions: available via Apple Business Manager".

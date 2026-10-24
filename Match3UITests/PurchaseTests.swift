@@ -21,6 +21,17 @@ final class PurchaseTests: XCTestCase {
         XCTAssertTrue(buy.label.contains("9.99"), "price not shown: \(buy.label)")
         buy.tap()
 
+        // Parental gate: read "a × b" from the alert and answer it.
+        let alert = app.alerts.firstMatch
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "parental gate did not appear")
+        let text = alert.staticTexts.allElementsBoundByIndex.map(\.label).first { $0.contains("×") } ?? ""
+        let numbers = text.split(whereSeparator: { !$0.isNumber }).compactMap { Int($0) }
+        XCTAssertEqual(numbers.count, 2, "could not parse the gate question: \(text)")
+        let field = alert.textFields.firstMatch
+        field.tap()
+        field.typeText("\(numbers[0] * numbers[1])")
+        alert.buttons["Continue"].tap()
+
         let unlocked = app.staticTexts["All levels are unlocked"]
         XCTAssertTrue(unlocked.waitForExistence(timeout: 8), "panel did not report the unlock")
 
