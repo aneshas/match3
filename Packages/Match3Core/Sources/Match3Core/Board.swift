@@ -23,14 +23,40 @@ public struct MatchGroup: Hashable, Sendable {
         return best
     }
 
-    /// Which special candy this match earns: five in a line gives a striped candy along
-    /// that line, four (or an L/T) gives a wrapped candy, three gives nothing.
-    public var earnedPower: Power? {
+    /// True for L and T shapes: the group is not one straight line.
+    public var isBent: Bool {
+        let rows = Set(positions.map(\.row)), cols = Set(positions.map(\.col))
+        return rows.count > 1 && cols.count > 1
+    }
+
+    /// Which special candy this match earns when every kind is available: six or more in
+    /// any shape give a bomb, an L or T of five or more a rainbow, five in a line a striped
+    /// candy along that line, four a wrapped candy, three nothing.
+    public var earnedPower: Power? { earnedPower(allowed: Set(PowerKind.allCases)) }
+
+    /// The best special this match earns among the `allowed` kinds: a match too good for
+    /// the kinds unlocked so far falls back to the next one down, so a five-match before
+    /// striped candies exist still earns a wrapped one.
+    public func earnedPower(allowed: Set<PowerKind>) -> Power? {
         let run = longestRun
-        if run.length >= 5 { return .striped(run.axis) }
-        if positions.count >= 4 { return .wrapped }
+        if positions.count >= 6, allowed.contains(.bomb) { return .bomb }
+        if positions.count >= 5, isBent, allowed.contains(.rainbow) { return .rainbow }
+        if run.length >= 5, allowed.contains(.striped) { return .striped(run.axis) }
+        if positions.count >= 4, allowed.contains(.wrapped) { return .wrapped }
         return nil
     }
+}
+
+/// What swiping two neighbors does.
+public enum SwapEffect: Hashable, Sendable {
+    /// Nothing: the candies slide back.
+    case none
+    /// An ordinary match (possibly with specials in it).
+    case match
+    /// A rainbow candy at `at` (after the swap) going off on `color`.
+    case rainbow(color: TileColor, at: Position)
+    /// Two special candies swiped into each other; positions after the swap.
+    case combo(Position, Position)
 }
 
 /// A special candy that went off while a match was cleared.
@@ -105,7 +131,7 @@ public struct Board: Sendable {
             for line in 0..<lines {
                 for start in 0..<max(0, length - 3) {
                     let run = (start..<start + 4).map { horizontal ? Position(row: line, col: $0) : Position(row: $0, col: line) }
-                    guard run.allSatisfy({ isPlayable($0) }) else { continue }
+                    guard run.allSatisfy({ isPlayable($0) && tile(at: $0)?.power != .rainbow }) else { continue }
                     let saved = run.map { tile(at: $0) }
                     for a in colors {
                         for b in colors where b != a {
@@ -136,11 +162,11 @@ public struct Board: Sendable {
     /// Picks a color that does not complete a run of 3 with the two tiles above or to the left.
     private mutating func randomColorAvoidingMatch(row: Int, col: Int) -> TileColor {
         var banned = Set<TileColor>()
-        if row >= 2, let a = cells[row - 1][col], let b = cells[row - 2][col], a.color == b.color {
-            banned.insert(a.color)
+        if row >= 2, let a = matchColor(cells[row - 1][col]), let b = matchColor(cells[row - 2][col]), a == b {
+            banned.insert(a)
         }
-        if col >= 2, let a = cells[row][col - 1], let b = cells[row][col - 2], a.color == b.color {
-            banned.insert(a.color)
+        if col >= 2, let a = matchColor(cells[row][col - 1]), let b = matchColor(cells[row][col - 2]), a == b {
+            banned.insert(a)
         }
         var candidates = (0..<colorCount).map(TileColor.init).filter { !banned.contains($0) }
         if candidates.isEmpty { candidates = (0..<colorCount).map(TileColor.init) }
@@ -172,6 +198,15 @@ public struct Board: Sendable {
         return cells[p.row][p.col]
     }
 
+    /// The color a tile matches by: nil for an empty cell and for a rainbow candy, which
+    /// has no color and never takes part in a line.
+    private func matchColor(_ t: Tile?) -> TileColor? {
+        guard let t, !t.power.isRainbow else { return nil }
+        return t.color
+    }
+
+    public func matchColor(at p: Position) -> TileColor? { matchColor(tile(at: p)) }
+
     public func position(of tileID: UUID) -> Position? {
         for p in allPositions where cells[p.row][p.col]?.id == tileID { return p }
         return nil
@@ -198,20 +233,36 @@ public struct Board: Sendable {
         return copy.hasMatch(at: a) || copy.hasMatch(at: b)
     }
 
+    /// What swiping `a` and `b` into each other does. Two specials make a combo when
+    /// `combos` is on; a rainbow goes off on the other candy's color; otherwise it is a
+    /// plain match or nothing.
+    public func swapEffect(_ a: Position, _ b: Position, combos: Bool) -> SwapEffect {
+        guard canSwap(a, b), let ta = tile(at: a), let tb = tile(at: b) else { return .none }
+        if combos, ta.power != .none, tb.power != .none { return .combo(a, b) }
+        if ta.power.isRainbow, !tb.power.isRainbow { return .rainbow(color: tb.color, at: b) }
+        if tb.power.isRainbow, !ta.power.isRainbow { return .rainbow(color: ta.color, at: a) }
+        if ta.power.isRainbow, tb.power.isRainbow { return combos ? .combo(a, b) : .none }
+        return swapCreatesMatch(a, b) ? .match : .none
+    }
+
+    public func isValidSwap(_ a: Position, _ b: Position, combos: Bool) -> Bool {
+        swapEffect(a, b, combos: combos) != .none
+    }
+
     // MARK: - Matching
 
     /// Whether the tile at `p` is part of a horizontal or vertical run of 3+.
     public func hasMatch(at p: Position) -> Bool {
-        guard let t = tile(at: p) else { return false }
-        return runLength(from: p, color: t.color, horizontal: true) >= 3
-            || runLength(from: p, color: t.color, horizontal: false) >= 3
+        guard let color = matchColor(at: p) else { return false }
+        return runLength(from: p, color: color, horizontal: true) >= 3
+            || runLength(from: p, color: color, horizontal: false) >= 3
     }
 
     private func runLength(from p: Position, color: TileColor, horizontal: Bool) -> Int {
         var count = 1
         for dir: [Direction] in [[horizontal ? .left : .up], [horizontal ? .right : .down]] {
             var q = p.offset(dir[0])
-            while let t = tile(at: q), t.color == color {
+            while let t = matchColor(at: q), t == color {
                 count += 1
                 q = q.offset(dir[0])
             }
@@ -228,11 +279,11 @@ public struct Board: Sendable {
             var c = 0
             while c < cols {
                 let start = Position(row: r, col: c)
-                guard let t = tile(at: start) else { c += 1; continue }
+                guard let color = matchColor(at: start) else { c += 1; continue }
                 var end = c
-                while end + 1 < cols, let n = tile(at: Position(row: r, col: end + 1)), n.color == t.color { end += 1 }
+                while end + 1 < cols, let n = matchColor(at: Position(row: r, col: end + 1)), n == color { end += 1 }
                 if end - c + 1 >= 3 {
-                    runs.append((Set((c...end).map { Position(row: r, col: $0) }), t.color))
+                    runs.append((Set((c...end).map { Position(row: r, col: $0) }), color))
                 }
                 c = end + 1
             }
@@ -242,11 +293,11 @@ public struct Board: Sendable {
             var r = 0
             while r < rows {
                 let start = Position(row: r, col: c)
-                guard let t = tile(at: start) else { r += 1; continue }
+                guard let color = matchColor(at: start) else { r += 1; continue }
                 var end = r
-                while end + 1 < rows, let n = tile(at: Position(row: end + 1, col: c)), n.color == t.color { end += 1 }
+                while end + 1 < rows, let n = matchColor(at: Position(row: end + 1, col: c)), n == color { end += 1 }
                 if end - r + 1 >= 3 {
-                    runs.append((Set((r...end).map { Position(row: $0, col: c) }), t.color))
+                    runs.append((Set((r...end).map { Position(row: $0, col: c) }), color))
                 }
                 r = end + 1
             }
@@ -302,6 +353,11 @@ public struct Board: Sendable {
             case .striped:
                 // Whole row and whole column, whichever way the stripes run.
                 extra = (0..<cols).map { Position(row: p.row, col: $0) } + (0..<rows).map { Position(row: $0, col: p.col) }
+            case .bomb:
+                extra = (-2...2).flatMap { dr in (-2...2).map { dc in Position(row: p.row + dr, col: p.col + dc) } }
+            case .rainbow:
+                // Set off by another special: takes the board's most common color with it.
+                extra = mostCommonColor.map { self.positions(of: $0) } ?? []
             }
             for q in extra where tile(at: q) != nil && !removed.contains(q) {
                 removed.insert(q)
@@ -309,6 +365,71 @@ public struct Board: Sendable {
             }
         }
         return (removed, triggered)
+    }
+
+    /// Every cell holding a candy that matches by `color` (rainbows have none).
+    public func positions(of color: TileColor) -> [Position] {
+        allPositions.filter { matchColor(at: $0) == color }
+    }
+
+    /// The color with the most candies on the board, ties broken by index.
+    public var mostCommonColor: TileColor? {
+        var counts: [TileColor: Int] = [:]
+        for p in allPositions { if let c = matchColor(at: p) { counts[c, default: 0] += 1 } }
+        return counts.max { ($0.value, -$0.key.index) < ($1.value, -$1.key.index) }?.key
+    }
+
+    /// What a rainbow candy at `at` clears when swiped onto a candy of `color`: itself and
+    /// every candy of that color, plus whatever specials among them take with them.
+    public func rainbowRemoval(color: TileColor, at: Position) -> (removed: Set<Position>, triggered: [PowerTrigger]) {
+        var base = Set(positions(of: color))
+        base.insert(at)
+        return expandedRemoval(for: base)
+    }
+
+    /// What two specials swiped into each other clear (positions after the swap). Bigger
+    /// than either alone: striped + wrapped takes three rows and three columns, two
+    /// striped (or two bombs, or two rainbows) the whole board, wrapped + wrapped a 5x5,
+    /// bomb + wrapped a 7x7, bomb + striped three rows and columns plus the 5x5, and a
+    /// rainbow with anything turns every candy of the other one's color into that special
+    /// and sets them all off.
+    public func comboRemoval(_ a: Position, _ b: Position) -> (removed: Set<Position>, triggered: [PowerTrigger]) {
+        guard let ta = tile(at: a), let tb = tile(at: b), let ka = ta.power.kind, let kb = tb.power.kind else {
+            return expandedRemoval(for: [a, b])
+        }
+        let pair = Set([ka, kb])
+        let center = b
+        func area(_ radius: Int) -> [Position] {
+            (-radius...radius).flatMap { dr in (-radius...radius).map { dc in Position(row: center.row + dr, col: center.col + dc) } }
+        }
+        func lines(_ radius: Int) -> [Position] {
+            (-radius...radius).flatMap { d in
+                (0..<cols).map { Position(row: center.row + d, col: $0) } + (0..<rows).map { Position(row: $0, col: center.col + d) }
+            }
+        }
+        let whole = allPositions
+
+        if pair.contains(.rainbow) {
+            if ka == .rainbow && kb == .rainbow { return expandedRemoval(for: Set(whole)) }
+            let (other, otherTile) = ka == .rainbow ? (b, tb) : (a, ta)
+            var copy = self
+            var base = Set(copy.positions(of: otherTile.color))
+            for p in base { copy.setPower(otherTile.power, at: p) }
+            base.insert(a); base.insert(b); base.insert(other)
+            return copy.expandedRemoval(for: base)
+        }
+        let extra: [Position]
+        switch (ka, kb) {
+        case (.striped, .striped), (.bomb, .bomb): extra = whole
+        case (.striped, .wrapped), (.wrapped, .striped): extra = lines(1)
+        case (.wrapped, .wrapped): extra = area(2)
+        case (.bomb, .wrapped), (.wrapped, .bomb): extra = area(3)
+        case (.bomb, .striped), (.striped, .bomb): extra = lines(1) + area(2)
+        default: extra = []
+        }
+        var base = Set(extra.filter { tile(at: $0) != nil })
+        base.insert(a); base.insert(b)
+        return expandedRemoval(for: base)
     }
 
     // MARK: - Gravity
@@ -371,18 +492,25 @@ public struct Board: Sendable {
 
     // MARK: - Moves
 
-    /// Finds any swap that creates a match, or nil if the board is stuck.
-    public func findAnyMove() -> (Position, Position)? {
+    /// Finds any swap that creates a match, or nil if the board is stuck. Specials that go
+    /// off on a swipe (rainbows, combos when `combos` is on) count as moves too, after the
+    /// plain matches, so hints prefer an ordinary match.
+    public func findAnyMove(combos: Bool = false) -> (Position, Position)? {
+        var special: (Position, Position)?
         for p in allPositions {
             for d in [Direction.right, .down] {
                 let q = p.offset(d)
-                if swapCreatesMatch(p, q) { return (p, q) }
+                switch swapEffect(p, q, combos: combos) {
+                case .match: return (p, q)
+                case .none: continue
+                default: if special == nil { special = (p, q) }
+                }
             }
         }
-        return nil
+        return special
     }
 
-    public var hasAnyMove: Bool { findAnyMove() != nil }
+    public var hasAnyMove: Bool { findAnyMove(combos: true) != nil }
 
     /// Re-colors all tiles (keeping their ids) until there is no match and at least one move.
     public mutating func shuffle() {

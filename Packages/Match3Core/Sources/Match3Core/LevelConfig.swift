@@ -23,6 +23,17 @@ public struct LevelConfig: Hashable, Sendable {
     public static let maxColors = TileColor.maxCount
     public static let maxGoal = 48
 
+    /// The level each special candy first appears on, and when two specials may be swiped
+    /// into each other. One new thing every tier, nothing before level 10.
+    public static let powerUnlocks: [PowerKind: Int] = [.wrapped: 10, .striped: 15, .rainbow: 30, .bomb: 40]
+    public static let combosFromLevel = 50
+
+    public static func unlockedPowers(level: Int) -> Set<PowerKind> {
+        Set(powerUnlocks.filter { level >= $0.value }.map(\.key))
+    }
+
+    public static func combosUnlocked(level: Int) -> Bool { level >= combosFromLevel }
+
     /// - Parameters:
     ///   - assist: adaptive softening, see `AssistPolicy`.
     ///   - maxColors: caregiver cap on colors (3...6).

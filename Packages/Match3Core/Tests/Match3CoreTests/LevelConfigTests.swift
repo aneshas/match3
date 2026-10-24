@@ -80,6 +80,17 @@ final class LevelConfigTests: XCTestCase {
 }
 
 final class AssistPolicyTests: XCTestCase {
+    func testSpecialCandiesUnlockOneTierAtATime() {
+        XCTAssertTrue(LevelConfig.unlockedPowers(level: 9).isEmpty)
+        XCTAssertEqual(LevelConfig.unlockedPowers(level: 10), [.wrapped])
+        XCTAssertEqual(LevelConfig.unlockedPowers(level: 15), [.wrapped, .striped])
+        XCTAssertEqual(LevelConfig.unlockedPowers(level: 29), [.wrapped, .striped])
+        XCTAssertEqual(LevelConfig.unlockedPowers(level: 30), [.wrapped, .striped, .rainbow])
+        XCTAssertEqual(LevelConfig.unlockedPowers(level: 40), Set(PowerKind.allCases))
+        XCTAssertFalse(LevelConfig.combosUnlocked(level: 49))
+        XCTAssertTrue(LevelConfig.combosUnlocked(level: 50))
+    }
+
     func testStruggleRaisesAndBreezeLowers() {
         let struggled = LevelStats(matches: 5, invalidSwaps: 9, hintsShown: 1, seconds: 60)
         XCTAssertEqual(AssistPolicy.next(after: struggled, current: 0), 1)

@@ -21,14 +21,40 @@ public enum LineAxis: Hashable, Sendable {
 }
 
 /// Special candies. They are never required: a level is finished by ordinary matches, and
-/// a special candy is still a normal candy of its color if the player ignores it.
+/// a special candy is still a normal candy of its color if the player ignores it (except
+/// the rainbow, which has no color and goes off when swiped toward any neighbor).
 public enum Power: Hashable, Sendable {
     case none
-    /// Earned by a match of four (or an L/T). When matched it also bursts its 8 neighbors.
+    /// Earned by a match of four. When matched it also bursts its 8 neighbors.
     case wrapped
     /// Earned by five in a line. When matched it clears its whole row and its whole
     /// column. The axis only picks the artwork (stripes along the line that earned it).
     case striped(LineAxis)
+    /// Earned by an L or T of five or more. Has no color: swiping it toward any neighbor
+    /// clears every candy of that neighbor's color. Caught in another special's blast it
+    /// clears the board's most common color.
+    case rainbow
+    /// Earned by six or more in any shape. When matched it clears a 5x5 area.
+    case bomb
+
+    public var kind: PowerKind? {
+        switch self {
+        case .none: return nil
+        case .wrapped: return .wrapped
+        case .striped: return .striped
+        case .rainbow: return .rainbow
+        case .bomb: return .bomb
+        }
+    }
+
+    public var isRainbow: Bool { self == .rainbow }
+}
+
+/// The special candies without their artwork detail, in the order the game introduces them.
+public enum PowerKind: Int, CaseIterable, Hashable, Sendable, Comparable {
+    case wrapped, striped, rainbow, bomb
+
+    public static func < (a: PowerKind, b: PowerKind) -> Bool { a.rawValue < b.rawValue }
 }
 
 /// A board position. `row` 0 is the top row, `col` 0 is the leftmost column.

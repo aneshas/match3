@@ -239,7 +239,19 @@ final class BoardTests: XCTestCase {
 
         let lShape = board(["aaab", "acdc", "adcb", "bcdd"]).findMatches()
         XCTAssertEqual(lShape.count, 1, "L shape should merge into one group")
-        XCTAssertEqual(lShape.first?.earnedPower, .wrapped)
+        XCTAssertEqual(lShape.first?.earnedPower, .rainbow, "an L of five earns a rainbow")
+        XCTAssertEqual(lShape.first?.earnedPower(allowed: [.wrapped, .striped]), .wrapped, "falls back before rainbows exist")
+
+        let six = board(["aaaaaa", "bcdbcd", "cdcbdc", "dcddcd", "bcbdbc", "cdcbdb"]).findMatches()
+        XCTAssertEqual(six.first?.earnedPower, .bomb, "six in a row earns a bomb")
+        XCTAssertEqual(six.first?.earnedPower(allowed: [.wrapped, .striped, .rainbow]), .striped(.horizontal))
+        XCTAssertEqual(six.first?.earnedPower(allowed: [.wrapped]), .wrapped)
+
+        let bigT = board(["aaaaab", "bcadcd", "cdabdc", "dcdbcd", "bcbdbc", "cdcbdb"]).findMatches()
+        XCTAssertEqual(bigT.count, 1)
+        XCTAssertEqual(bigT.first?.positions.count, 7)
+        XCTAssertEqual(bigT.first?.earnedPower, .bomb)
+        XCTAssertEqual(bigT.first?.earnedPower(allowed: [.wrapped, .striped, .rainbow]), .rainbow)
 
         let five = board(["aaaaa", "bcdbc", "cdcbd", "dcddc", "bcbdb"]).findMatches()
         XCTAssertEqual(five.first?.earnedPower, .striped(.horizontal))
@@ -271,6 +283,86 @@ final class BoardTests: XCTestCase {
         let all = b.expandedRemoval(for: [Position(row: 0, col: 0)])
         XCTAssertEqual(all.removed.count, 25, "a board of striped candies clears entirely")
         XCTAssertEqual(all.triggered.count, 25)
+    }
+
+    func testBombClearsFiveByFive() {
+        var b = board(["abcdeab", "bcdeabc", "cdeabcd", "deabcde", "eabcdea", "abcdeab", "bcdeabc"])
+        b.setPower(.bomb, at: Position(row: 3, col: 3))
+        let r = b.expandedRemoval(for: [Position(row: 3, col: 3)])
+        XCTAssertEqual(r.removed.count, 25)
+        XCTAssertTrue(r.removed.contains(Position(row: 1, col: 1)))
+        XCTAssertFalse(r.removed.contains(Position(row: 0, col: 0)))
+        // At a corner it is clipped by the board.
+        b.setPower(.bomb, at: Position(row: 0, col: 0))
+        XCTAssertEqual(b.expandedRemoval(for: [Position(row: 0, col: 0)]).removed.count, 9)
+    }
+
+    func testRainbowHasNoColorAndGoesOffOnASwipe() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        let r = Position(row: 2, col: 2)
+        b.setPower(.rainbow, at: r)
+        // It never completes a line, whatever its stored color.
+        var line = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        line.overwrite(with: ["abcde", "bcdeb", "eeebc", "debcd", "ebcde"])
+        line.setPower(.rainbow, at: Position(row: 2, col: 1))
+        XCTAssertTrue(line.findMatches().isEmpty, "a rainbow breaks the run it sits in")
+        XCTAssertNil(line.matchColor(at: Position(row: 2, col: 1)))
+
+        // Swiping it onto a neighbor is always a move, and clears that neighbor's color.
+        let right = Position(row: 2, col: 3)
+        XCTAssertEqual(b.swapEffect(r, right, combos: false), .rainbow(color: b.tile(at: right)!.color, at: right))
+        XCTAssertEqual(b.swapEffect(right, r, combos: false), .rainbow(color: b.tile(at: right)!.color, at: right))
+        XCTAssertNotNil(b.findAnyMove())
+        let color = b.tile(at: right)!.color
+        b.swap(r, right)
+        let cleared = b.rainbowRemoval(color: color, at: right)
+        XCTAssertEqual(cleared.removed, Set(b.positions(of: color) + [right]))
+        XCTAssertEqual(cleared.removed.count, b.positions(of: color).count + 1, "every candy of the color plus the rainbow itself")
+        XCTAssertEqual(cleared.removed.count, 7)
+        XCTAssertEqual(cleared.triggered.map(\.power), [.rainbow])
+    }
+
+    func testRainbowCaughtInABlastTakesTheMostCommonColor() {
+        var b = board(["aaaab", "bcdeb", "cdebc", "debcd", "ebcde"])
+        b.overwrite(with: ["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        b.overwrite(with: ["abade", "acaab", "cdebc", "deacd", "ebcde"])  // a x6 is the most common
+        b.setPower(.rainbow, at: Position(row: 4, col: 4))
+        b.setPower(.wrapped, at: Position(row: 3, col: 3))
+        XCTAssertEqual(b.mostCommonColor, TileColor(0))
+        let r = b.expandedRemoval(for: [Position(row: 3, col: 3)])
+        XCTAssertTrue(b.positions(of: TileColor(0)).allSatisfy { r.removed.contains($0) })
+        XCTAssertEqual(Set(r.triggered.map(\.power)), [.wrapped, .rainbow])
+    }
+
+    func testCombosAreMovesOnlyWhenUnlocked() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        let a = Position(row: 2, col: 2), c = Position(row: 2, col: 3)
+        b.setPower(.striped(.horizontal), at: a)
+        b.setPower(.wrapped, at: c)
+        XCTAssertEqual(b.swapEffect(a, c, combos: false), .none, "two specials are a plain (invalid) swap before combos")
+        XCTAssertEqual(b.swapEffect(a, c, combos: true), .combo(a, c))
+
+        b.swap(a, c)
+        let r = b.comboRemoval(a, c)
+        // Three rows and three columns around the pair's landing cell.
+        for row in 1...3 { for col in 0..<5 { XCTAssertTrue(r.removed.contains(Position(row: row, col: col))) } }
+        for col in 2...4 { for row in 0..<5 { XCTAssertTrue(r.removed.contains(Position(row: row, col: col))) } }
+        XCTAssertFalse(r.removed.contains(Position(row: 0, col: 0)))
+        XCTAssertFalse(r.removed.contains(Position(row: 4, col: 1)))
+
+        var two = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        two.setPower(.striped(.vertical), at: a)
+        two.setPower(.striped(.horizontal), at: c)
+        XCTAssertEqual(two.comboRemoval(a, c).removed.count, 25, "two striped clear the board")
+
+        var rainbow = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        rainbow.setPower(.rainbow, at: a)
+        rainbow.setPower(.wrapped, at: c)
+        let cColor = rainbow.tile(at: c)!.color
+        let r2 = rainbow.comboRemoval(a, c)
+        XCTAssertTrue(rainbow.positions(of: cColor).allSatisfy { r2.removed.contains($0) })
+        XCTAssertGreaterThan(r2.removed.count, rainbow.positions(of: cColor).count + 1, "every candy of that color burst as a wrapped one")
+        XCTAssertTrue(r2.triggered.filter { $0.power == .wrapped }.count >= rainbow.positions(of: cColor).count)
     }
 
     func testShuffleAndGravityKeepPowers() {
