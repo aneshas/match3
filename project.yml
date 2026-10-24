@@ -24,7 +24,7 @@ targets:
       path: Match3/Resources/Info.plist
       properties:
         CFBundleDisplayName: Match 3
-        UILaunchScreen: {}
+        UILaunchScreen: {UIColorName: LaunchBackground}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UIRequiresFullScreen: true
@@ -34,6 +34,8 @@ targets:
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
         PRODUCT_BUNDLE_IDENTIFIER: io.anes.match3
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: 1
         DEVELOPMENT_TEAM: 59H75BATX8
         CODE_SIGN_STYLE: Automatic
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
