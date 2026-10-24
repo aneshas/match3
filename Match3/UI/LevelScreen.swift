@@ -13,6 +13,7 @@ struct LevelScreen: View {
                 // Landscape: the bar stands on the left, the board uses the full height.
                 HStack(spacing: 16) {
                     VStack(spacing: 16) {
+                        LevelBadge(level: session.config.level)
                         ProgressBarView(fraction: session.progressFraction, goal: session.nextCandy, axis: .vertical)
                         HomeButton(action: onHome)
                     }
@@ -31,11 +32,14 @@ struct LevelScreen: View {
                         .padding(.top, 44)  // clear of the notch / camera on phones that report no top inset
                     BoardView(session: session)
                         .padding(.horizontal, 12)
-                    // Its own row, so the button can never sit on top of a candy.
+                    // Its own row, so neither disc can ever sit on top of a candy: level
+                    // number bottom left, home button bottom right.
                     HStack {
+                        LevelBadge(level: session.config.level)
                         Spacer()
                         HomeButton(action: onHome)
                     }
+                    .padding(.leading, 20 + insets.leading)
                     .padding(.trailing, 20 + insets.trailing)
                     .padding(.bottom, 16)
                 }
