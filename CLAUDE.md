@@ -19,7 +19,7 @@ on a soft cream-to-pink background.
 ## Layout
 
 - `Packages/Match3Core` – pure Swift game rules, no UI. `Board` (swap, matches, gravity, shuffle), `BoardShape` (masks; every column must be vertically contiguous), `LevelConfig` (level number -> rows/cols/shape/colors/goal, deterministic), `SeededRandom`.
-- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine (`Progress` and `UnlockStore` are `@Observable`, so lock/unlock state refreshes live), `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore`: `StoreKitUnlockStore` (StoreKit 2, one non-consumable `io.kurrent.match3.unlock`, entitlements are the truth with a UserDefaults cache, listens to `Transaction.updates` for Ask to Buy / family / refunds; `restore()` = `AppStore.sync()`). The caregiver panel shows price, Buy and Restore. `Match3.storekit` at the repo root is the local App Store for the Simulator (set on the scheme's run action, so headless `simctl` launches have no products and the Buy button stays disabled). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and the Play button turns into a lock until a caregiver unlocks or resets to level 1.
+- `Match3/` – SwiftUI app. `AppFlow` is the screen state machine (`Progress` and `UnlockStore` are `@Observable`, so lock/unlock state refreshes live), `GameSession` runs one level and drives tile animations, `UI/` holds the screens, `Monetization/` holds `UnlockStore`: `StoreKitUnlockStore` (StoreKit 2, one non-consumable `io.anes.match3.unlock`, entitlements are the truth with a UserDefaults cache, listens to `Transaction.updates` for Ask to Buy / family / refunds; `restore()` = `AppStore.sync()`). The caregiver panel shows price, Buy and Restore. `Match3.storekit` at the repo root is the local App Store for the Simulator (set on the scheme's run action, so headless `simctl` launches have no products and the Buy button stays disabled). No ads, ever. The first `AppFlow.freeLevels` levels are free; after that Good Job shows a lock on the jar and the Play button turns into a lock until a caregiver unlocks or resets to level 1.
 - `project.yml` – XcodeGen spec. The `.xcodeproj` is generated and git-ignored.
 
 ## Art
@@ -68,7 +68,7 @@ xcodebuild -project Match3.xcodeproj -scheme Match3 -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' -derivedDataPath /tmp/match3-dd CODE_SIGNING_ALLOWED=NO build
 UDID=<the "match3-test (Claude)" device from: xcrun simctl list devices>   # never the device Xcode uses for manual testing
 xcrun simctl boot $UDID; xcrun simctl install $UDID /tmp/match3-dd/Build/Products/Debug-iphonesimulator/Match3.app
-SIMCTL_CHILD_MATCH3_AUTOSTART=1 SIMCTL_CHILD_MATCH3_AUTOPLAY=1 xcrun simctl launch $UDID io.kurrent.match3
+SIMCTL_CHILD_MATCH3_AUTOSTART=1 SIMCTL_CHILD_MATCH3_AUTOPLAY=1 xcrun simctl launch $UDID io.anes.match3
 xcrun simctl io $UDID screenshot --display=1 shot.png   # --display=1 is the main screen on the iPhone Duo device; the default is its cover display
 ```
 

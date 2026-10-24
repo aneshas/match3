@@ -28,7 +28,7 @@ struct LevelScreen: View {
                     ProgressBarView(fraction: session.progressFraction)
                         .padding(.leading, 24 + insets.leading)
                         .padding(.trailing, 24 + insets.trailing)
-                        .padding(.top, 20)
+                        .padding(.top, 44)  // clear of the notch / camera on phones that report no top inset
                     BoardView(session: session)
                         .padding(.horizontal, 12)
                     // Its own row, so the button can never sit on top of a candy.

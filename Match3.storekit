@@ -15,7 +15,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "io.kurrent.match3.unlock",
+      "productID" : "io.anes.match3.unlock",
       "referenceName" : "All levels",
       "type" : "NonConsumable"
     }
