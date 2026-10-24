@@ -32,6 +32,10 @@ final class AppFlow {
     /// The caregiver panel is a sheet over the Play screen.
     var caregiverPanelShown = false
 
+    /// Rows the current screen can show at the 7-column candy size; set by `RootView` from
+    /// the window geometry (see `BoardFit`). Levels are clamped to it when they start.
+    var boardMaxRows = LevelConfig.maxRows
+
     private let progress: Progress
     let unlock: UnlockStore
     private var advancing = false
@@ -48,7 +52,8 @@ final class AppFlow {
         self.progress = progress
         self.unlock = unlock
         if DebugFlags.forgetSwipe { progress.forgetSwipe() }
-        if DebugFlags.autoStart { play() }
+        // MATCH3_AUTOSTART is honored by RootView once the window size is known, so the
+        // level gets the same row cap a real Play tap would.
     }
 
     /// Called from the Play button. Jumps straight into the current level.
@@ -85,7 +90,8 @@ final class AppFlow {
     private func startLevel(_ level: Int) {
         let config = LevelConfig(level: level,
                                  assist: DebugFlags.assist ?? progress.assist,
-                                 maxColors: Settings.shared.maxColors)
+                                 maxColors: Settings.shared.maxColors,
+                                 maxRows: boardMaxRows)
         let session = GameSession(config: config, swipeDemo: !progress.hasEverSwiped)
         session.onLevelComplete = { [weak self] in
             self?.levelCompleted()

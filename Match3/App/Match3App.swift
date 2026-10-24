@@ -20,6 +20,7 @@ struct Match3App: App {
 struct RootView: View {
     @Environment(AppFlow.self) private var flow
     @Environment(\.scenePhase) private var scenePhase
+    @State private var autoStarted = false
 
     var body: some View {
         // The whole hierarchy is laid out in full-window coordinates and only the top and
@@ -34,6 +35,13 @@ struct RootView: View {
                     .padding(.bottom, geo.safeAreaInsets.bottom)
             }
             .environment(\.screenInsets, geo.safeAreaInsets)
+            .onChange(of: geo.size, initial: true) { _, size in
+                flow.boardMaxRows = BoardFit.maxRows(for: size, insets: geo.safeAreaInsets)
+                if DebugFlags.autoStart, !autoStarted, flow.screen == .play {
+                    autoStarted = true
+                    flow.play()
+                }
+            }
         }
         .ignoresSafeArea()
         .sheet(isPresented: Binding(get: { flow.caregiverPanelShown }, set: { flow.caregiverPanelShown = $0 })) {

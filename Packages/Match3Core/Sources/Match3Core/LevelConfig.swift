@@ -15,8 +15,11 @@ public struct LevelConfig: Hashable, Sendable {
     public let goalMatches: Int
     public let seed: UInt64
 
-    public static let maxRows = 8
-    public static let maxCols = 8
+    /// Never wider than 7 columns: on a phone the candies get too small beyond that. Boards
+    /// may be taller than wide (up to 9 rows) because phones have the room vertically;
+    /// the app passes a `maxRows` it can show at the 7-column candy size.
+    public static let maxRows = 9
+    public static let maxCols = 7
     public static let maxColors = TileColor.maxCount
     public static let maxGoal = 15
 
@@ -24,22 +27,27 @@ public struct LevelConfig: Hashable, Sendable {
     ///   - assist: adaptive softening, see `AssistPolicy`.
     ///   - maxColors: caregiver cap on colors (3...6).
     ///   - variant: changes the board layout without changing anything else (replays).
-    public init(level: Int, assist: Int = 0, maxColors: Int = TileColor.maxCount, variant: Int = 0) {
+    ///   - maxRows: how many rows the screen can show at the 7-column candy size (4...9).
+    public init(level: Int, assist: Int = 0, maxColors: Int = TileColor.maxCount, variant: Int = 0,
+                maxRows: Int = LevelConfig.maxRows) {
         precondition(level >= 1)
         let assist = max(0, min(AssistPolicy.maxAssist, assist))
         let maxColors = max(3, min(TileColor.maxCount, maxColors))
+        let maxRows = max(4, min(LevelConfig.maxRows, maxRows))
         self.level = level
         self.assist = assist
 
         var (rows, cols, shape) = LevelConfig.geometry(for: level)
         if assist >= 2 {
-            // Trim one row and one column, then make sure the shape still works at that size.
+            // Trim one row and one column.
             rows = max(4, rows - 1)
             cols = max(4, cols - 1)
-            if !(shape.fits(rows: rows, cols: cols) && LevelConfig.isValid(rows, cols, shape)) {
-                shape = shape == .square ? .square : .roundedCorners
-                if !shape.fits(rows: rows, cols: cols) { shape = .square }
-            }
+        }
+        rows = min(rows, maxRows)
+        // Make sure the shape still works at the final size; otherwise soften it.
+        if !(shape.fits(rows: rows, cols: cols) && LevelConfig.isValid(rows, cols, shape)) {
+            shape = shape == .square ? .square : .roundedCorners
+            if !(shape.fits(rows: rows, cols: cols) && LevelConfig.isValid(rows, cols, shape)) { shape = .square }
         }
         self.rows = rows
         self.cols = cols
@@ -76,8 +84,9 @@ public struct LevelConfig: Hashable, Sendable {
         (7, 7, .heart),           // 10
     ]
 
+    /// (rows, cols). Columns stop at 7; rows keep growing so later boards are tall.
     private static let laterSizes: [(Int, Int)] = [
-        (6, 6), (7, 6), (6, 7), (7, 7), (8, 6), (6, 8), (8, 7), (7, 8), (8, 8),
+        (6, 6), (7, 6), (6, 7), (7, 7), (8, 6), (8, 7), (9, 6), (9, 7),
     ]
     private static let laterShapes: [BoardShape] = [
         .square, .roundedCorners, .heart, .cross, .diamond, .triangle, .circle, .octagon,
