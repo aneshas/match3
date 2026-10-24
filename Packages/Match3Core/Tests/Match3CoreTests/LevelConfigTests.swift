@@ -8,11 +8,11 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(l1.rows, 4)
         XCTAssertEqual(l1.cols, 4)
         XCTAssertEqual(l1.colorCount, 3)
-        XCTAssertEqual(l1.goalMatches, 3)
+        XCTAssertEqual(l1.goalMatches, 6)
         XCTAssertEqual(l1.shape, .square)
         XCTAssertNotEqual(LevelConfig(level: 5).rows, LevelConfig(level: 5).cols, "level 5 is the first non-square board")
         XCTAssertEqual(LevelConfig(level: 12).colorCount, 3, "three colors well past level 5")
-        XCTAssertEqual(LevelConfig(level: 19).goalMatches, LevelConfig.maxGoal, "goal caps around level 19")
+        XCTAssertEqual(LevelConfig(level: 28).goalMatches, LevelConfig.maxGoal, "goal caps around level 28")
         XCTAssertEqual(LevelConfig(level: 13).colorCount, 4)
     }
 

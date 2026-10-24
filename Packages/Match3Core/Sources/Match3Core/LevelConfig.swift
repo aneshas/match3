@@ -21,7 +21,7 @@ public struct LevelConfig: Hashable, Sendable {
     public static let maxRows = 9
     public static let maxCols = 7
     public static let maxColors = TileColor.maxCount
-    public static let maxGoal = 15
+    public static let maxGoal = 24
 
     /// - Parameters:
     ///   - assist: adaptive softening, see `AssistPolicy`.
@@ -127,8 +127,8 @@ public struct LevelConfig: Hashable, Sendable {
     }
 
     private static func goal(for level: Int) -> Int {
-        // The goal is the number of successful swipes: 3 at level 1, about +2 every 3 levels,
-        // capped at 15 (around level 19).
-        min(maxGoal, 3 + (level - 1) * 2 / 3)
+        // The goal is in steps (one per plain swipe): 6 at level 1, about +2 every 3 levels,
+        // capped at 24 (around level 28).
+        min(maxGoal, 6 + (level - 1) * 2 / 3)
     }
 }
