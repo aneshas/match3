@@ -40,6 +40,7 @@ final class SwipeTests: XCTestCase {
     func testResetInPanelUnlocksPlayWithoutRelaunch() {
         let app = XCUIApplication()
         app.launchEnvironment = ["MATCH3_MUTE": "1", "MATCH3_FREE_LEVELS": "1", "MATCH3_PANEL": "1"]
+        app.launchArguments = ["-lifetimeCompleted", "0"]  // the lifetime cap must not be what locks Play here
         app.launch()
         // Make sure we are past the free levels: finish nothing, just pretend via the caregiver reset path later.
         let done = app.buttons["Done"]

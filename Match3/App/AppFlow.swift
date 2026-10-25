@@ -45,11 +45,17 @@ final class AppFlow {
     private var nextPalette: CandyArt.Palette?
 
     /// Levels playable without the purchase. The last free level stays playable forever.
-    static let freeLevels = 18
+    static let freeLevels = 20
     var freeLevels: Int { DebugFlags.freeLevels ?? AppFlow.freeLevels }
+    /// The free part also ends after this many levels finished in total, whatever the
+    /// current level: two full runs of the free levels. "Start again" does not reset it.
+    static let freeCompletions = 40
+    var freeCompletions: Int { DebugFlags.freeCompletions ?? AppFlow.freeCompletions }
+    var lifetimeCompleted: Int { progress.lifetimeCompleted }
+    var freeCompletionsUsedUp: Bool { lifetimeCompleted >= freeCompletions }
 
     /// True when the player has finished every free level and nothing was bought.
-    var isAtLock: Bool { !unlock.isUnlocked && progress.currentLevel > freeLevels }
+    var isAtLock: Bool { !unlock.isUnlocked && (progress.currentLevel > freeLevels || freeCompletionsUsedUp) }
 
     init(progress: Progress = Progress(), unlock: UnlockStore = StoreKitUnlockStore()) {
         self.progress = progress

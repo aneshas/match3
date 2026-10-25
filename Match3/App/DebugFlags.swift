@@ -41,6 +41,14 @@ enum DebugFlags {
         return nil
         #endif
     }
+    /// MATCH3_FREE_COMPLETIONS=n overrides the lifetime free-completion cap.
+    static var freeCompletions: Int? {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["MATCH3_FREE_COMPLETIONS"].flatMap(Int.init)
+        #else
+        return nil
+        #endif
+    }
     /// MATCH3_UNLOCKED=1 behaves as if the purchase was made.
     static var forceUnlocked: Bool { flag("MATCH3_UNLOCKED") }
     /// MATCH3_HIGH_CONTRAST=1 turns the high-contrast look on for this launch.

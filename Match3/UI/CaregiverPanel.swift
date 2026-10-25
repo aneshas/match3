@@ -53,6 +53,9 @@ struct CaregiverPanel: View {
                             .foregroundStyle(.green)
                     } else {
                         LabeledContent("Free levels", value: "1 to \(flow.freeLevels)")
+                        LabeledContent("Free levels finished, all time", value: "\(min(flow.lifetimeCompleted, flow.freeCompletions)) of \(flow.freeCompletions)")
+                        Text("The free part is the first \(flow.freeLevels) levels, or \(flow.freeCompletions) finished levels in total, whichever comes first. Starting again from level 1 does not add free levels.")
+                            .font(.footnote).foregroundStyle(.secondary)
                         Button {
                             gateAnswer = ""
                             gate = ParentalGate()

@@ -56,7 +56,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 Go with **C now and E later**. Drop ads entirely unless downloads are huge and revenue from C disappoints.
 Yes let's go with C
 
-- **Free part:** the first 18 levels, playable forever and replayable. This is the whole "is it right for my sister" test a caregiver needs.
+- **Free part:** the first 20 levels, or 40 finished levels in total (two full runs; "start again" does not reset that count), whichever comes first. This is the whole "is it right for my sister" test a caregiver needs.
 - **The stop moment:** when the free levels run out, the next Good Job screen ends with a single soft lock icon where the candy burst, no text, and the game returns to the Play screen, whose button now shows a lock. A caregiver unlocks or resets. Nothing looks like losing.
 - **The purchase:** one non-consumable "Unlock all levels" in the caregiver panel only, behind the three-finger hold and a parental gate (e.g. "hold for 3 seconds" or a simple sum). Price around 7.99–12.99; this audience's caregivers are used to paying more for far less polished apps, and a low price signals "disposable". Enable Family Sharing so one buy covers the household.
 - **Why not ads at all:** besides confusing the player, ad networks require privacy disclosures, consent prompts and age gating that collide with Apple's Kids Category rules if the app is listed there. The removal of ads is the cleanest story in the App Store listing: "No ads. No timers. No losing."
@@ -66,8 +66,8 @@ Yes let's go with C
 
 ### Tasks
 
-- [x] **Free-level count:** 18 (`AppFlow.freeLevels`). `MATCH3_FREE_LEVELS=n` and `MATCH3_UNLOCKED=1` for testing.
-- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles where the candy burst, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1. No text.
+- [x] **Free-level count:** 20 (`AppFlow.freeLevels`) and a lifetime cap of 40 finished levels (`AppFlow.freeCompletions`, `Progress.lifetimeCompleted` survives resets). `MATCH3_FREE_LEVELS=n`, `MATCH3_FREE_COMPLETIONS=n` and `MATCH3_UNLOCKED=1` for testing.
+- [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles where the candy burst, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1 (which no longer helps once 40 levels were finished in total). No text.
 - [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.kurrent.match3.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
 - [x] **Parental gate** in the caregiver panel before the purchase button: a multiplication question (3–9 × 3–9) in an alert; wrong answers just return to the panel.
 - [x] **Purchase screen** in the caregiver panel: price, what you get, restore button; the privacy policy link appears once `AppLinks.privacyPolicy` is set.

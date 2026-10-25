@@ -12,6 +12,7 @@ final class Progress {
     private let assistKey = "assist"
     private let swipedKey = "hasEverSwiped"
     private let logKey = "completionLog"
+    private let lifetimeKey = "lifetimeCompleted"
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
@@ -19,7 +20,12 @@ final class Progress {
         assist = defaults.integer(forKey: assistKey)
         hasEverSwiped = defaults.bool(forKey: swipedKey)
         completionLog = defaults.array(forKey: logKey) as? [Date] ?? []
+        lifetimeCompleted = defaults.integer(forKey: lifetimeKey)
     }
+
+    /// Levels ever finished on this device. Unlike everything else it survives "start
+    /// again", so the free part cannot be replayed forever by resetting.
+    private(set) var lifetimeCompleted: Int { didSet { defaults.set(lifetimeCompleted, forKey: lifetimeKey) } }
 
     private(set) var currentLevel: Int { didSet { defaults.set(currentLevel, forKey: levelKey) } }
 
@@ -46,9 +52,11 @@ final class Progress {
         log.append(Date())
         if log.count > 1000 { log.removeFirst(log.count - 1000) }
         completionLog = log
+        lifetimeCompleted += 1
     }
 
-    /// Caregiver "start again": level 1, empty jar, assist off. Keeps "has ever swiped".
+    /// Caregiver "start again": level 1, empty log, assist off. Keeps "has ever swiped" and
+    /// the lifetime count.
     func reset() {
         currentLevel = 1
         completionLog = []
