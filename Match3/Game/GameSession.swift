@@ -56,6 +56,15 @@ struct Burst: Identifiable, Equatable {
     let col: Int
     let color: TileColor
     let big: Bool
+    /// The level's bonus candy: a bigger burst with a gold ring.
+    var bonus: Bool = false
+}
+
+/// A red "+" rising from a match of the level's bonus candy.
+struct BonusPop: Identifiable, Equatable {
+    let id = UUID()
+    let row: Double
+    let col: Double
 }
 
 /// Runs one level: owns the `Board`, drives the swap/match/fall animation sequence and
@@ -73,8 +82,17 @@ final class GameSession {
     let config: LevelConfig
     /// Which candy types this level plays (one per color index).
     let palette: CandyArt.Palette
-    /// What the bar fills toward: the next level's newcomer candy (set by AppFlow).
+    /// The next level's newcomer candy, revealed on the Good Job screen (set by AppFlow).
     var nextCandy: CandyArt.Preview?
+    /// This level's newcomer: shown at the end of the bar with a "+" and worth
+    /// `bonusMultiplier` when matched.
+    let bonusCandy: CandyArt.Preview?
+    /// The tile color of the bonus candy in this level's palette.
+    let bonusColor: TileColor?
+    /// Matches of the bonus candy pay this much more.
+    static let bonusMultiplier = 1.5
+    /// "+" markers currently rising over the board.
+    private(set) var bonusPops: [BonusPop] = []
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
     /// Debug/UI-test counter: every swipe that reached the session, valid or not.
@@ -152,9 +170,11 @@ final class GameSession {
     var progressPoints: Double { min(Double(goal), points) }
     var progressFraction: Double { progressPoints / Double(goal) }
 
-    init(config: LevelConfig, palette: CandyArt.Palette, swipeDemo: Bool = false) {
+    init(config: LevelConfig, palette: CandyArt.Palette, bonus: CandyArt.CandyType? = nil, swipeDemo: Bool = false) {
         self.config = config
         self.palette = palette
+        self.bonusCandy = bonus.map { CandyArt.Preview(type: $0) }
+        self.bonusColor = bonus.flatMap { b in palette.types.firstIndex(of: b).map { TileColor($0) } }
         self.wantsDemo = swipeDemo
         self.powersEnabled = Settings.shared.powerUpsEnabled
         if !powersEnabled {
@@ -338,9 +358,21 @@ final class GameSession {
             // Credit the bar right away so the reward lands with the burst: full value for
             // the swipe's own groups (depth 0), half for groups the board matched by itself,
             // plus what the specials cleared.
-            let stepsNow = groups.reduce(0.0) { $0 + GameSession.stepValue(matched: $1.positions.count) }
+            // The level's bonus candy pays half as much again, and says so with a rising "+".
+            let stepsNow = groups.reduce(0.0) {
+                $0 + GameSession.stepValue(matched: $1.positions.count) * ($1.color == bonusColor ? GameSession.bonusMultiplier : 1)
+            }
             let steps = (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps(expansion, base: base)
             let flash = expansion.triggered.contains { $0.power.isRainbow } ? BoardFlash(rainbow: true) : nil
+            for g in groups where g.color == bonusColor {
+                let pop = BonusPop(row: Double(g.positions.map(\.row).reduce(0, +)) / Double(g.positions.count),
+                                   col: Double(g.positions.map(\.col).reduce(0, +)) / Double(g.positions.count))
+                bonusPops.append(pop)
+                Task { [weak self] in
+                    try? await Task.sleep(for: .milliseconds(1000))
+                    self?.bonusPops.removeAll { $0.id == pop.id }
+                }
+            }
             await clear(expansion, base: base, steps: steps, creations: creations, big: big, flash: flash)
             depth += 1
         }
@@ -408,7 +440,8 @@ final class GameSession {
         }
         await sleep(popDuration * 0.4)
         let newBursts = removed.map {
-            Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0))
+            Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0),
+                  bonus: $0.1.color == bonusColor && $0.1.power != .rainbow)
         }
         bursts.append(contentsOf: newBursts)
         withAnimation(.easeIn(duration: popDuration * 0.6)) {

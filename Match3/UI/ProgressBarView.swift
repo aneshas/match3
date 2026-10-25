@@ -65,17 +65,21 @@ struct ProgressBarView: View {
         .accessibilityValue("\(Int(fraction * 100)) percent")
     }
 
-    /// The goal candy: a little faded while the bar fills, then full color, a gold glow,
-    /// a bounce and a spin when the bar is full.
+    /// The goal candy: this level's bonus candy with a red "+" badge (it scores more), a
+    /// little faded while the bar fills, then full color, a gold glow, a bounce and a spin
+    /// when the bar is full.
     private var star: some View {
         let done = fraction >= 1
         return CandyArt.load(goal?.imageName ?? CandyArt.tileImages[0])
             .resizable()
             .scaledToFit()
             .frame(width: 52, height: 52)
-            .opacity(done ? 1 : 0.8)
+            .opacity(done ? 1 : 0.85)
             .shadow(color: Color.black.opacity(0.18), radius: 3, y: 2)
             .shadow(color: done ? Theme.gold.opacity(0.8) : .clear, radius: done ? 14 : 0)
+            .overlay(alignment: .bottomTrailing) {
+                BonusBadge(size: 24).offset(x: 6, y: 6)  // low, clear of the camera at the top
+            }
             .scaleEffect(done ? 1.3 : 1)
             .rotationEffect(.degrees(starSpin ? 360 : 0))
             .animation(.spring(response: 0.45, dampingFraction: 0.5), value: done)
@@ -147,5 +151,26 @@ struct ProgressBarView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Progress")
         .accessibilityValue("\(Int(fraction * 100)) percent")
+    }
+}
+
+
+/// A red disc with a white "+": marks the candy that scores more this level. It is a
+/// symbol, not a word, so nothing needs reading.
+struct BonusBadge: View {
+    let size: CGFloat
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Theme.bonusRed)
+                .overlay(Circle().strokeBorder(Color.white, lineWidth: max(1.5, size * 0.09)))
+                .shadow(color: Color.black.opacity(0.25), radius: size * 0.08, y: size * 0.05)
+            Image(systemName: "plus")
+                .font(.system(size: size * 0.62, weight: .black))
+                .foregroundStyle(.white)
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
     }
 }

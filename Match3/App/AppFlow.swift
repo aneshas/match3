@@ -103,7 +103,8 @@ final class AppFlow {
         if palette.types.count != config.colorCount {
             palette = CandyArt.Palette.random(level: level, count: config.colorCount, avoiding: previous)
         }
-        let session = GameSession(config: config, palette: palette, swipeDemo: !progress.hasEverSwiped)
+        let session = GameSession(config: config, palette: palette, bonus: palette.newType(comparedTo: previous),
+                                  swipeDemo: !progress.hasEverSwiped)
         let next = LevelConfig(level: level + 1,
                                assist: DebugFlags.assist ?? progress.assist,
                                maxColors: Settings.shared.maxColors,

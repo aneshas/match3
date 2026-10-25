@@ -63,8 +63,15 @@ struct BoardView: View {
                     }
 
                     ForEach(session.bursts) { burst in
-                        BurstView(color: session.palette.particleColor(for: burst.color), radius: cell * 0.5, big: burst.big)
+                        BurstView(color: session.palette.particleColor(for: burst.color), radius: cell * (burst.bonus ? 0.8 : 0.5),
+                                  big: burst.big || burst.bonus, bonus: burst.bonus)
                             .position(center(row: Double(burst.row), col: Double(burst.col), cell: cell))
+                    }
+
+                    ForEach(session.bonusPops) { pop in
+                        BonusPopView(size: cell * 0.55)
+                            .position(center(row: pop.row, col: pop.col, cell: cell))
+                            .allowsHitTesting(false)
                     }
 
                     if let arrow = session.hintArrow {

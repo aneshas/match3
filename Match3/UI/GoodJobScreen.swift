@@ -22,10 +22,11 @@ struct GoodJobScreen: View {
     @State private var candyShown = false
     @State private var candySpin = 0.0
     @State private var candyBurst = false
+    @State private var candyWound = false
     @State private var burstID: UUID?
 
     /// Good Job always lasts the same time; routine is comforting.
-    static let duration: Duration = .seconds(5.5)
+    static let duration: Duration = .seconds(4.5)
 
     var body: some View {
         GeometryReader { geo in
@@ -81,17 +82,19 @@ struct GoodJobScreen: View {
 
                 // No words anywhere in play: the star, the sounds and the new candy say it.
                 ZStack {
-                    // A soft flash of the candy's color, then two rings of particles.
+                    // A strong flash of the candy's color, then three rings of particles.
                     Circle()
-                        .fill(candyColor.opacity(0.45))
+                        .fill(candyColor.opacity(0.6))
                         .frame(width: candySize, height: candySize)
-                        .scaleEffect(candyBurst ? 2.6 : 0.3)
+                        .scaleEffect(candyBurst ? 3.4 : 0.3)
                         .opacity(candyBurst ? 0 : (burstID == nil ? 0 : 1))
                     if let burstID {
-                        BurstView(color: candyColor, radius: candySize * 0.8, big: true)
+                        BurstView(color: candyColor, radius: candySize * 0.8, big: true, bonus: true)
                             .id(burstID)
                         BurstView(color: candyColor, radius: candySize * 1.3, big: true)
                             .id(burstID.uuidString + "-outer")
+                        BurstView(color: candyColor, radius: candySize * 1.9, big: true, bonus: true)
+                            .id(burstID.uuidString + "-far")
                     }
                     candyImage
                         .resizable()
@@ -99,7 +102,7 @@ struct GoodJobScreen: View {
                         .frame(width: candySize, height: candySize)
                         .shadow(color: candyColor.opacity(0.6), radius: 18)
                         .rotationEffect(.degrees(candySpin))
-                        .scaleEffect(candyBurst ? 1.6 : (candyShown ? 1 : 0.05))
+                        .scaleEffect(candyBurst ? 2.2 : (candyShown ? (candyWound ? 1.25 : 1) : 0.05))
                         .opacity(candyBurst ? 0 : (candyShown ? 1 : 0))
                     if lockShown {
                         Image(systemName: "lock.fill")
@@ -133,10 +136,10 @@ struct GoodJobScreen: View {
     /// The next level's candy zooms in while spinning, winds up faster, then bursts into
     /// particles of its own color. With Reduce Motion it just fades in and out.
     private func showNextCandy() async {
-        try? await Task.sleep(for: .milliseconds(900))
+        try? await Task.sleep(for: .milliseconds(600))
         if Motion.reduceMotion {
             withAnimation(.easeOut(duration: 0.4)) { candyShown = true }
-            try? await Task.sleep(for: .milliseconds(2000))
+            try? await Task.sleep(for: .milliseconds(1600))
             withAnimation(.easeIn(duration: 0.4)) { candyBurst = true }
             if showsLock {
                 try? await Task.sleep(for: .milliseconds(500))
@@ -144,20 +147,20 @@ struct GoodJobScreen: View {
             }
             return
         }
-        // Zoom in with one slow turn.
-        withAnimation(.spring(response: 0.7, dampingFraction: 0.6)) { candyShown = true }
-        withAnimation(.easeOut(duration: 0.7)) { candySpin = 360 }
-        try? await Task.sleep(for: .milliseconds(900))
-        // Wind up: four fast turns, so the burst lands late in the screen.
-        withAnimation(.easeIn(duration: 2.0)) { candySpin = 360 + 1440 }
-        try? await Task.sleep(for: .milliseconds(2000))
-        // Burst.
+        // Zoom in fast with one turn.
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { candyShown = true }
+        withAnimation(.easeOut(duration: 0.5)) { candySpin = 360 }
+        try? await Task.sleep(for: .milliseconds(600))
+        // Wind up: four fast turns while swelling, then burst.
+        withAnimation(.easeIn(duration: 1.3)) { candySpin = 360 + 1440 }
+        withAnimation(.easeIn(duration: 1.3)) { candyWound = true }
+        try? await Task.sleep(for: .milliseconds(1300))
         burstID = UUID()
-        SoundPlayer.shared.play(.matchBig, volume: 0.9)
+        SoundPlayer.shared.play(.matchBig, volume: 1)
         Haptics.powerUp()
-        withAnimation(.easeOut(duration: 0.5)) { candyBurst = true }
+        withAnimation(.easeOut(duration: 0.4)) { candyBurst = true }
         if showsLock {
-            try? await Task.sleep(for: .milliseconds(700))
+            try? await Task.sleep(for: .milliseconds(600))
             withAnimation(.spring(response: 0.45, dampingFraction: 0.6)) { lockShown = true }
         }
     }

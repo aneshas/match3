@@ -6,15 +6,18 @@ struct BurstView: View {
     let color: Color
     let radius: CGFloat
     let big: Bool
+    /// The level's bonus candy: more particles, and a second gold ring.
+    var bonus: Bool = false
 
     @State private var progress: CGFloat = 0
     private let particles: [Particle]
 
-    init(color: Color, radius: CGFloat, big: Bool) {
+    init(color: Color, radius: CGFloat, big: Bool, bonus: Bool = false) {
         self.color = color
         self.radius = radius
         self.big = big
-        self.particles = Particle.make(count: big ? 14 : 8)
+        self.bonus = bonus
+        self.particles = Particle.make(count: bonus ? 20 : (big ? 14 : 8))
     }
 
     var body: some View {
@@ -24,6 +27,13 @@ struct BurstView: View {
                 .frame(width: radius * 1.2, height: radius * 1.2)
                 .scaleEffect(0.4 + progress * (big ? 2.0 : 1.4))
                 .opacity(1 - progress)
+            if bonus {
+                Circle()
+                    .strokeBorder(Theme.gold, lineWidth: 4)
+                    .frame(width: radius * 1.2, height: radius * 1.2)
+                    .scaleEffect(0.2 + progress * 2.6)
+                    .opacity(1 - progress)
+            }
 
             ForEach(particles) { p in
                 Circle()
@@ -56,5 +66,23 @@ struct BurstView: View {
                          light: i % 3 == 0)
             }
         }
+    }
+}
+
+
+/// The "+" that rises from a match of the bonus candy and fades: the same badge as on the
+/// bar, so the player sees that this candy fills the bar faster.
+struct BonusPopView: View {
+    let size: CGFloat
+    @State private var risen = false
+
+    var body: some View {
+        BonusBadge(size: size)
+            .scaleEffect(risen ? 1.3 : 0.6)
+            .offset(y: risen ? -size * 1.6 : 0)
+            .opacity(risen ? 0 : 1)
+            .onAppear {
+                withAnimation(.easeOut(duration: 0.9 * (Motion.reduceMotion ? 0.5 : 1))) { risen = true }
+            }
     }
 }
