@@ -6,7 +6,7 @@ legal decisions). "Ask Claude" items are repo changes I can make as soon as you 
 the input. Tick items here as they are done; this file is the single place that tracks
 release readiness.
 
-Working title in the repo is "Match 3"; the leading candidate is **Jelly Joy** (subtitle idea: "Calm match-3, no losing"), to be confirmed by the App Store Connect name check (step 2).
+Working title in the repo is "Match 3"; "Jelly Joy" was the favourite but a jelly-matching game called "Jelly Joy!" (Kyoso Interactive) is already on the App Store, so a different name is needed (step 2; subtitle idea: "Calm match-3, no losing").
 
 ## 1. Apple Developer account (you)
 
