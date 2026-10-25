@@ -5,7 +5,7 @@ Drafts for App Store Connect. Replace "Match 3" with the final name.
 ## Name and subtitle
 
 - Name: Match 3 (working title, 30 characters max)
-- Subtitle: Calm match-3. No losing, no ads.
+- Subtitle: Calm match-3 for special needs (30 characters: the subtitle is indexed for search, so it carries the words caregivers type; "no losing, no ads" moves to the promotional text and description)
 
 ## Description
 
@@ -21,11 +21,13 @@ Works with iOS Reduce Motion and Increase Contrast. Pair it with Guided Access t
 
 ## Keywords (100 characters max, comma separated)
 
-match 3,candy,calm,relaxing,no ads,disability,autism,dementia,seniors,easy,puzzle,caregiver
+autism,disability,learning,kids,seniors,dementia,down syndrome,easy,relaxing,candy,puzzle,caregiver
+
+Apple indexes the name, the subtitle and this field (not the description), so none of these repeat words already in the name or subtitle. Terms people actually type for this audience: "special needs games", "games for autism", "games for disabled adults", "easy games for seniors", "dementia games", "down syndrome", "learning disability", "accessible games"; also "kids", because family searches land here. Avoid dated terms such as "mentally challenged" or "retarded": almost nobody searches them any more and they read badly in a listing.
 
 ## Promotional text (170 characters)
 
-Nothing to lose, nothing to read. A match-3 that only ever says "good job".
+Nothing to lose, nothing to read, no ads. A match-3 made for special needs that only ever says "good job".
 
 ## What's new (1.0)
 
