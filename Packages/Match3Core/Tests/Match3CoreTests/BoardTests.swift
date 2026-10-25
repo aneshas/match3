@@ -420,3 +420,25 @@ extension BoardTests {
         }
     }
 }
+
+extension BoardTests {
+    func testWildcardAtTheEndOfALineNextToAnotherColor() {
+        // Row 2: b W a a, with a different color just before the star. The star must still
+        // complete "W a a" even though "b W" was looked at first.
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        b.overwrite(with: ["abcde", "bcdeb", "cbaab", "debcd", "ebcde"])  // row 2: c b a a b
+        b.setPower(.wild, at: Position(row: 2, col: 1))                   // row 2: c W a a b
+        let groups = b.findMatches()
+        XCTAssertEqual(groups.count, 1, "the star should complete W a a; groups: \(groups)")
+        XCTAssertEqual(groups.first?.positions, Set([Position(row: 2, col: 1), Position(row: 2, col: 2), Position(row: 2, col: 3)]))
+        XCTAssertEqual(groups.first?.color, TileColor(0))
+
+        // The same vertically, with the star landing under two of a color after a fall.
+        var v = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        v.overwrite(with: ["abcde", "bcdeb", "cdebc", "deecd", "ebede"])  // col 2: c d e e e? no: keep exact
+        v.overwrite(with: ["abcde", "bcdeb", "cdebc", "deacd", "ebade"])  // col 2: c d e a a
+        v.setPower(.wild, at: Position(row: 2, col: 2))                   // col 2: c d W a a
+        XCTAssertTrue(v.findMatches().contains { $0.positions == Set([Position(row: 2, col: 2), Position(row: 3, col: 2), Position(row: 4, col: 2)]) },
+                      "the star should complete the column; groups: \(v.findMatches())")
+    }
+}

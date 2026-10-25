@@ -315,8 +315,12 @@ public struct Board: Sendable {
                 }
                 if end - i + 1 >= 3, let color {
                     runs.append((Set(line[i...end]), color))
+                    i = end + 1
+                } else {
+                    // Too short: step one cell, not past the run. A wildcard swallowed by a
+                    // short run of one color may start a real run in the next color ("b W a a").
+                    i += 1
                 }
-                i = end + 1
             }
         }
         for r in 0..<rows { scan((0..<cols).map { Position(row: r, col: $0) }) }
