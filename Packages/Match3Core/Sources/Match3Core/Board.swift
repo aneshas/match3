@@ -198,14 +198,34 @@ public struct Board: Sendable {
         return cells[p.row][p.col]
     }
 
-    /// The color a tile matches by: nil for an empty cell and for a rainbow candy, which
-    /// has no color and never takes part in a line.
+    /// The color a tile matches by: nil for an empty cell, for a rainbow candy (which has
+    /// no color and never takes part in a line) and for the wildcard (which takes part in
+    /// any line, see `compatible`).
     private func matchColor(_ t: Tile?) -> TileColor? {
-        guard let t, !t.power.isRainbow else { return nil }
+        guard let t, !t.power.isRainbow, !t.power.isWild else { return nil }
         return t.color
     }
 
     public func matchColor(at p: Position) -> TileColor? { matchColor(tile(at: p)) }
+
+    /// Whether the tile at `p` can sit in a line of `color`: a candy of that color or the
+    /// wildcard star.
+    private func compatible(_ p: Position, with color: TileColor) -> Bool {
+        guard let t = tile(at: p) else { return false }
+        return t.power.isWild || (!t.power.isRainbow && t.color == color)
+    }
+
+    public var hasWild: Bool { allPositions.contains { tile(at: $0)?.power.isWild == true } }
+
+    /// Plain candies that could become the wildcard without completing a line on the spot.
+    public func wildSpawnCandidates() -> [Position] {
+        allPositions.filter { p in
+            guard let t = tile(at: p), t.power == .none else { return false }
+            var copy = self
+            copy.setPower(.wild, at: p)
+            return !copy.hasMatch(at: p)
+        }
+    }
 
     public func position(of tileID: UUID) -> Position? {
         for p in allPositions where cells[p.row][p.col]?.id == tileID { return p }
@@ -253,16 +273,22 @@ public struct Board: Sendable {
 
     /// Whether the tile at `p` is part of a horizontal or vertical run of 3+.
     public func hasMatch(at p: Position) -> Bool {
-        guard let color = matchColor(at: p) else { return false }
-        return runLength(from: p, color: color, horizontal: true) >= 3
-            || runLength(from: p, color: color, horizontal: false) >= 3
+        guard let t = tile(at: p), !t.power.isRainbow else { return false }
+        // The wildcard matches in whichever color its neighbors run in.
+        let colors: [TileColor] = t.power.isWild
+            ? Array(Set(Direction.allCases.compactMap { matchColor(at: p.offset($0)) }))
+            : [t.color]
+        return colors.contains { color in
+            runLength(from: p, color: color, horizontal: true) >= 3
+                || runLength(from: p, color: color, horizontal: false) >= 3
+        }
     }
 
     private func runLength(from p: Position, color: TileColor, horizontal: Bool) -> Int {
         var count = 1
         for dir: [Direction] in [[horizontal ? .left : .up], [horizontal ? .right : .down]] {
             var q = p.offset(dir[0])
-            while let t = matchColor(at: q), t == color {
+            while compatible(q, with: color) {
                 count += 1
                 q = q.offset(dir[0])
             }
@@ -274,34 +300,27 @@ public struct Board: Sendable {
     public func findMatches() -> [MatchGroup] {
         var runs: [(Set<Position>, TileColor)] = []
 
-        // Horizontal runs.
-        for r in 0..<rows {
-            var c = 0
-            while c < cols {
-                let start = Position(row: r, col: c)
-                guard let color = matchColor(at: start) else { c += 1; continue }
-                var end = c
-                while end + 1 < cols, let n = matchColor(at: Position(row: r, col: end + 1)), n == color { end += 1 }
-                if end - c + 1 >= 3 {
-                    runs.append((Set((c...end).map { Position(row: r, col: $0) }), color))
+        // Walk a line of cells: a run is consecutive candies of one color, where the
+        // wildcard joins any run (a run that starts on it takes the next candy's color).
+        func scan(_ line: [Position]) {
+            var i = 0
+            while i < line.count {
+                guard let t = tile(at: line[i]), !t.power.isRainbow else { i += 1; continue }
+                var color: TileColor? = t.power.isWild ? nil : t.color
+                var end = i
+                while end + 1 < line.count, let n = tile(at: line[end + 1]), !n.power.isRainbow,
+                      n.power.isWild || color == nil || n.color == color {
+                    if color == nil, !n.power.isWild { color = n.color }
+                    end += 1
                 }
-                c = end + 1
+                if end - i + 1 >= 3, let color {
+                    runs.append((Set(line[i...end]), color))
+                }
+                i = end + 1
             }
         }
-        // Vertical runs.
-        for c in 0..<cols {
-            var r = 0
-            while r < rows {
-                let start = Position(row: r, col: c)
-                guard let color = matchColor(at: start) else { r += 1; continue }
-                var end = r
-                while end + 1 < rows, let n = matchColor(at: Position(row: end + 1, col: c)), n == color { end += 1 }
-                if end - r + 1 >= 3 {
-                    runs.append((Set((r...end).map { Position(row: $0, col: c) }), color))
-                }
-                r = end + 1
-            }
-        }
+        for r in 0..<rows { scan((0..<cols).map { Position(row: r, col: $0) }) }
+        for c in 0..<cols { scan((0..<rows).map { Position(row: $0, col: c) }) }
 
         // Merge runs that share a cell (L and T shapes become one group).
         var groups: [(Set<Position>, TileColor)] = []
@@ -341,12 +360,12 @@ public struct Board: Sendable {
         var triggered: [PowerTrigger] = []
         var seen = Set<Position>()
         while let p = queue.popLast() {
-            guard !seen.contains(p), let t = tile(at: p), t.power != .none else { continue }
+            guard !seen.contains(p), let t = tile(at: p), t.power != .none, !t.power.isWild else { continue }
             seen.insert(p)
             triggered.append(PowerTrigger(position: p, power: t.power))
             let extra: [Position]
             switch t.power {
-            case .none:
+            case .none, .wild:
                 extra = []
             case .wrapped:
                 extra = (-1...1).flatMap { dr in (-1...1).map { dc in Position(row: p.row + dr, col: p.col + dc) } }

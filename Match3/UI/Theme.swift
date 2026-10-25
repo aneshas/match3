@@ -22,8 +22,6 @@ enum Theme {
 
     static let pink = Color(red: 1.00, green: 0.45, blue: 0.65)
     static let magenta = Color(red: 0.95, green: 0.22, blue: 0.50)
-    /// The star badge of the level's bonus candy.
-    static let bonusRed = Color(red: 0.92, green: 0.18, blue: 0.22)
     static let progressTrack = Color.white.opacity(0.75)
     static var progressFill: LinearGradient {
         LinearGradient(colors: [pink, magenta], startPoint: .leading, endPoint: .trailing)

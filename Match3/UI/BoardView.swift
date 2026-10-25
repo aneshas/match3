@@ -52,7 +52,8 @@ struct BoardView: View {
                                  hinting: session.hintIDs.contains(tile.id),
                                  hintStrength: session.hintLevel,
                                  outlined: highContrast,
-                                 special: tile.power != .none)
+                                 special: tile.power != .none,
+                                 wild: tile.power.isWild)
                             .rotationEffect(.degrees(tile.rotation))
                             .scaleEffect(tile.scale)
                             .opacity(tile.opacity)

@@ -71,7 +71,7 @@ struct ProgressBarView: View {
         .accessibilityValue("\(Int(fraction * 100)) percent")
     }
 
-    /// The goal candy: this level's bonus candy with a red star badge (it scores more), a
+    /// The goal candy: this level's bonus candy with a gold star badge (it scores more), a
     /// little faded while the bar fills, then full color, a gold glow, a bounce and a spin
     /// when the bar is full.
     private var star: some View {
@@ -84,7 +84,7 @@ struct ProgressBarView: View {
             .shadow(color: Color.black.opacity(0.18), radius: 3, y: 2)
             .shadow(color: done ? Theme.gold.opacity(0.8) : .clear, radius: done ? 14 : 0)
             .overlay(alignment: .bottomTrailing) {
-                BonusBadge(size: 24).offset(x: 6, y: 6)  // low, clear of the camera at the top
+                BonusBadge(size: 28).offset(x: 8, y: 8)  // low, clear of the camera at the top
             }
             .scaleEffect(done ? 1.3 : 1)
             .rotationEffect(.degrees(spinDegrees))
@@ -176,22 +176,13 @@ struct ProgressBarView: View {
 }
 
 
-/// A red disc with a white star: marks the candy that scores more this level. It is a
-/// symbol, not a word, so nothing needs reading.
+/// The bonus candy's badge: the wildcard star, small. Matching that candy spawns one
+/// of these on the board. It is a symbol, not a word, so nothing needs reading.
 struct BonusBadge: View {
     let size: CGFloat
 
     var body: some View {
-        ZStack {
-            Circle()
-                .fill(Theme.bonusRed)
-                .overlay(Circle().strokeBorder(Color.white, lineWidth: max(1.5, size * 0.09)))
-                .shadow(color: Color.black.opacity(0.25), radius: size * 0.08, y: size * 0.05)
-            Image(systemName: "star.fill")
-                .font(.system(size: size * 0.58, weight: .bold))
-                .foregroundStyle(.white)
-        }
-        .frame(width: size, height: size)
-        .accessibilityHidden(true)
+        WildStarView(size: size)
+            .shadow(color: Color.black.opacity(0.25), radius: size * 0.08, y: size * 0.05)
     }
 }

@@ -60,7 +60,7 @@ struct Burst: Identifiable, Equatable {
     var bonus: Bool = false
 }
 
-/// A red star rising from a match of the level's bonus candy.
+/// A gold star rising from a match of the level's bonus candy.
 struct BonusPop: Identifiable, Equatable {
     let id = UUID()
     let row: Double
@@ -104,6 +104,9 @@ final class GameSession {
     private(set) var bonusPops: [BonusPop] = []
     /// How many times the bonus candy has been matched this level (drives the bar's candy).
     private(set) var bonusMatches = 0
+    /// A bonus match earns one wildcard star, placed once the board has settled. Only one
+    /// star is ever on the board: while it waits to be used, nothing more is earned.
+    private var wildPending = false
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
     /// Debug/UI-test counter: every swipe that reached the session, valid or not.
@@ -425,6 +428,7 @@ final class GameSession {
             }
             let steps = (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps(expansion, base: base)
             let flash = expansion.triggered.contains { $0.power.isRainbow } ? BoardFlash(rainbow: true) : nil
+            if groups.contains(where: { $0.color == bonusColor }) { wildPending = true }
             for g in groups where g.color == bonusColor {
                 bonusMatches += 1
                 let pop = BonusPop(row: Double(g.positions.map(\.row).reduce(0, +)) / Double(g.positions.count),
@@ -503,7 +507,7 @@ final class GameSession {
         await sleep(popDuration * 0.4)
         let newBursts = removed.map {
             Burst(row: $0.0.row, col: $0.0.col, color: $0.1.color, big: big || triggerPositions.contains($0.0),
-                  bonus: $0.1.color == bonusColor && $0.1.power != .rainbow)
+                  bonus: ($0.1.color == bonusColor && $0.1.power != .rainbow) || $0.1.power.isWild)
         }
         bursts.append(contentsOf: newBursts)
         withAnimation(.easeIn(duration: popDuration * 0.6)) {
@@ -541,12 +545,31 @@ final class GameSession {
             for s in result.spawns { move(s.tile.id, to: s.at) }
         }
         await sleep(fallDuration * 1.1)
+
+        if wildPending {
+            wildPending = false
+            await spawnWildcard()
+        }
+    }
+
+    /// Turns one plain candy (somewhere it does not complete a line) into the wildcard
+    /// star with a pop. Skipped while a star is already on the board.
+    private func spawnWildcard() async {
+        guard !board.hasWild, let at = board.wildSpawnCandidates().randomElement(),
+              let id = board.tile(at: at)?.id, let i = tiles.firstIndex(where: { $0.id == id }) else { return }
+        board.setPower(.wild, at: at)
+        tiles[i].power = .wild
+        tiles[i].scale = 1.6
+        SoundPlayer.shared.play(.matchBig, volume: 0.7)
+        Haptics.matchMade(big: true)
+        withAnimation(.spring(response: 0.45 * motionScale, dampingFraction: 0.5)) { tiles[i].scale = 1 }
+        await sleep(0.3 * motionScale)
     }
 
     /// Ring size for a special going off, in cells.
     private static func ringCells(for power: Power) -> CGFloat {
         switch power {
-        case .none, .wrapped: return 4
+        case .none, .wild, .wrapped: return 4
         case .striped: return 6
         case .rainbow, .bomb: return 8
         }

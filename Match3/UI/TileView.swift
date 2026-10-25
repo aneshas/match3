@@ -14,6 +14,8 @@ struct TileView: View {
     var outlined: Bool = false
     /// Special candies shiver all the time so they can be told from the plain ones.
     var special: Bool = false
+    /// The wildcard star is drawn in code instead of from the pack.
+    var wild: Bool = false
 
     @State private var hintPulse = false
     @State private var shiver = false
@@ -47,7 +49,9 @@ struct TileView: View {
     /// The candy, and in high contrast the same image stamped in black at eight offsets
     /// underneath it, which traces an outline that follows each candy's own shape.
     @ViewBuilder private var candy: some View {
-        if outlined {
+        if wild {
+            WildStarView(size: size)
+        } else if outlined {
             let rim = size * 0.055
             ZStack {
                 ForEach(0..<8, id: \.self) { i in

@@ -36,10 +36,14 @@ public enum Power: Hashable, Sendable {
     case rainbow
     /// Earned by six or more in any shape. When matched it clears a 5x5 area.
     case bomb
+    /// The wildcard star: spawned when the level's bonus candy is matched, at most one on
+    /// the board. It joins a line of any color (its own stored color means nothing) and
+    /// is simply cleared with the match; no blast of its own.
+    case wild
 
     public var kind: PowerKind? {
         switch self {
-        case .none: return nil
+        case .none, .wild: return nil
         case .wrapped: return .wrapped
         case .striped: return .striped
         case .rainbow: return .rainbow
@@ -48,6 +52,7 @@ public enum Power: Hashable, Sendable {
     }
 
     public var isRainbow: Bool { self == .rainbow }
+    public var isWild: Bool { self == .wild }
 }
 
 /// The special candies without their artwork detail, in the order the game introduces them.

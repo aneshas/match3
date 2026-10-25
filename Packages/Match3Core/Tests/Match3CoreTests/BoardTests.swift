@@ -378,3 +378,45 @@ final class BoardTests: XCTestCase {
         XCTAssertEqual(b.tiles.first { $0.tile.id == id }?.tile.power, .wrapped)
     }
 }
+
+extension BoardTests {
+    func testWildcardJoinsAnyLine() {
+        var b = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        let w = Position(row: 2, col: 2)
+        XCTAssertFalse(b.wildSpawnCandidates().isEmpty)
+        b.overwrite(with: ["abcde", "bcdeb", "cdabc", "debcd", "ebcde"])  // row 2: c d a b c
+        b.setPower(.wild, at: w)
+        XCTAssertTrue(b.findMatches().isEmpty, "d W b is not a line")
+        b.overwrite(with: ["abcde", "bcdeb", "cddbc", "debcd", "ebcde"])  // row 2: c d W b c (d at col 1)
+        b.setPower(.wild, at: w)
+        b.setCell(row: 2, col: 3, Tile(color: TileColor(3)))                // c d W d c
+        let groups = b.findMatches()
+        XCTAssertEqual(groups.count, 1)
+        XCTAssertEqual(groups.first?.positions, Set([Position(row: 2, col: 1), w, Position(row: 2, col: 3)]))
+        XCTAssertEqual(groups.first?.color, TileColor(3))
+        XCTAssertTrue(b.hasMatch(at: w))
+        XCTAssertTrue(b.hasWild)
+        // Cleared with the match, no blast, not a trigger.
+        let r = b.expandedRemoval(for: groups[0].positions)
+        XCTAssertEqual(r.removed, groups[0].positions)
+        XCTAssertTrue(r.triggered.isEmpty)
+        // A swipe that lines two of a color up with the star is a move.
+        var c = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        c.setPower(.wild, at: Position(row: 0, col: 0))                      // row 0: W b c d e
+        c.setCell(row: 0, col: 2, Tile(color: TileColor(4)))                 // row 0: W b e d e
+        c.setCell(row: 1, col: 1, Tile(color: TileColor(4)))                 // an e under the b
+        XCTAssertTrue(c.findMatches().isEmpty)
+        XCTAssertEqual(c.swapEffect(Position(row: 0, col: 1), Position(row: 1, col: 1), combos: false), .match,
+                       "swapping the e up makes W e e")
+        c.swap(Position(row: 0, col: 1), Position(row: 1, col: 1))
+        XCTAssertEqual(c.findMatches().first?.positions, Set([Position(row: 0, col: 0), Position(row: 0, col: 1), Position(row: 0, col: 2)]))
+        // Refill never completes a line through the star.
+        var d = board(["abcde", "bcdeb", "cdebc", "debcd", "ebcde"])
+        d.setPower(.wild, at: Position(row: 4, col: 2))
+        for _ in 0..<30 {
+            d.remove([Position(row: 0, col: 2)])
+            _ = d.applyGravityAndRefill()
+            XCTAssertTrue(d.findMatches().isEmpty, "refill made a line through the wildcard")
+        }
+    }
+}

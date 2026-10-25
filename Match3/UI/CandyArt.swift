@@ -132,7 +132,7 @@ extension Power {
         case .wrapped: return .wrapper
         case .striped(.horizontal): return .horizontal
         case .striped(.vertical): return .vertical
-        case .rainbow, .bomb: return .plain  // drawn from their own images, see Palette.imageName
+        case .rainbow, .bomb, .wild: return .plain  // drawn from their own images, see Palette.imageName
         }
     }
 }
