@@ -177,7 +177,7 @@ final class GameSession {
     /// the board lands, and keeps repeating after this much idle time.
     private var wantsDemo: Bool
     private var demoShownOnce = false
-    private let demoRepeatDelay: Duration = .seconds(3)
+    private let demoRepeatDelay: Duration = .milliseconds(1500)
 
     var goal: Int { config.goalMatches }
     /// Progress toward the goal in steps, capped at the goal.

@@ -25,8 +25,10 @@ struct GoodJobScreen: View {
     @State private var candyWound = false
     @State private var burstID: UUID?
 
-    /// Good Job always lasts the same time; routine is comforting.
-    static let duration: Duration = .seconds(4.5)
+    /// Good Job ends right after the candy bursts (a little later when the lock has to
+    /// settle); routine is comforting, waiting is not.
+    static let duration: Duration = .milliseconds(3300)
+    static let durationWithLock: Duration = .milliseconds(4300)
 
     var body: some View {
         GeometryReader { geo in
@@ -128,7 +130,7 @@ struct GoodJobScreen: View {
             withAnimation(.linear(duration: 14).repeatForever(autoreverses: false)) { raysAngle = 360 }
         }
         .task {
-            try? await Task.sleep(for: GoodJobScreen.duration)
+            try? await Task.sleep(for: showsLock ? GoodJobScreen.durationWithLock : GoodJobScreen.duration)
             onContinue()
         }
     }
