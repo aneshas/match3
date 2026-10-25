@@ -60,7 +60,7 @@ struct Burst: Identifiable, Equatable {
     var bonus: Bool = false
 }
 
-/// A red "+" rising from a match of the level's bonus candy.
+/// A red star rising from a match of the level's bonus candy.
 struct BonusPop: Identifiable, Equatable {
     let id = UUID()
     let row: Double
@@ -84,14 +84,14 @@ final class GameSession {
     let palette: CandyArt.Palette
     /// The next level's newcomer candy, revealed on the Good Job screen (set by AppFlow).
     var nextCandy: CandyArt.Preview?
-    /// This level's newcomer: shown at the end of the bar with a "+" and worth
+    /// This level's newcomer: shown at the end of the bar with a star and worth
     /// `bonusMultiplier` when matched.
     let bonusCandy: CandyArt.Preview?
     /// The tile color of the bonus candy in this level's palette.
     let bonusColor: TileColor?
     /// Matches of the bonus candy pay this much more.
     static let bonusMultiplier = 1.5
-    /// "+" markers currently rising over the board.
+    /// Star markers currently rising over the board.
     private(set) var bonusPops: [BonusPop] = []
     /// How many times the bonus candy has been matched this level (drives the bar's candy).
     private(set) var bonusMatches = 0
@@ -360,7 +360,7 @@ final class GameSession {
             // Credit the bar right away so the reward lands with the burst: full value for
             // the swipe's own groups (depth 0), half for groups the board matched by itself,
             // plus what the specials cleared.
-            // The level's bonus candy pays half as much again, and says so with a rising "+".
+            // The level's bonus candy pays half as much again, and says so with a rising star.
             let stepsNow = groups.reduce(0.0) {
                 $0 + GameSession.stepValue(matched: $1.positions.count) * ($1.color == bonusColor ? GameSession.bonusMultiplier : 1)
             }

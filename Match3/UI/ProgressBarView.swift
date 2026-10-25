@@ -71,7 +71,7 @@ struct ProgressBarView: View {
         .accessibilityValue("\(Int(fraction * 100)) percent")
     }
 
-    /// The goal candy: this level's bonus candy with a red "+" badge (it scores more), a
+    /// The goal candy: this level's bonus candy with a red star badge (it scores more), a
     /// little faded while the bar fills, then full color, a gold glow, a bounce and a spin
     /// when the bar is full.
     private var star: some View {
@@ -176,7 +176,7 @@ struct ProgressBarView: View {
 }
 
 
-/// A red disc with a white "+": marks the candy that scores more this level. It is a
+/// A red disc with a white star: marks the candy that scores more this level. It is a
 /// symbol, not a word, so nothing needs reading.
 struct BonusBadge: View {
     let size: CGFloat
@@ -187,8 +187,8 @@ struct BonusBadge: View {
                 .fill(Theme.bonusRed)
                 .overlay(Circle().strokeBorder(Color.white, lineWidth: max(1.5, size * 0.09)))
                 .shadow(color: Color.black.opacity(0.25), radius: size * 0.08, y: size * 0.05)
-            Image(systemName: "plus")
-                .font(.system(size: size * 0.62, weight: .black))
+            Image(systemName: "star.fill")
+                .font(.system(size: size * 0.58, weight: .bold))
                 .foregroundStyle(.white)
         }
         .frame(width: size, height: size)

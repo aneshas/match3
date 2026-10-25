@@ -70,7 +70,7 @@ struct BurstView: View {
 }
 
 
-/// The "+" that rises from a match of the bonus candy and fades: the same badge as on the
+/// The star that rises from a match of the bonus candy and fades: the same badge as on the
 /// bar, so the player sees that this candy fills the bar faster.
 struct BonusPopView: View {
     let size: CGFloat
