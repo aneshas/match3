@@ -369,7 +369,7 @@ final class GameSession {
                                    col: Double(g.positions.map(\.col).reduce(0, +)) / Double(g.positions.count))
                 bonusPops.append(pop)
                 Task { [weak self] in
-                    try? await Task.sleep(for: .milliseconds(1000))
+                    try? await Task.sleep(for: .milliseconds(2000))
                     self?.bonusPops.removeAll { $0.id == pop.id }
                 }
             }

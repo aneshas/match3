@@ -82,7 +82,7 @@ struct BonusPopView: View {
             .offset(y: risen ? -size * 1.6 : 0)
             .opacity(risen ? 0 : 1)
             .onAppear {
-                withAnimation(.easeOut(duration: 0.9 * (Motion.reduceMotion ? 0.5 : 1))) { risen = true }
+                withAnimation(.easeOut(duration: 1.8 * (Motion.reduceMotion ? 0.5 : 1))) { risen = true }
             }
     }
 }
