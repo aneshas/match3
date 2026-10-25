@@ -4,12 +4,12 @@ Drafts for App Store Connect.
 
 ## Name and subtitle
 
-- Name: Bonbon (30 characters max; confirm it is free when creating the app record, the form rejects taken names)
+- Name: Bonbon Crush ("Bonbon" alone is taken on App Store Connect)
 - Subtitle: Calm match-3 for special needs (30 characters: the subtitle is indexed for search, so it carries the words caregivers type; "no losing, no ads" moves to the promotional text and description)
 
 ## Description
 
-Bonbon is a match-3 game made for people with intellectual disabilities, and for anyone who wants a game that is only ever kind.
+Bonbon Crush is a match-3 game made for people with intellectual disabilities, and for anyone who wants a game that is only ever kind.
 
 There is nothing to lose. No timers, no move limits, no lives, no ads, and not a single word to read: the game speaks only in candy, sound and a golden star. One gesture: swipe a candy toward its neighbor. Every swipe that matches fills the bar; when it is full the candies celebrate and the next level starts. Boards grow slowly in size, shape and color count, and the game quietly makes the next level easier after a hard one.
 

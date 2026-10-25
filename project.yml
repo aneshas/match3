@@ -23,7 +23,7 @@ targets:
     info:
       path: Match3/Resources/Info.plist
       properties:
-        CFBundleDisplayName: Bonbon
+        CFBundleDisplayName: Bonbon Crush
         UILaunchScreen: {UIColorName: LaunchBackground}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]

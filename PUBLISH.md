@@ -6,7 +6,7 @@ legal decisions). "Ask Claude" items are repo changes I can make as soon as you 
 the input. Tick items here as they are done; this file is the single place that tracks
 release readiness.
 
-The app is called **Bonbon** (chosen 25 October 2026 after "Jelly Joy", "Jelly Crush" and "Jelly Pop" turned out to be taken or crowded); the subtitle is "Calm match-3 for special needs". The name is applied everywhere in the repo; App Store Connect confirms it for good when the app record is created (step 4).
+The app is called **Bonbon Crush** (chosen 25 October 2026: "Jelly Joy", "Jelly Crush", "Jelly Pop" and plain "Bonbon" were taken or crowded); the subtitle is "Calm match-3 for special needs". Bundle id and product id stay `io.anes.bonbon` / `io.anes.bonbon.unlock`. Note that King owns "Crush" trademarks for games (Candy Crush); other "… Crush" match-3 games exist on the store, but a trademark complaint after launch would mean renaming, so have a fallback ready.
 
 ## 1. Apple Developer account (you)
 
@@ -19,9 +19,9 @@ The app is called **Bonbon** (chosen 25 October 2026 after "Jelly Joy", "Jelly C
 
 ## 2. Name, identifiers, legal (you, then ask Claude)
 
-- [x] **Choose the app name**: Bonbon, subtitle "Calm match-3 for special needs". The App Store Connect form (step 4) is the final availability check; keep "Jelly Hug", "Jelly Calm" or "Gummy Joy" as fallbacks in case it rejects the name.
+- [x] **Choose the app name**: Bonbon Crush, subtitle "Calm match-3 for special needs". Fallbacks if App Store Connect or a trademark complaint rejects it: "Bonbon Calm", "Jelly Hug", "Gummy Joy".
 - [x] **Bundle identifier**: `io.anes.bonbon` (cannot be changed after the first upload to App Store Connect). StoreKit product id: `io.anes.bonbon.unlock`.
-- [x] **Name applied in the repo**: display name under the icon (`CFBundleDisplayName`), product name (`Bonbon.app`), bundle id, product id, StoreKit test file, store texts and privacy policy. The Xcode target, scheme, module and folders keep the working name `Match3` (internal only, nothing the store or the player sees).
+- [x] **Name applied in the repo**: display name under the icon (`CFBundleDisplayName` "Bonbon Crush"), store texts and privacy policy; product name (`Bonbon.app`), bundle id and product id stay as they are. The Xcode target, scheme, module and folders keep the working name `Match3` (internal only, nothing the store or the player sees).
 - [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). The text is ready in `Store/privacy-policy.md`; put it on your own site or a GitHub Pages page, add the support email, then give me the URL so the caregiver panel can link to it (`AppLinks.privacyPolicy`).
 - [ ] **Support URL** (required): an email address on a simple page, or the same page as the privacy policy with a contact line.
 - [ ] **Marketing URL** (optional).

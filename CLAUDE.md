@@ -1,6 +1,6 @@
-# Bonbon: match 3 for players with intellectual disabilities
+# Bonbon Crush: match 3 for players with intellectual disabilities
 
-An iOS match-3 game where nothing is hard to understand. The app is called **Bonbon** (display name, product name `Bonbon.app`, bundle id `io.anes.bonbon`, unlock product `io.anes.bonbon.unlock`); the Xcode target, module and folders keep their working name `Match3`. Candy-themed: glossy candy icons
+An iOS match-3 game where nothing is hard to understand. The app is called **Bonbon Crush** (display name and App Store name; "Bonbon" alone was taken). The product name stays `Bonbon.app`, the bundle id `io.anes.bonbon` and the unlock product `io.anes.bonbon.unlock`; the Xcode target, module and folders keep their working name `Match3`. Candy-themed: glossy candy icons
 on a soft cream-to-pink background.
 
 ## Design rules (do not break these)
