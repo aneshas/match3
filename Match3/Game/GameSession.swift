@@ -93,6 +93,8 @@ final class GameSession {
     static let bonusMultiplier = 1.5
     /// "+" markers currently rising over the board.
     private(set) var bonusPops: [BonusPop] = []
+    /// How many times the bonus candy has been matched this level (drives the bar's candy).
+    private(set) var bonusMatches = 0
     /// Counters for the adaptive-difficulty policy. Never shown to the player.
     private(set) var stats = LevelStats()
     /// Debug/UI-test counter: every swipe that reached the session, valid or not.
@@ -365,6 +367,7 @@ final class GameSession {
             let steps = (depth == 0 ? stepsNow : stepsNow * GameSession.cascadeCredit) + powerSteps(expansion, base: base)
             let flash = expansion.triggered.contains { $0.power.isRainbow } ? BoardFlash(rainbow: true) : nil
             for g in groups where g.color == bonusColor {
+                bonusMatches += 1
                 let pop = BonusPop(row: Double(g.positions.map(\.row).reduce(0, +)) / Double(g.positions.count),
                                    col: Double(g.positions.map(\.col).reduce(0, +)) / Double(g.positions.count))
                 bonusPops.append(pop)

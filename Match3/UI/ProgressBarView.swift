@@ -5,15 +5,19 @@ import SwiftUI
 /// the goal, and it lights up when reached. The fill shimmers and the bar pulses on each gain.
 struct ProgressBarView: View {
     let fraction: Double
-    /// The candy shown at the end of the bar: a taste of the next level.
+    /// The candy shown at the end of the bar: this level's bonus candy.
     var goal: CandyArt.Preview? = nil
+    /// Goes up by one every time the bonus candy is matched: the candy lights up and spins
+    /// for a moment, the same way it does when the bar is full.
+    var bonusMatches: Int = 0
     /// Vertical in landscape: the bar stands beside the board and fills bottom to top.
     var axis: Axis = .horizontal
     private let height: CGFloat = 29
 
     @State private var shimmer = false
     @State private var pulse = false
-    @State private var starSpin = false
+    @State private var spinDegrees = 0.0
+    @State private var celebrating = false
     /// Gold bursts at the end of the fill, one per gain: "that match made the bar grow".
     @State private var sparkles: [Sparkle] = []
 
@@ -60,6 +64,7 @@ struct ProgressBarView: View {
             .scaleEffect(pulse ? 1.05 : 1)
         }
         .onChange(of: fraction) { _, new in pulseOnChange(new) }
+        .onChange(of: bonusMatches) { _, _ in celebrateBonus() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Progress")
         .accessibilityValue("\(Int(fraction * 100)) percent")
@@ -69,7 +74,7 @@ struct ProgressBarView: View {
     /// little faded while the bar fills, then full color, a gold glow, a bounce and a spin
     /// when the bar is full.
     private var star: some View {
-        let done = fraction >= 1
+        let done = fraction >= 1 || celebrating
         return CandyArt.load(goal?.imageName ?? CandyArt.tileImages[0])
             .resizable()
             .scaledToFit()
@@ -81,7 +86,7 @@ struct ProgressBarView: View {
                 BonusBadge(size: 24).offset(x: 6, y: 6)  // low, clear of the camera at the top
             }
             .scaleEffect(done ? 1.3 : 1)
-            .rotationEffect(.degrees(starSpin ? 360 : 0))
+            .rotationEffect(.degrees(spinDegrees))
             .animation(.spring(response: 0.45, dampingFraction: 0.5), value: done)
     }
 
@@ -100,7 +105,17 @@ struct ProgressBarView: View {
             withAnimation(.easeOut(duration: 0.2)) { pulse = false }
         }
         if new >= 1 {
-            withAnimation(.easeInOut(duration: 0.7)) { starSpin = true }
+            withAnimation(.easeInOut(duration: 0.7)) { spinDegrees += 360 }
+        }
+    }
+
+    /// A bonus match: the candy glows, grows and takes one turn, then settles.
+    private func celebrateBonus() {
+        withAnimation(.spring(response: 0.45, dampingFraction: 0.5)) { celebrating = true }
+        withAnimation(.easeInOut(duration: 0.7)) { spinDegrees += 360 }
+        Task {
+            try? await Task.sleep(for: .milliseconds(900))
+            withAnimation(.easeOut(duration: 0.35)) { celebrating = false }
         }
     }
 

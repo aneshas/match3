@@ -62,7 +62,7 @@ struct GoodJobScreen: View {
             let short = min(geo.size.width, geo.size.height)
             let starSize = min(170, short * 0.3)
             let spacing = short * 0.04
-            let candySize = min(150, short * 0.32)
+            let candySize = min(225, short * 0.48)
 
             VStack(spacing: spacing * 2) {
                 ZStack {

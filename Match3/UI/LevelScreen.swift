@@ -14,7 +14,7 @@ struct LevelScreen: View {
                 HStack(spacing: 16) {
                     VStack(spacing: 16) {
                         LevelBadge(level: session.config.level)
-                        ProgressBarView(fraction: session.progressFraction, goal: session.bonusCandy, axis: .vertical)
+                        ProgressBarView(fraction: session.progressFraction, goal: session.bonusCandy, bonusMatches: session.bonusMatches, axis: .vertical)
                         HomeButton(action: onHome)
                     }
                     .padding(.leading, 20 + insets.leading)
@@ -26,7 +26,7 @@ struct LevelScreen: View {
             } else {
                 VStack(spacing: 20) {
                     // Keeps clear of the camera cutout on screens with a one-sided inset.
-                    ProgressBarView(fraction: session.progressFraction, goal: session.bonusCandy)
+                    ProgressBarView(fraction: session.progressFraction, goal: session.bonusCandy, bonusMatches: session.bonusMatches)
                         .padding(.leading, 24 + insets.leading)
                         .padding(.trailing, 24 + insets.trailing)
                         .padding(.top, 44)  // clear of the notch / camera on phones that report no top inset
