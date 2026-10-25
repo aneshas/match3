@@ -60,6 +60,9 @@ public struct LevelConfig: Hashable, Sendable {
             shape = shape == .square ? .square : .roundedCorners
             if !(shape.fits(rows: rows, cols: cols) && LevelConfig.isValid(rows, cols, shape)) { shape = .square }
         }
+        // Masked shapes take a bigger grid (within the screen's rows) so they stay as full
+        // of candies as the rectangle they replace.
+        (rows, cols) = LevelConfig.grown(rows, cols, shape, maxRows: maxRows)
         self.rows = rows
         self.cols = cols
         self.shape = shape
@@ -93,7 +96,7 @@ public struct LevelConfig: Hashable, Sendable {
     /// After the opening the size changes every five levels, cycling through these
     /// (rows, cols). Columns stop at 7; rows grow so later boards are tall.
     private static let laterSizes: [(Int, Int)] = [
-        (6, 6), (7, 6), (6, 7), (7, 7), (8, 6), (8, 7), (9, 6), (9, 7),
+        (7, 7), (8, 6), (8, 7), (9, 6), (9, 7), (8, 7), (8, 6),
     ]
 
     /// Level at which each shape may first appear (if the size allows it). A shape shows
@@ -118,6 +121,19 @@ public struct LevelConfig: Hashable, Sendable {
         // no shape repeats back to back.
         let order = unlocked.sorted { $0.1 > $1.1 }.map { $0.0 }
         return (r, c, order[(level - newest.1) % order.count])
+    }
+
+    /// A masked shape gets a bigger grid so it keeps about as many candies as the full
+    /// rectangle it replaces (a diamond or triangle cut away up to half): rows first,
+    /// which costs nothing on a phone, up to what the screen shows, then columns up to 7.
+    static func grown(_ r: Int, _ c: Int, _ shape: BoardShape, maxRows: Int = LevelConfig.maxRows) -> (Int, Int) {
+        let target = Int((Double(r * c) * 0.85).rounded(.up))
+        func cells(_ r: Int, _ c: Int) -> Int { shape.mask(rows: r, cols: c).flatMap { $0 }.filter { $0 }.count }
+        var (gr, gc) = (r, c)
+        while cells(gr, gc) < target {
+            if gr < maxRows { gr += 1 } else if gc < maxCols { gc += 1 } else { break }
+        }
+        return (gr, gc)
     }
 
     private static func isValid(_ r: Int, _ c: Int, _ shape: BoardShape) -> Bool {

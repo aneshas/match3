@@ -37,11 +37,13 @@ public enum BoardShape: String, CaseIterable, Codable, Sendable {
             return v + h >= cut
 
         case .diamond:
-            // Manhattan distance from the center, scaled so the board still has plenty of cells.
+            // Manhattan distance from the center, with a generous threshold so the tips are
+            // three cells wide and the board keeps most of its cells (a thin diamond on a
+            // 7-column board was smaller than a level-5 board).
             let cr = Double(rows - 1) / 2
             let cc = Double(cols - 1) / 2
             let d = abs(Double(row) - cr) / max(cr, 0.5) + abs(Double(col) - cc) / max(cc, 0.5)
-            return d <= 1.0 + 0.5 / min(cr, cc) + 1e-9
+            return d <= 1.0 + 1.0 / min(cr, cc) + 1e-9
 
         case .circle:
             let cr = Double(rows - 1) / 2
@@ -51,11 +53,12 @@ public enum BoardShape: String, CaseIterable, Codable, Sendable {
             return dx * dx + dy * dy <= 1.0
 
         case .triangle:
-            // Point up: row r keeps the middle (r+1)/rows of the width; the top row always
-            // has one cell (odd widths) or two (even widths).
+            // Point up, with a flat top about three cells wide (two on even widths): the
+            // width grows evenly from the top row to the full bottom row. A sharp point
+            // would leave half the grid empty.
             let cc = Double(cols - 1) / 2
-            let halfWidth = max((Double(row) + 1) / Double(rows) * (Double(cols) / 2), 0.5)
-            return abs(Double(col) - cc) <= halfWidth + 1e-9
+            let width = 3.0 + (Double(cols) - 3.0) * Double(row) / Double(max(rows - 1, 1))
+            return abs(Double(col) - cc) <= width / 2 - 0.5 + 1e-9
 
         case .heart:
             // Implicit heart curve (x^2 + y^2 - 1)^3 - x^2 y^3 < 0, y pointing up, sampled at

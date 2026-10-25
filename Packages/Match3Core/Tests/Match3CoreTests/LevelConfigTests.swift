@@ -46,15 +46,36 @@ final class LevelConfigTests: XCTestCase {
         XCTAssertEqual(LevelConfig(level: 13).shape, .roundedCorners, "a shape shows on its unlock level")
     }
 
+    private func cells(_ c: LevelConfig) -> Int { c.shape.mask(rows: c.rows, cols: c.cols).flatMap { $0 }.filter { $0 }.count }
+
     func testBoardSizeGrowsSlowly() {
-        // No size jump of more than one row or column between consecutive levels, and the
-        // same size for at least two levels in a row before each step up during the opening.
+        // Measured in candies, not grid cells: a masked shape gets a taller grid so it keeps
+        // about as many candies as the rectangle it replaces. Between consecutive levels the
+        // candy count moves by at most a row's worth, and never shrinks below what the
+        // player had ten levels earlier.
         for level in 1..<60 {
             let a = LevelConfig(level: level), b = LevelConfig(level: level + 1)
-            XCTAssertLessThanOrEqual(abs(a.rows - b.rows) + abs(a.cols - b.cols), 2, "jump at level \(level)")
+            XCTAssertLessThanOrEqual(abs(cells(a) - cells(b)), 10, "jump at level \(level): \(cells(a)) -> \(cells(b))")
+            XCTAssertLessThanOrEqual(abs(a.cols - b.cols), 1, "column jump at level \(level)")
         }
-        XCTAssertLessThanOrEqual(LevelConfig(level: 45).rows * LevelConfig(level: 45).cols, 42, "7x7 only from level 46")
+        for level in 11...70 {
+            XCTAssertGreaterThanOrEqual(cells(LevelConfig(level: level)), cells(LevelConfig(level: level - 10)) - 10,
+                                        "level \(level) is smaller than level \(level - 10)")
+        }
+        XCTAssertLessThanOrEqual(cells(LevelConfig(level: 45)), 42, "a full 7x7 only from level 46")
+        for level in 51...80 {
+            XCTAssertGreaterThanOrEqual(cells(LevelConfig(level: level)), 37, "level \(level) falls back to a small board")
+        }
         XCTAssertEqual(LevelConfig(level: 12).rows * LevelConfig(level: 12).cols, 20, "still 5x4 at level 12")
+    }
+
+    func testMaskedShapesKeepMostOfTheirCandies() {
+        // A diamond or triangle at level 30+ used to have fewer candies than a level-5 board.
+        for level in 29...80 {
+            let c = LevelConfig(level: level)
+            guard c.shape != .square else { continue }
+            XCTAssertGreaterThanOrEqual(cells(c), 32, "level \(level) \(c.shape) \(c.rows)x\(c.cols) has only \(cells(c)) candies")
+        }
     }
 
     func testAssistSoftensWithoutBreakingBoards() {

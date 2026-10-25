@@ -148,6 +148,7 @@ Conversion note: Kenney and OGA audio is OGG/WAV. Convert to `.caf` for iOS with
 - [x] **Next-level candy as the goal**: the bar ends in the candy type the coming level adds, instead of a star.
 - [x] **Random candy mix per level**: every level draws its types from all 42 plain pieces (distinct colors and shapes within a level) and always brings one newcomer.
 - [x] **All of the candy pack in use**: all seven silhouettes play on the board through the level palettes, stripes and wrappers are the special candies (6c), the rest decorates the background and the rain.
+- [x] **Masked shapes stay big** (after play testing): a diamond or triangle on a 6x6 or 7x6 grid had 22 to 26 candies at level 30 plus, fewer than level 5. Diamonds and triangles are now fuller (three-wide tips) and any masked shape gets extra rows (then columns) until it holds about as many candies as the full rectangle; after level 50 the size cycle no longer drops back to 6x6.
 - [x] **Board width cap** (after play testing on the phone): never more than 7 columns; later levels grow to 9 rows instead, clamped to what the screen shows at the 7-column candy size (`BoardFit`).
 - [x] **Cascade bonus and match size** (added after play testing): three candies = 1 step, four = 1.5, five or more = 2; a group that matches on its own in a cascade is worth half of that. Swipes remain the main currency.
 
