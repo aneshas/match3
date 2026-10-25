@@ -18,6 +18,7 @@ struct ProgressBarView: View {
     @State private var pulse = false
     @State private var spinDegrees = 0.0
     @State private var celebrating = false
+    @State private var celebrationID = 0
     /// Gold bursts at the end of the fill, one per gain: "that match made the bar grow".
     @State private var sparkles: [Sparkle] = []
 
@@ -109,13 +110,17 @@ struct ProgressBarView: View {
         }
     }
 
-    /// A bonus match: the candy glows, grows and takes one turn, then settles.
+    /// A bonus match: the candy glows, grows and takes one turn, exactly like the full bar,
+    /// holds it for a moment, then settles.
     private func celebrateBonus() {
+        celebrationID += 1
+        let mine = celebrationID
         withAnimation(.spring(response: 0.45, dampingFraction: 0.5)) { celebrating = true }
         withAnimation(.easeInOut(duration: 0.7)) { spinDegrees += 360 }
         Task {
-            try? await Task.sleep(for: .milliseconds(900))
-            withAnimation(.easeOut(duration: 0.35)) { celebrating = false }
+            try? await Task.sleep(for: .milliseconds(1800))
+            guard mine == celebrationID else { return }  // a newer match keeps it lit
+            withAnimation(.easeOut(duration: 0.4)) { celebrating = false }
         }
     }
 
@@ -163,6 +168,7 @@ struct ProgressBarView: View {
             withAnimation(.linear(duration: 1.8).repeatForever(autoreverses: false)) { shimmer = true }
         }
         .onChange(of: fraction) { _, new in pulseOnChange(new) }
+        .onChange(of: bonusMatches) { _, _ in celebrateBonus() }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("Progress")
         .accessibilityValue("\(Int(fraction * 100)) percent")
