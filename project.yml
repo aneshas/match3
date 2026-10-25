@@ -23,7 +23,7 @@ targets:
     info:
       path: Match3/Resources/Info.plist
       properties:
-        CFBundleDisplayName: Bonbon Crush
+        CFBundleDisplayName: Gummy Joy
         UILaunchScreen: {UIColorName: LaunchBackground}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationPortraitUpsideDown, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
@@ -33,8 +33,8 @@ targets:
       base:
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1,2"
-        PRODUCT_NAME: Bonbon
-        PRODUCT_BUNDLE_IDENTIFIER: io.anes.bonbon
+        PRODUCT_NAME: GummyJoy
+        PRODUCT_BUNDLE_IDENTIFIER: io.anes.gummyjoy
         MARKETING_VERSION: "1.0"
         CURRENT_PROJECT_VERSION: 1
         DEVELOPMENT_TEAM: 59H75BATX8

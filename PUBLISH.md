@@ -6,7 +6,7 @@ legal decisions). "Ask Claude" items are repo changes I can make as soon as you 
 the input. Tick items here as they are done; this file is the single place that tracks
 release readiness.
 
-The app is called **Bonbon Crush** (chosen 25 October 2026: "Jelly Joy", "Jelly Crush", "Jelly Pop" and plain "Bonbon" were taken or crowded); the subtitle is "Calm match-3 for special needs". Bundle id and product id stay `io.anes.bonbon` / `io.anes.bonbon.unlock`. Note that King owns "Crush" trademarks for games (Candy Crush); other "… Crush" match-3 games exist on the store, but a trademark complaint after launch would mean renaming, so have a fallback ready.
+The app is called **Gummy Joy** (chosen 25 October 2026: "Jelly Joy", "Jelly Crush", "Jelly Pop" and "Bonbon" were taken or crowded, "Bonbon Crush" dropped over King's "Crush" trademarks); the subtitle is "Calm match-3 for special needs". Bundle id `io.anes.gummyjoy`, product id `io.anes.gummyjoy.unlock`.
 
 ## 1. Apple Developer account (you)
 
@@ -19,9 +19,9 @@ The app is called **Bonbon Crush** (chosen 25 October 2026: "Jelly Joy", "Jelly 
 
 ## 2. Name, identifiers, legal (you, then ask Claude)
 
-- [x] **Choose the app name**: Bonbon Crush, subtitle "Calm match-3 for special needs". Fallbacks if App Store Connect or a trademark complaint rejects it: "Bonbon Calm", "Jelly Hug", "Gummy Joy".
-- [x] **Bundle identifier**: `io.anes.bonbon` (cannot be changed after the first upload to App Store Connect). StoreKit product id: `io.anes.bonbon.unlock`.
-- [x] **Name applied in the repo**: display name under the icon (`CFBundleDisplayName` "Bonbon Crush"), store texts and privacy policy; product name (`Bonbon.app`), bundle id and product id stay as they are. The Xcode target, scheme, module and folders keep the working name `Match3` (internal only, nothing the store or the player sees).
+- [x] **Choose the app name**: Gummy Joy, subtitle "Calm match-3 for special needs". Fallbacks if App Store Connect rejects it: "Jelly Hug", "Jelly Calm", "Bonbon Calm".
+- [x] **Bundle identifier**: `io.anes.gummyjoy` (cannot be changed after the first upload to App Store Connect). StoreKit product id: `io.anes.gummyjoy.unlock`.
+- [x] **Name applied in the repo**: display name under the icon (`CFBundleDisplayName` "Gummy Joy"), product name (`GummyJoy.app`), bundle id, product id, StoreKit test file, store texts and privacy policy. The Xcode target, scheme, module and folders keep the working name `Match3` (internal only, nothing the store or the player sees).
 - [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). The text is ready in `Store/privacy-policy.md`; put it on your own site or a GitHub Pages page, add the support email, then give me the URL so the caregiver panel can link to it (`AppLinks.privacyPolicy`).
 - [ ] **Support URL** (required): an email address on a simple page, or the same page as the privacy policy with a contact line.
 - [ ] **Marketing URL** (optional).
@@ -41,8 +41,8 @@ The app is called **Bonbon Crush** (chosen 25 October 2026: "Jelly Joy", "Jelly 
 
 ## 4. App Store Connect setup (you)
 
-- [ ] **Create the app record**: App Store Connect > Apps > "+" > New App. Platform iOS, name, primary language, bundle id (register it first at <https://developer.apple.com/account/resources/identifiers/list> or let Xcode do it), SKU (any string, e.g. `bonbon-001`), full access.
-- [ ] **In-app purchase**: Apps > your app > In-App Purchases > "+": type Non-Consumable, reference name "All levels", **product id exactly as in the code** (`io.anes.bonbon.unlock`), price (suggested 9.99 USD tier, the roadmap argues for 7.99–12.99), localized display name "All levels" and description "Every level, forever. No ads, no timers, no losing.", a review screenshot (any screenshot of the caregiver panel's unlock section), **Family Sharing: on** (cannot be turned off again). Submit the IAP with the first app version.
+- [ ] **Create the app record**: App Store Connect > Apps > "+" > New App. Platform iOS, name, primary language, bundle id (register it first at <https://developer.apple.com/account/resources/identifiers/list> or let Xcode do it), SKU (any string, e.g. `gummyjoy-001`), full access.
+- [ ] **In-app purchase**: Apps > your app > In-App Purchases > "+": type Non-Consumable, reference name "All levels", **product id exactly as in the code** (`io.anes.gummyjoy.unlock`), price (suggested 9.99 USD tier, the roadmap argues for 7.99–12.99), localized display name "All levels" and description "Every level, forever. No ads, no timers, no losing.", a review screenshot (any screenshot of the caregiver panel's unlock section), **Family Sharing: on** (cannot be turned off again). Submit the IAP with the first app version.
 - [ ] **App information**: subtitle, category Games > Puzzle (secondary: Family or Education), content rights (no third-party content: yes, the assets are licensed), age rating questionnaire (all "None" → 4+).
 - [ ] **Pricing and availability**: Free, all countries (or your pick). Tick "Available for volume purchase" (Apple Business Manager / Apple School Manager) so care homes and schools can buy in bulk. If you want the app discoverable by institutions only via code, use "Custom app" distribution instead (not now).
 - [ ] **Being found**: App Store search ranks the name, subtitle and keyword field (the description is not indexed), then ratings and downloads. The subtitle and keywords in `Store/listing.md` carry the terms caregivers type ("special needs", "autism", "disability", "seniors", "dementia", "kids"). Also fill in the **Accessibility Nutrition Label** on the product page (App Store Connect > App Information > Accessibility): tick Reduced Motion, Sufficient Contrast (high-contrast mode), Larger Text (caregiver panel), and VoiceOver only after the panel has been checked with it. Consider the Kids category only if you accept its rules (no external links without a parental gate, which we have; no third-party analytics or ads, which we have none of); it is a second storefront placement, not a ranking boost, and it puts an "age band" on the listing.

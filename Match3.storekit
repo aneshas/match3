@@ -15,7 +15,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "io.anes.bonbon.unlock",
+      "productID" : "io.anes.gummyjoy.unlock",
       "referenceName" : "All levels",
       "type" : "NonConsumable"
     }

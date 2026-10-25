@@ -27,7 +27,7 @@ enum PurchaseOutcome: Equatable {
 /// unlock instant at launch and offline. `MATCH3_UNLOCKED=1` (Debug) behaves as if bought.
 @Observable
 final class StoreKitUnlockStore: UnlockStore {
-    static let productID = "io.anes.bonbon.unlock"
+    static let productID = "io.anes.gummyjoy.unlock"
     private static let cacheKey = "allLevelsUnlocked"
 
     private(set) var isUnlocked: Bool

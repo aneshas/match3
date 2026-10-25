@@ -2,7 +2,7 @@
 
 _Last updated: 24 October 2026_
 
-**Bonbon Crush** is a game for people with intellectual disabilities, made by Anes Hasicic.
+**Gummy Joy** is a game for people with intellectual disabilities, made by Anes Hasicic.
 
 ## What the app collects
 
