@@ -83,8 +83,8 @@ struct ProgressBarView: View {
             .opacity(done ? 1 : 0.85)
             .shadow(color: Color.black.opacity(0.18), radius: 3, y: 2)
             .shadow(color: done ? Theme.gold.opacity(0.8) : .clear, radius: done ? 14 : 0)
-            .overlay {
-                BonusBadge(size: 28)  // centered on the candy
+            .overlay(alignment: .bottomTrailing) {
+                BonusBadge(size: 28).offset(x: 8, y: 8)  // low, clear of the camera at the top
             }
             .scaleEffect(done ? 1.3 : 1)
             .rotationEffect(.degrees(spinDegrees))
