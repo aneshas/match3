@@ -42,7 +42,6 @@ struct PlayScreen: View {
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
                         .accessibilityIdentifier("logo")
-                        .debugLogoHold(onCaregiverHold)
 
                     // The button: a big candy (a little bigger than the logo) with a play icon on
                     // top. Icon only, so the app has no words in any language. Locked: the candy
@@ -87,18 +86,5 @@ struct PressableButtonStyle: ButtonStyle {
         configuration.label
             .scaleEffect(configuration.isPressed ? 0.94 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
-    }
-}
-
-private extension View {
-    /// Debug builds only: a headless Simulator cannot produce two touches, so holding one
-    /// finger on the logo for three seconds also opens the caregiver panel. Not compiled in Release.
-    @ViewBuilder
-    func debugLogoHold(_ action: @escaping () -> Void) -> some View {
-        #if DEBUG
-        self.onLongPressGesture(minimumDuration: 3, maximumDistance: 40) { action() }
-        #else
-        self
-        #endif
     }
 }
