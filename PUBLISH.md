@@ -49,10 +49,7 @@ The app is called **Gummy Joy** (chosen 25 October 2026: "Jelly Joy", "Jelly Cru
 - [ ] **Ask friends and institutions for a few honest ratings** right after launch: with a brand-new app the ratings count is what moves it up for a search term.
 - [ ] **App privacy**: "Data not collected" for every category. Keep it true: no analytics SDK, ever.
 - [ ] **Version information**: description, keywords, promotional text and "What's New" are drafted in `Store/listing.md`; add support URL, marketing URL and the copyright line ("2026 Anes Hasicic").
-- [ ] **Screenshots** (ask Claude to produce them from the simulator with the final name):
-  - iPhone 6.9" (1320 x 2868) **required**, iPhone 6.5" (1284 x 2778) optional but recommended.
-  - iPad 13" (2064 x 2752) **required while iPad is supported**.
-  - 3 to 6 per size: Play screen, small board, shaped board, Good Job with the jar, caregiver panel, high contrast. No device frames needed.
+- [x] **Screenshots**: `Store/screenshots/iphone-6.9/` (1320 x 2868, required) and `Store/screenshots/ipad-13/` (2064 x 2752, required while iPad is supported), six each in upload order: Play, swipe, shaped board, Good Job, caregiver panel, high contrast. Each is a simulator capture on the app's gradient with a one-line caption (`Tools/compose-screenshot.swift`; captures come from the headless Duo simulator, the only device type the installed runtime has, so the frames are composed rather than full-bleed). The in-app purchase review screenshot is `Store/screenshots/iap-all-levels-1024.png` (1024 x 1024, the panel's "All levels" section with the price). Redo them if the panel texts or the price change. iPhone 6.5" (1284 x 2778) is optional and not made.
 - [ ] **App preview video**: optional, skip for version 1.
 - [ ] **App Review information**: contact name, phone, email. Notes for the reviewer are drafted in `Store/listing.md`.
 - [ ] **Sign-in**: not required, say so in the review form.

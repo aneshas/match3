@@ -133,7 +133,7 @@ struct CaregiverPanel: View {
                 Button("Start again", role: .destructive) { flow.resetProgress() }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("The jar empties and the next game starts at level 1.")
+                Text("The next game starts at level 1.")
             }
         }
     }
