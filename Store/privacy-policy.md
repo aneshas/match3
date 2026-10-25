@@ -2,7 +2,7 @@
 
 _Last updated: 24 October 2026_
 
-**Match 3** (working title) is a game for people with intellectual disabilities, made by Anes Hasicic.
+**Bonbon** is a game for people with intellectual disabilities, made by Anes Hasicic.
 
 ## What the app collects
 

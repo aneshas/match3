@@ -15,7 +15,7 @@
           "locale" : "en_US"
         }
       ],
-      "productID" : "io.anes.match3.unlock",
+      "productID" : "io.anes.bonbon.unlock",
       "referenceName" : "All levels",
       "type" : "NonConsumable"
     }

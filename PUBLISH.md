@@ -6,7 +6,7 @@ legal decisions). "Ask Claude" items are repo changes I can make as soon as you 
 the input. Tick items here as they are done; this file is the single place that tracks
 release readiness.
 
-Working title in the repo is "Match 3"; "Jelly Joy" was the favourite but a jelly-matching game called "Jelly Joy!" (Kyoso Interactive) is already on the App Store, so a different name is needed (step 2; subtitle idea: "Calm match-3, no losing").
+The app is called **Bonbon** (chosen 25 October 2026 after "Jelly Joy", "Jelly Crush" and "Jelly Pop" turned out to be taken or crowded); the subtitle is "Calm match-3 for special needs". The name is applied everywhere in the repo; App Store Connect confirms it for good when the app record is created (step 4).
 
 ## 1. Apple Developer account (you)
 
@@ -19,9 +19,9 @@ Working title in the repo is "Match 3"; "Jelly Joy" was the favourite but a jell
 
 ## 2. Name, identifiers, legal (you, then ask Claude)
 
-- [ ] **Choose the app name** (30 characters max, must be unique on the App Store worldwide). Check availability by trying to create the app record in App Store Connect (step 4); the form rejects taken names. Have two or three candidates. Also pick a **subtitle** (30 characters) such as "Calm match-3, no losing".
-- [ ] **Decide the bundle identifier for good.** It is `io.anes.match3` now. It cannot be changed after the first upload to App Store Connect, so if you want it to carry the final name (for example `io.anes.<name>`), decide now. The StoreKit product id (`io.anes.match3.unlock`) is independent but should also be settled now.
-- [ ] **Ask Claude to apply the name**: display name under the icon (`CFBundleDisplayName`, 12 characters or so before it truncates), product name, scheme, bundle id if changed, product id, StoreKit test file, this checklist, and the repo folder if you want.
+- [x] **Choose the app name**: Bonbon, subtitle "Calm match-3 for special needs". The App Store Connect form (step 4) is the final availability check; keep "Jelly Hug", "Jelly Calm" or "Gummy Joy" as fallbacks in case it rejects the name.
+- [x] **Bundle identifier**: `io.anes.bonbon` (cannot be changed after the first upload to App Store Connect). StoreKit product id: `io.anes.bonbon.unlock`.
+- [x] **Name applied in the repo**: display name under the icon (`CFBundleDisplayName`), product name (`Bonbon.app`), bundle id, product id, StoreKit test file, store texts and privacy policy. The Xcode target, scheme, module and folders keep the working name `Match3` (internal only, nothing the store or the player sees).
 - [ ] **Privacy policy page** (required, public URL, even though the app collects nothing). The text is ready in `Store/privacy-policy.md`; put it on your own site or a GitHub Pages page, add the support email, then give me the URL so the caregiver panel can link to it (`AppLinks.privacyPolicy`).
 - [ ] **Support URL** (required): an email address on a simple page, or the same page as the privacy policy with a contact line.
 - [ ] **Marketing URL** (optional).
@@ -41,8 +41,8 @@ Working title in the repo is "Match 3"; "Jelly Joy" was the favourite but a jell
 
 ## 4. App Store Connect setup (you)
 
-- [ ] **Create the app record**: App Store Connect > Apps > "+" > New App. Platform iOS, name, primary language, bundle id (register it first at <https://developer.apple.com/account/resources/identifiers/list> or let Xcode do it), SKU (any string, e.g. `match3-001`), full access.
-- [ ] **In-app purchase**: Apps > your app > In-App Purchases > "+": type Non-Consumable, reference name "All levels", **product id exactly as in the code** (`io.anes.match3.unlock` unless renamed), price (suggested 9.99 USD tier, the roadmap argues for 7.99–12.99), localized display name "All levels" and description "Every level, forever. No ads, no timers, no losing.", a review screenshot (any screenshot of the caregiver panel's unlock section), **Family Sharing: on** (cannot be turned off again). Submit the IAP with the first app version.
+- [ ] **Create the app record**: App Store Connect > Apps > "+" > New App. Platform iOS, name, primary language, bundle id (register it first at <https://developer.apple.com/account/resources/identifiers/list> or let Xcode do it), SKU (any string, e.g. `bonbon-001`), full access.
+- [ ] **In-app purchase**: Apps > your app > In-App Purchases > "+": type Non-Consumable, reference name "All levels", **product id exactly as in the code** (`io.anes.bonbon.unlock`), price (suggested 9.99 USD tier, the roadmap argues for 7.99–12.99), localized display name "All levels" and description "Every level, forever. No ads, no timers, no losing.", a review screenshot (any screenshot of the caregiver panel's unlock section), **Family Sharing: on** (cannot be turned off again). Submit the IAP with the first app version.
 - [ ] **App information**: subtitle, category Games > Puzzle (secondary: Family or Education), content rights (no third-party content: yes, the assets are licensed), age rating questionnaire (all "None" → 4+).
 - [ ] **Pricing and availability**: Free, all countries (or your pick). Tick "Available for volume purchase" (Apple Business Manager / Apple School Manager) so care homes and schools can buy in bulk. If you want the app discoverable by institutions only via code, use "Custom app" distribution instead (not now).
 - [ ] **Being found**: App Store search ranks the name, subtitle and keyword field (the description is not indexed), then ratings and downloads. The subtitle and keywords in `Store/listing.md` carry the terms caregivers type ("special needs", "autism", "disability", "seniors", "dementia", "kids"). Also fill in the **Accessibility Nutrition Label** on the product page (App Store Connect > App Information > Accessibility): tick Reduced Motion, Sufficient Contrast (high-contrast mode), Larger Text (caregiver panel), and VoiceOver only after the panel has been checked with it. Consider the Kids category only if you accept its rules (no external links without a parental gate, which we have; no third-party analytics or ads, which we have none of); it is a second storefront placement, not a ranking boost, and it puts an "age band" on the listing.
@@ -81,8 +81,6 @@ Working title in the repo is "Match 3"; "Jelly Joy" was the favourite but a jell
 
 ## Open decisions (answer in chat, I update this file)
 
-- Final app name and subtitle.
-- Keep bundle id `io.anes.match3` or rename it with the app.
 - iPad support in version 1, or iPhone-only.
 - Price of the unlock.
 - Source and license of the music and the new sounds.

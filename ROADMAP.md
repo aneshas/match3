@@ -68,7 +68,7 @@ Yes let's go with C
 
 - [x] **Free-level count:** 20 (`AppFlow.freeLevels`) and a lifetime cap of 40 finished levels (`AppFlow.freeCompletions`, `Progress.lifetimeCompleted` survives resets). `MATCH3_FREE_LEVELS=n`, `MATCH3_FREE_COMPLETIONS=n` and `MATCH3_UNLOCKED=1` for testing.
 - [x] **Lock behavior:** after the last free level Good Job plays fully, a soft lock settles where the candy burst, then back to Play, where the button shows a lock and does nothing until a caregiver unlocks all levels or starts again from level 1 (which no longer helps once 40 levels were finished in total). No text.
-- [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.kurrent.match3.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
+- [x] **StoreKit 2 store** `StoreKitUnlockStore`: one non-consumable `io.anes.bonbon.unlock`, restore purchases, Ask to Buy handled. Still to do in App Store Connect: create the product with that ID and turn on Family Sharing. `Match3.storekit` is the local test store (price 9.99 placeholder).
 - [x] **Parental gate** in the caregiver panel before the purchase button: a multiplication question (3–9 × 3–9) in an alert; wrong answers just return to the panel.
 - [x] **Purchase screen** in the caregiver panel: price, what you get, restore button; the privacy policy link appears once `AppLinks.privacyPolicy` is set.
 - [ ] **Tip jar** non-consumables (optional, caregiver panel only).
