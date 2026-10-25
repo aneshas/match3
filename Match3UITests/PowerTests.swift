@@ -25,6 +25,27 @@ final class PowerTests: XCTestCase {
         XCTAssertGreaterThan(powers, 0, "no special candy went off on the demo move; counters: \(counters.label)")
     }
 
+    /// Level 10 is the wrapped-candy lesson: the board is planted so the first swipe earns
+    /// it and the second sets it off. Autoplay follows the lesson, so two swipes in, a
+    /// special must have gone off.
+    func testWrappedLessonOnLevelTen() {
+        let app = XCUIApplication()
+        app.launchEnvironment = ["MATCH3_AUTOSTART": "1", "MATCH3_AUTOPLAY": "1", "MATCH3_LEVEL": "10", "MATCH3_MUTE": "1"]
+        app.launch()
+        let counters = app.staticTexts["debug.counters"]
+        XCTAssertTrue(counters.waitForExistence(timeout: 8))
+        var powers = 0, swipes = 0
+        for _ in 0..<25 {
+            sleep(1)
+            let p = counters.label.split(separator: " ")
+            if let i = p.firstIndex(of: "powers"), let n = Int(p[i + 1]) { powers = n }
+            if let i = p.firstIndex(of: "swipes"), let n = Int(p[i + 1]) { swipes = n }
+            if powers > 0 { break }
+        }
+        XCTAssertGreaterThan(powers, 0, "the lesson did not set a special off; counters: \(counters.label)")
+        XCTAssertTrue((2...3).contains(swipes), "the lesson takes two swipes (a third may just have started); counters: \(counters.label)")
+    }
+
     /// The rainbow candy (planted by MATCH3_POWER_DEMO, found through its accessibility value)
     /// goes off when swiped toward any neighbor, with no match needed.
     func testRainbowGoesOffOnASwipe() {

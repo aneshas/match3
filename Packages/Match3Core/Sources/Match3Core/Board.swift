@@ -145,7 +145,7 @@ public struct Board: Sendable {
         }
     }
 
-    private mutating func recolor(_ p: Position, _ color: TileColor) {
+    mutating func recolor(_ p: Position, _ color: TileColor) {
         cells[p.row][p.col] = Tile(id: cells[p.row][p.col]?.id ?? UUID(), color: color, power: cells[p.row][p.col]?.power ?? .none)
     }
 
@@ -474,7 +474,7 @@ public struct Board: Sendable {
 
     /// A random color that does not create a match at `p` given the current neighbors
     /// (falls back to any color when every color would).
-    private mutating func colorWithoutMatch(at p: Position) -> TileColor {
+    mutating func colorWithoutMatch(at p: Position) -> TileColor {
         var candidates = (0..<colorCount).map(TileColor.init)
         // Fisher-Yates with the seeded generator so results stay reproducible.
         for i in stride(from: candidates.count - 1, to: 0, by: -1) {

@@ -8,7 +8,7 @@ import UIKit
 /// can start above the board (negative row) and fall into place.
 struct TileState: Identifiable, Equatable {
     let id: UUID
-    let color: TileColor
+    var color: TileColor
     var row: Double
     var col: Double
     var scale: Double = 1
@@ -65,6 +65,15 @@ struct BonusPop: Identifiable, Equatable {
     let id = UUID()
     let row: Double
     let col: Double
+}
+
+/// A special-candy lesson in progress: the hand shows `move`, nothing else is accepted.
+struct Lesson: Equatable {
+    enum Step { case spawn, trigger }
+    /// The special being taught; nil for the combo lesson (two planted specials).
+    let kind: PowerKind?
+    var step: Step
+    var move: PlantedMove
 }
 
 /// Runs one level: owns the `Board`, drives the swap/match/fall animation sequence and
@@ -153,6 +162,9 @@ final class GameSession {
     private(set) var hintArrow: DemoSwipe?
     /// The swipe demo currently playing, if any.
     private(set) var demo: DemoSwipe?
+    /// On the level a special first appears, the board is set up so one swipe earns it and
+    /// one more sets it off; the hand shows both and only those swipes count.
+    private(set) var lesson: Lesson?
 
     var onLevelComplete: (() -> Void)?
     /// Fired on the player's first successful swap in this session.
@@ -200,6 +212,14 @@ final class GameSession {
             if let p = spare.first { board.setPower(.rainbow, at: p) }
             if let p = spare.last, p != spare.first { board.setPower(.bomb, at: p) }
         }
+        if !unlockedPowers.isEmpty, !DebugFlags.powerDemo {
+            if let kind = LevelConfig.powerUnlocks.first(where: { $0.value == config.level })?.key,
+               let move = board.plantPowerSpawn(kind) {
+                lesson = Lesson(kind: kind, step: .spawn, move: move)
+            } else if combosEnabled, config.level == LevelConfig.combosFromLevel, let move = board.plantCombo() {
+                lesson = Lesson(kind: nil, step: .trigger, move: move)
+            }
+        }
         rebuildTileStates()
         // Start every tile above the board; `dropIn` lets them fall into place.
         for i in tiles.indices { tiles[i].row -= Double(config.rows + 1) }
@@ -218,7 +238,15 @@ final class GameSession {
         cancelHint()
         cancelDemo()
         phase = .busy  // set synchronously so a second gesture event cannot start another swap
-        Task { await performSwap(position, target) }
+        // During a lesson only the taught swipe counts; anything else slides back.
+        let allowed = lesson.map { $0.move.matches(position, target) } ?? true
+        Task { await performSwap(position, target, forceInvalid: !allowed) }
+    }
+
+    /// The move the hand, the hint and autoplay show: the lesson's, else any valid one.
+    private func nextMove() -> (Position, Position)? {
+        if let lesson { return (lesson.move.from, lesson.move.to) }
+        return board.findAnyMove(combos: combosEnabled)
     }
 
     /// Any touch cancels the hint and restarts its timer.
@@ -252,7 +280,7 @@ final class GameSession {
 
     // MARK: - Sequence
 
-    private func performSwap(_ a: Position, _ b: Position) async {
+    private func performSwap(_ a: Position, _ b: Position, forceInvalid: Bool = false) async {
         let idA = board.tile(at: a)!.id
         let idB = board.tile(at: b)!.id
 
@@ -265,7 +293,7 @@ final class GameSession {
         await sleep(swapDuration)
 
         let effect = board.swapEffect(a, b, combos: combosEnabled)
-        guard effect != .none else {
+        guard effect != .none, !forceInvalid else {
             // Not a match: slide back and wiggle. No sound, no red, just "nope".
             withAnimation(.easeInOut(duration: swapDuration)) {
                 move(idA, to: a)
@@ -306,6 +334,7 @@ final class GameSession {
         default:
             await resolveCascades(swapped: [a, b])
         }
+        await advanceLesson()
 
         if progressPoints >= Double(goal) {
             phase = .complete
@@ -321,6 +350,36 @@ final class GameSession {
             await reshuffle()
         }
         finishTurn()
+    }
+
+    /// After a lesson swipe: once the taught special sits on the board, rearrange its
+    /// neighbors so the next swipe sets it off (the changed candies twinkle); after that
+    /// swipe the lesson is over and the level is an ordinary one.
+    private func advanceLesson() async {
+        guard let current = lesson else { return }
+        switch current.step {
+        case .trigger:
+            lesson = nil
+        case .spawn:
+            guard let kind = current.kind, let at = board.position(ofPower: kind),
+                  let move = board.plantPowerTrigger(at: at) else {
+                lesson = nil
+                return
+            }
+            var changed: [Int] = []
+            for (tile, p) in board.tiles {
+                guard let i = tiles.firstIndex(where: { $0.id == tile.id }), tiles[i].color != tile.color else { continue }
+                tiles[i].color = tile.color
+                changed.append(i)
+            }
+            for i in changed { tiles[i].scale = 0.2 }
+            withAnimation(.spring(response: 0.45 * motionScale, dampingFraction: 0.55)) {
+                for i in changed { tiles[i].scale = 1 }
+            }
+            await sleep(0.5 * motionScale)
+            lesson = Lesson(kind: kind, step: .trigger, move: move)
+            demoShownOnce = false  // show the second swipe right away
+        }
     }
 
     /// What the specials in a clear pay: a quarter step per candy beyond `base`, at least a
@@ -556,12 +615,12 @@ final class GameSession {
     // MARK: - Swipe demo
 
     private func scheduleDemo(after delay: Duration) {
-        guard wantsDemo else { return }
+        guard wantsDemo || lesson != nil else { return }
         demoTask?.cancel()
         demoTask = Task { [weak self] in
             guard let self else { return }
             try? await Task.sleep(for: delay)
-            guard !Task.isCancelled, self.wantsDemo, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
+            guard !Task.isCancelled, self.wantsDemo || self.lesson != nil, self.phase == .idle, let (p, q) = self.nextMove() else { return }
             self.demoShownOnce = true
             self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
             self.demo = DemoSwipe(from: p, to: q)
@@ -582,7 +641,7 @@ final class GameSession {
     private func scheduleAutoPlay() {
         Task { [weak self] in
             try? await Task.sleep(for: .milliseconds(900))
-            guard let self, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
+            guard let self, self.phase == .idle, let (p, q) = self.nextMove() else { return }
             let direction: Direction = q.row > p.row ? .down : q.row < p.row ? .up : q.col > p.col ? .right : .left
             self.swipe(from: p, direction)
         }
@@ -598,7 +657,7 @@ final class GameSession {
             guard let self else { return }
             for level in 1...3 {
                 try? await Task.sleep(for: self.hintDelay)
-                guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.board.findAnyMove(combos: self.combosEnabled) else { return }
+                guard !Task.isCancelled, self.phase == .idle, let (p, q) = self.nextMove() else { return }
                 self.hintIDs = Set([self.board.tile(at: p)?.id, self.board.tile(at: q)?.id].compactMap { $0 })
                 self.hintLevel = level
                 if level == 1 { self.stats.hintsShown += 1 }
