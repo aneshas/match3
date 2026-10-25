@@ -4,7 +4,7 @@ import SwiftUI
 /// around. Nothing else to read or decide.
 struct PlayScreen: View {
     let onPlay: () -> Void
-    /// Hidden caregiver entry: three fingers held for three seconds.
+    /// Hidden caregiver entry: two fingers held on the logo for three seconds.
     var onCaregiverHold: () -> Void = {}
     /// Free levels used up and nothing bought: the button shows a lock and does nothing.
     var locked = false
@@ -38,6 +38,7 @@ struct PlayScreen: View {
                         .resizable()
                         .scaledToFit()
                         .frame(width: logoSize)
+                        .overlay { TwoFingerHold(action: onCaregiverHold) }
                         .rotationEffect(.degrees(logoSpin ? 6 : -6))
                         .shadow(color: Color.black.opacity(0.2), radius: 12, y: 8)
                         .accessibilityIdentifier("logo")
@@ -71,11 +72,6 @@ struct PlayScreen: View {
                 }
                 .position(x: geo.size.width / 2, y: geo.size.height * (landscape ? 0.5 : 0.46))
                 .zIndex(2)  // nothing decorative may ever cover the Play button
-
-                ThreeFingerHold(action: onCaregiverHold)
-                    .ignoresSafeArea()
-                    .zIndex(3)
-
             }
         }
         .onAppear {
@@ -95,8 +91,8 @@ struct PressableButtonStyle: ButtonStyle {
 }
 
 private extension View {
-    /// Debug builds only: the Simulator cannot produce three touches, so holding one finger
-    /// on the logo for three seconds also opens the caregiver panel. Not compiled in Release.
+    /// Debug builds only: a headless Simulator cannot produce two touches, so holding one
+    /// finger on the logo for three seconds also opens the caregiver panel. Not compiled in Release.
     @ViewBuilder
     func debugLogoHold(_ action: @escaping () -> Void) -> some View {
         #if DEBUG

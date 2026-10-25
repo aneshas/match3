@@ -21,7 +21,7 @@ final class SwipeTests: XCTestCase {
     }
 
     func testEveryColumnAcceptsASwipe() {
-        let app = launch(level: 3)  // 4 rows x 5 cols
+        let app = launch(level: 5)  // 4 rows x 5 cols (`LevelConfig.openingSizes`)
         var failures: [String] = []
         for col in 0..<5 {
             let from = app.images["tile.1.\(col)"]

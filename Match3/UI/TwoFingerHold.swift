@@ -2,16 +2,18 @@ import SwiftUI
 #if canImport(UIKit)
 import UIKit
 
-/// Invisible overlay that fires after three fingers are held for `seconds`. A player will
-/// not do this by accident; a caregiver can. Lives only on the Play screen.
-struct ThreeFingerHold: UIViewRepresentable {
+/// Invisible overlay that fires after two fingers are held still for `seconds`. Sits on the
+/// logo of the Play screen: a player will not do this by accident, a caregiver can. (Three
+/// fingers were tried first and did not arrive reliably on a device: iOS claims some
+/// three-finger gestures for itself.)
+struct TwoFingerHold: UIViewRepresentable {
     var seconds: Double = 3
     let action: () -> Void
 
     func makeUIView(context: Context) -> UIView {
         let view = PassthroughView()
         let press = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.fired(_:)))
-        press.numberOfTouchesRequired = 3
+        press.numberOfTouchesRequired = 2
         press.minimumPressDuration = seconds
         press.allowableMovement = 40
         view.addGestureRecognizer(press)
@@ -33,16 +35,16 @@ struct ThreeFingerHold: UIViewRepresentable {
         }
     }
 
-    /// Lets single-finger touches through to the Play button underneath.
+    /// Lets single-finger touches through to whatever is underneath.
     final class PassthroughView: UIView {
         override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
-            guard let touches = event?.allTouches, touches.count >= 3 else { return nil }
+            guard let touches = event?.allTouches, touches.count >= 2 else { return nil }
             return self
         }
     }
 }
 #else
-struct ThreeFingerHold: View {
+struct TwoFingerHold: View {
     var seconds: Double = 3
     let action: () -> Void
     var body: some View { Color.clear }

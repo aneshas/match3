@@ -28,7 +28,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 
 ## 3. Caregiver panel
 
-- [x] **Hidden entry gesture.** Three fingers held 3 s on the Play screen (`ThreeFingerHold`); single-finger touches pass through to Play.
+- [x] **Hidden entry gesture.** Two fingers held 3 s on the logo of the Play screen (`TwoFingerHold`); single-finger touches pass through. Three fingers anywhere was the first version and did not fire reliably on a device.
 - [x] **Panel contents:** sound, vibration, color cap 3–6, start again from level 1 (with confirmation), stats (current level, finished last 7 days, total). Still to add here: purchase.
 - [x] **Session timer.** Caregiver picks 5–60 minutes or no limit. When it runs out the current level finishes, Good Job plays, then `GoodNightScreen` (dimmed light, sleeping candy, twinkling stars, spoken "See you soon!") and back to Play. `MATCH3_SESSION_SECONDS=n` for testing.
 - [x] **Guided Access reminder.** Note in the panel's Tips section.
@@ -58,7 +58,7 @@ Yes let's go with C
 
 - **Free part:** the first 20 levels, or 40 finished levels in total (two full runs; "start again" does not reset that count), whichever comes first. This is the whole "is it right for my sister" test a caregiver needs.
 - **The stop moment:** when the free levels run out, the next Good Job screen ends with a single soft lock icon where the candy burst, no text, and the game returns to the Play screen, whose button now shows a lock. A caregiver unlocks or resets. Nothing looks like losing.
-- **The purchase:** one non-consumable "Unlock all levels" in the caregiver panel only, behind the three-finger hold and a parental gate (e.g. "hold for 3 seconds" or a simple sum). Price around 7.99–12.99; this audience's caregivers are used to paying more for far less polished apps, and a low price signals "disposable". Enable Family Sharing so one buy covers the household.
+- **The purchase:** one non-consumable "Unlock all levels" in the caregiver panel only, behind the two-finger hold and a parental gate (e.g. "hold for 3 seconds" or a simple sum). Price around 7.99–12.99; this audience's caregivers are used to paying more for far less polished apps, and a low price signals "disposable". Enable Family Sharing so one buy covers the household.
 - **Why not ads at all:** besides confusing the player, ad networks require privacy disclosures, consent prompts and age gating that collide with Apple's Kids Category rules if the app is listed there. The removal of ads is the cleanest story in the App Store listing: "No ads. No timers. No losing."
 - **Optional, zero-risk extras:** a "Buy the developer a coffee" tip in the caregiver panel for people who already paid and want to say thanks; a visible note that institutions can buy in volume.
 - **Apple Small Business Program:** enroll (under 1 M USD/year) to pay 15 % instead of 30 %.

@@ -13,7 +13,7 @@ Gummy Joy is a match-3 game made for people with intellectual disabilities, and 
 
 There is nothing to lose. No timers, no move limits, no lives, no ads, and not a single word to read: the game speaks only in candy, sound and a golden star. One gesture: swipe a candy toward its neighbor. Every swipe that matches fills the bar; when it is full the candies celebrate and the next level starts. Boards grow slowly in size, shape and color count, and the game quietly makes the next level easier after a hard one.
 
-For caregivers: hold three fingers on the Play screen for three seconds to open the caregiver panel. There you can turn sound, music and vibration on or off, switch on high contrast, cap the number of candy colors, set a session length that ends the game gently, see how many levels were finished this week, and start again from level 1.
+For caregivers: hold two fingers on the big candy at the top of the Play screen for three seconds to open the caregiver panel. There you can turn sound, music and vibration on or off, switch on high contrast, cap the number of candy colors, set a session length that ends the game gently, see how many levels were finished this week, and start again from level 1.
 
 The first 20 levels are free. One purchase unlocks every level forever, shared with your family group. No subscription.
 
@@ -37,7 +37,7 @@ First release.
 
 This game is designed for players with intellectual disabilities, so it deliberately has no menus, no settings on screen and no text at all outside the caregiver panel: the Play button is an icon, and finishing a level shows a star and the next level's new candy bursting.
 
-- The caregiver panel opens by holding three fingers on the Play screen for about three seconds.
+- The caregiver panel opens by holding two fingers on the logo candy at the top of the Play screen for about three seconds.
 - The in-app purchase "All levels" is inside that panel, behind a parental gate (a multiplication question). The first 20 levels are free (and at most 40 finished levels in total, so the free part cannot be replayed forever by resetting); after that the Play button shows a lock until the purchase.
 - Restore Purchases is in the same panel.
 - There is no account or sign-in. No demo account is needed.

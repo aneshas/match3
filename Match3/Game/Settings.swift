@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// Caregiver-controlled options. Nothing here is reachable from the play path; the panel
-/// that edits them hides behind a three-finger hold on the Play screen.
+/// that edits them hides behind a two-finger hold on the Play screen's logo.
 @MainActor
 @Observable
 final class Settings {

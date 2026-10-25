@@ -100,7 +100,7 @@ struct CaregiverPanel: View {
                 Section("Tips") {
                     Text("To keep the player inside this game, turn on Guided Access in iOS Settings > Accessibility, then triple-click the side button while the game is open.")
                         .font(.footnote)
-                    Text("Open this panel by holding three fingers on the Play screen for three seconds.")
+                    Text("Open this panel by holding two fingers on the big candy at the top of the Play screen for three seconds.")
                         .font(.footnote).foregroundStyle(.secondary)
                 }
             }
