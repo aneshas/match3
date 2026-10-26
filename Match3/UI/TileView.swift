@@ -1,14 +1,15 @@
 import SwiftUI
 import Match3Core
 
-/// One candy. Hinting adds a glow and a slow pulse; wiggling shakes it sideways.
+/// One candy. Hinting pulses it big (no glow: a plain, large pulse reads better than a
+/// halo for this audience); wiggling shakes it sideways.
 struct TileView: View {
     /// Asset name of the candy to draw (palette type in the tile's finish).
     let imageName: String
     let size: CGFloat
     let wiggling: Bool
     let hinting: Bool
-    /// 1 = gentle pulse, 2+ = bright gold glow and a bigger pulse.
+    /// 1 = big pulse, 2+ = an even bigger one.
     var hintStrength: Int = 1
     /// High contrast: a thick dark rim traced around the candy's silhouette.
     var outlined: Bool = false
@@ -24,10 +25,7 @@ struct TileView: View {
         let strong = hinting && hintStrength >= 2
         candy
             .shadow(color: Color.black.opacity(outlined ? 0.3 : 0.18), radius: size * 0.05, y: size * 0.05)
-            .shadow(color: hinting ? (strong ? Theme.gold : Color.white.opacity(0.95)) : .clear,
-                    radius: hinting && hintPulse ? size * (strong ? 0.45 : 0.25) : 0)
-            .shadow(color: strong && hintPulse ? Theme.gold.opacity(0.8) : .clear, radius: size * 0.2)
-            .scaleEffect(hinting && hintPulse ? (strong ? 1.22 : 1.14) : 1)
+            .scaleEffect(hinting && hintPulse ? (strong ? 1.5 : 1.35) : 1)
             .rotationEffect(.degrees(special && shiver ? 4 : (special ? -4 : 0)))
             .scaleEffect(special && shiver ? 1.04 : 1)
             .modifier(WiggleModifier(active: wiggling))
@@ -37,7 +35,7 @@ struct TileView: View {
             }
             .onChange(of: hinting, initial: true) { _, isHinting in
                 if isHinting {
-                    withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) { hintPulse = true }
+                    withAnimation(.easeInOut(duration: 0.38).repeatForever(autoreverses: true)) { hintPulse = true }
                 } else {
                     withAnimation(.easeOut(duration: 0.2)) { hintPulse = false }
                 }

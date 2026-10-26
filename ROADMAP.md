@@ -9,7 +9,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 ## 1. Making it easier to play
 
 - [x] **Teach by doing.** Until the player's first successful swipe ever, a pointing hand (Kenney cursor, CC0) appears right after the board lands, presses on a candy and drags it to the neighbor while both candies pulse; it repeats every 3 s while the player stays idle. No text. `MATCH3_FORGET_SWIPE=1` resets it for testing.
-- [x] **Escalating hint.** The same valid move is pulsed after 8 s, glows gold with a bigger pulse after 16 s, and gets a `HintArrowView` between the two candies after 24 s. Any touch resets it.
+- [x] **Escalating hint.** The same valid move pulses big after 8 s (no glow: a plain large pulse, 1.35x at 0.38 s), bigger still (1.5x) after 16 s, and gets a `HintArrowView` between the two candies after 24 s. Any touch resets it.
 - [x] **Fewer colors for longer.** 3 colors through level 12, 4 through 24, 5 through 40, 6 after; size and shape carry the difficulty first. The caregiver color cap can hold it at 5 if testing shows 6 is too many.
 - [x] **Introduce shapes gently.** Opening levels: 4x4, tall, wide, rounded corners, diamond, triangle, cross, heart; each shape has a minimum board size so it never collapses into a blob.
 - [x] **Quiet adaptive difficulty.** `AssistPolicy` turns per-level stats (invalid swaps, hints, time per match) into an assist level 0–3; each step removes a color and lowers the goal, 2+ also trims a row and column. Smooth levels relax it back. Never shown. `MATCH3_ASSIST=n` forces it for testing.
