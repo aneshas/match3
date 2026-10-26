@@ -65,4 +65,19 @@ cg.restoreGState()
 NSBezierPath(roundedRect: rect, xRadius: 56 * scale, yRadius: 56 * scale).addClip()
 shot.draw(in: rect, from: fromRect, operation: .sourceOver, fraction: 1)
 NSGraphicsContext.restoreGraphicsState()
-try! rep.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: out))
+writeOpaquePNG(rep.cgImage!, to: out)
+
+/// App Store Connect rejects images with an alpha channel, so flatten to RGB before writing.
+func writeOpaquePNG(_ image: CGImage, to path: String) {
+    let w = image.width, h = image.height
+    let ctx = CGContext(data: nil, width: w, height: h, bitsPerComponent: 8, bytesPerRow: 0,
+                        space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                        bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
+    ctx.setFillColor(CGColor(red: 1, green: 1, blue: 1, alpha: 1))
+    ctx.fill(CGRect(x: 0, y: 0, width: w, height: h))
+    ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+    let flat = ctx.makeImage()!
+    let dest = CGImageDestinationCreateWithURL(URL(fileURLWithPath: path) as CFURL, "public.png" as CFString, 1, nil)!
+    CGImageDestinationAddImage(dest, flat, nil)
+    CGImageDestinationFinalize(dest)
+}
