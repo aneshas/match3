@@ -28,7 +28,8 @@ The app is called **Gummy Joy** (chosen 25 October 2026: "Jelly Joy", "Jelly Cru
 - [ ] **Licenses of the assets**, so nothing can trip App Review or a rights claim:
   - Candy icons: Robert Brooks "Match three candy" pack, commercial use allowed, no attribution needed, no redistribution. Fine inside the app; keep the repo private.
   - Hand cursor and the original effect sounds: Kenney, CC0.
-  - **Music loops (17 tracks) and the new effect sounds**: source and license still unknown to the repo. Tell me where they come from so I can add the license text; if any needs attribution, it goes on the privacy/support page and in the App Store description.
+  - **Music loops (17 tracks)**: "Cozy Tunes" by Pizza Doggy on itch.io (<https://pizzadoggy.itch.io/cozy-tunes>), free with an optional donation, tagged royalty free, no attribution required on the page (the author welcomes a credit). The binding terms are the "License Agreement.pdf" inside the download: **drop that PDF into `Match3/Resources/Music/` as `LICENSE-cozy-tunes.pdf`** so the repo carries it, and consider the donation since the app is paid. The preview video uses one loop too.
+  - **The two newer effect sounds** (`striped.caf`, `wrapped.caf`, sources `sounds/*.ogg`): source still unknown to the repo. If they are Pizza Doggy's "Cozy FX" pack, say so and the same note covers them.
   - Code-drawn art and app icon: yours.
 
 ## 3. Devices and testing before the store (you + Claude)
@@ -50,7 +51,7 @@ The app is called **Gummy Joy** (chosen 25 October 2026: "Jelly Joy", "Jelly Cru
 - [ ] **App privacy**: "Data not collected" for every category. Keep it true: no analytics SDK, ever.
 - [ ] **Version information**: description, keywords, promotional text, "What's New", copyright and the URL fields are in `Store/listing.md` (section "Product page fields"); paste them in. The support URL needs a hosted page first (`Store/site/`).
 - [x] **Screenshots** in `Store/screenshots/`, six per size in upload order (Play, swipe, shaped board, Good Job, caregiver panel, high contrast), all PNG without alpha (App Store Connect rejects transparency, which is what the first batch had): `iphone-6.3/` 1206 x 2622 (**required**: at least one for "iPhone with Dynamic Island, medium"), `iphone-6.9/` 1320 x 2868 (large Dynamic Island; optional, falls back to 6.3"), `iphone-duo-outer/` 1398 x 2034 (optional until April 2027, earns the "optimized for iPhone Duo" badge), `ipad-13/` 2064 x 2752 (**required while iPad is supported**). Each is a simulator capture on the app's gradient with a one-line caption (`Tools/compose-screenshot.swift`; captures come from the headless Duo simulator, the only device type the installed runtime has, so the frames are composed rather than full-bleed). The in-app purchase review screenshot is `Store/screenshots/iap-all-levels-1024.png` (1024 x 1024, the panel's "All levels" section with the price). `Store/screenshots/product-page/` holds the landscape **header and search results assets** (`Tools/compose-banner.swift`: universal 16:9 5244 x 2950 PNG for both slots, header 21:9 3840 x 1646, search 3:2 3840 x 2560; text-free, no alpha). Redo them if the panel texts or the price change.
-- [ ] **App preview video**: optional, skip for version 1.
+- [x] **App preview video**: `Store/previews/preview-iphone-886x1920.mp4` (886 x 1920 is the size Apple wants for every current iPhone, so one file serves the 6.3" and 6.9" slots; 28 s, H.264, 30 fps, stereo AAC with the "Cuddle Clouds" loop). Level 1 played through to Good Job, with the caption "Nothing to lose. Nothing to read." Made by `Tools/make-preview.sh`. Poster frame: pick one around 12 s (a full board). No iPad preview (optional).
 - [ ] **App Review information**: contact name, phone, email. Notes for the reviewer are drafted in `Store/listing.md`.
 - [ ] **Sign-in**: not required, say so in the review form.
 - [ ] **Export compliance**: already answered in the build (`ITSAppUsesNonExemptEncryption = false`), so no questions at upload.
@@ -80,6 +81,6 @@ The app is called **Gummy Joy** (chosen 25 October 2026: "Jelly Joy", "Jelly Cru
 
 - iPad support in version 1, or iPhone-only.
 - Price of the unlock.
-- Source and license of the music and the new sounds.
+- Source of the two newer effect sounds (the music is settled: Cozy Tunes, see step 2).
 - Own sounds for the rainbow candy, the bomb and combos (they reuse the striped/wrapped sounds layered with the big-match sound for now).
 - Individual or Organization developer account.

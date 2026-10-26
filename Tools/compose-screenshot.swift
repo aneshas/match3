@@ -57,6 +57,8 @@ let sw = crop.width, sh = crop.height
 let k = min(maxW / sw, maxH / sh)
 let dw = sw * k, dh = sh * k
 let rect = NSRect(x: (W - dw) / 2, y: areaBottom + (maxH - dh) / 2, width: dw, height: dh)
+// Printed for video composition (top-left origin), so a clip can be laid at the same spot.
+print("rect \(Int((W - dw) / 2)) \(Int(H - (areaBottom + (maxH - dh) / 2) - dh)) \(Int(dw)) \(Int(dh)) radius \(Int(56 * scale))")
 cg.saveGState()
 cg.setShadow(offset: CGSize(width: 0, height: -18 * scale), blur: 70 * scale, color: NSColor(red: 0.32, green: 0.13, blue: 0.22, alpha: 0.35).cgColor)
 NSColor.white.setFill()
