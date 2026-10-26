@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: store-screenshot-plan
+expected_outcome: |
+  A plan and commands that produce App Store screenshots at the exact required slot sizes (a 6.3-inch iPhone set at 1206x2622 or 1179x2556 and, since iPad is supported, 2064x2752 or 2048x2732), as PNG without an alpha channel, composed from headless simulator captures with a caption each, with the caveat that App Store Connect rejects transparency.

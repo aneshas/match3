@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: headless-verify-change
+expected_outcome: |
+  Commands that build the app headlessly, install it on a dedicated simulator (not the user's), launch it with the environment flags, take a screenshot series and inspect it, including the uninstall-before-install step and the warning about defaults written with simctl spawn surviving an uninstall.

@@ -46,6 +46,10 @@ on a soft cream-to-pink background.
   `BurstView`, spring falls, reshuffle twirl, level-complete wave, progress shimmer/pulse,
   Good Job sunburst + candy rain, floating candies. All honor Reduce Motion via `Motion`.
 
+## Skill
+
+The whole workflow used to build and ship this app (project layout, headless simulator verification, UI tests, StoreKit, naming, store assets, preview video, publishing) is captured as the project skill `.claude/skills/ios-app-shipping/` so it can be reused for other apps. Its `scripts/` are copies of `Tools/`; when a tool here changes, update the copy.
+
 ## Roadmap
 
 Planned features, asset shopping list and testing plan live in `ROADMAP.md`. Check items off there as they ship. Store texts (privacy policy, description, keywords, review notes) live in `Store/`; `AppLinks` holds the public URLs the caregiver panel links to. Every manual step to reach the App Store (account, name, App Store Connect, screenshots, upload) is tracked in `PUBLISH.md`; keep it current when anything release-related changes (bundle id, product id, assets, licenses).

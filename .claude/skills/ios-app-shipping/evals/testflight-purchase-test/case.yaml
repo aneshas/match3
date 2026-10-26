@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: testflight-purchase-test
+expected_outcome: |
+  An explanation that TestFlight purchases run in the sandbox without charges, the App Store Connect prerequisites (product at Ready to Submit with the exact product id, Paid Apps agreement active), the buy, relaunch, reinstall and restore sequence, how to reset via clearing sandbox purchase history, and that Ask to Buy or Family Sharing needs sandbox tester accounts.
