@@ -24,7 +24,7 @@ Suggested order: sound, first-level swipe demo, adaptive difficulty, caregiver p
 - [x] **Bonus candy.** The level's newcomer sits at the end of the bar with a gold star badge, scores 1.5x when matched, bursts bigger with a gold ring and a rising star, and each match of it spawns one wildcard star on the board (code-drawn gold star, shivers like the specials) that joins a line of any color; only one star at a time. The Good Job reveal (below) is that candy for the next level.
 - [x] **Next-candy reward.** The Good Job screen shows the next level's new candy (the one promised at the end of the progress bar): it zooms in spinning, winds up and bursts into particles of its own color. Replaced the earlier candy jar collection, which was removed after play testing. No rules, no unlocks.
 - [x] **No streaks.** (Checked: nothing in the app depends on dates except the caregiver's finished-levels count.) No daily streaks, no "come back tomorrow", nothing lost on days off. (Design rule; verify nothing added later breaks it.)
-- [x] **Fixed celebration length.** `GoodJobScreen.duration` (5.5 s) is constant; the candy drop fits inside it.
+- [x] **Fixed celebration length.** `GoodJobScreen.duration` (2.3 s; 3.3 s with the lock) is constant and a tap cannot cut it short; the candy reveal fits inside it.
 
 ## 3. Caregiver panel
 

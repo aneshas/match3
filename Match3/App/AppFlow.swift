@@ -143,8 +143,8 @@ final class AppFlow {
         screen = .play
     }
 
-    /// Called when the Good Job screen finishes (timeout or tap). Guarded so a tap and the
-    /// timer firing together cannot skip a level.
+    /// Called when the Good Job screen finishes (its timer; taps do not end it). Guarded so it
+    /// can never advance twice.
     func continueAfterGoodJob() {
         guard !advancing, let finished = session?.config.level else { return }
         advancing = true

@@ -3,7 +3,8 @@ import Match3Core
 
 /// Full-screen celebration between levels: sunburst rays, a bouncing gold star, the next
 /// level's new candy zooming in, spinning and bursting, and candies raining down. No text.
-/// Goes away on its own, or on a tap.
+/// Goes away on its own; taps do nothing, so a player drumming on the screen still sees
+/// the whole reward every time.
 struct GoodJobScreen: View {
     /// The candy the progress bar promised: the one new type of the next level.
     var nextCandy: CandyArt.Preview? = nil
@@ -25,10 +26,10 @@ struct GoodJobScreen: View {
     @State private var candyWound = false
     @State private var burstID: UUID?
 
-    /// Good Job ends right after the candy bursts (a little later when the lock has to
-    /// settle); routine is comforting, waiting is not.
-    static let duration: Duration = .milliseconds(3300)
-    static let durationWithLock: Duration = .milliseconds(4300)
+    /// Good Job ends half a second after the candy bursts (a little later when the lock has
+    /// to settle); routine is comforting, waiting is not.
+    static let duration: Duration = .milliseconds(2300)
+    static let durationWithLock: Duration = .milliseconds(3300)
 
     var body: some View {
         GeometryReader { geo in
@@ -118,8 +119,6 @@ struct GoodJobScreen: View {
                 .frame(width: candySize, height: candySize)
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture { onContinue() }
         .onAppear {
             Haptics.levelDone()
             Task { await showNextCandy() }
@@ -138,10 +137,10 @@ struct GoodJobScreen: View {
     /// The next level's candy zooms in while spinning, winds up faster, then bursts into
     /// particles of its own color. With Reduce Motion it just fades in and out.
     private func showNextCandy() async {
-        try? await Task.sleep(for: .milliseconds(600))
+        try? await Task.sleep(for: .milliseconds(300))
         if Motion.reduceMotion {
             withAnimation(.easeOut(duration: 0.4)) { candyShown = true }
-            try? await Task.sleep(for: .milliseconds(1600))
+            try? await Task.sleep(for: .milliseconds(1100))
             withAnimation(.easeIn(duration: 0.4)) { candyBurst = true }
             if showsLock {
                 try? await Task.sleep(for: .milliseconds(500))
@@ -150,13 +149,13 @@ struct GoodJobScreen: View {
             return
         }
         // Zoom in fast with one turn.
-        withAnimation(.spring(response: 0.45, dampingFraction: 0.55)) { candyShown = true }
-        withAnimation(.easeOut(duration: 0.5)) { candySpin = 360 }
-        try? await Task.sleep(for: .milliseconds(600))
-        // Wind up: four fast turns while swelling, then burst.
-        withAnimation(.easeIn(duration: 1.3)) { candySpin = 360 + 1440 }
-        withAnimation(.easeIn(duration: 1.3)) { candyWound = true }
-        try? await Task.sleep(for: .milliseconds(1300))
+        withAnimation(.spring(response: 0.4, dampingFraction: 0.55)) { candyShown = true }
+        withAnimation(.easeOut(duration: 0.4)) { candySpin = 360 }
+        try? await Task.sleep(for: .milliseconds(500))
+        // Wind up: four fast turns while swelling, then burst (at 1.8 s).
+        withAnimation(.easeIn(duration: 1.0)) { candySpin = 360 + 1440 }
+        withAnimation(.easeIn(duration: 1.0)) { candyWound = true }
+        try? await Task.sleep(for: .milliseconds(1000))
         burstID = UUID()
         SoundPlayer.shared.play(.matchBig, volume: 1)
         Haptics.powerUp()
